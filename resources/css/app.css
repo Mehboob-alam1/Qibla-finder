@@ -1,0 +1,296 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    --font-arabic: 'Amiri', serif;
+
+    --color-ink: #07140f;
+    --color-forest: #0d3b2e;
+    --color-moss: #1a6b4a;
+    --color-gold: #c9a227;
+    --color-gold-soft: #e8d48b;
+    --color-cream: #f6f1e7;
+    --color-sand: #efe6d4;
+    --color-card: #fffcf7;
+}
+
+html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+    --color-ink: #f3eee3;
+    --color-forest: #d7eee3;
+    --color-moss: #7dcaa8;
+    --color-gold: #e0c15a;
+    --color-gold-soft: #ead78a;
+    --color-cream: #08140f;
+    --color-sand: #15241e;
+    --color-card: #10201a;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--color-cream);
+    color: var(--color-ink);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html.dark .bg-forest {
+    background-color: #1e6f52;
+    color: #f6f1e7;
+}
+
+html.dark .pattern-bg,
+html.dark .site-footer {
+    --color-cream: #f6f1e7;
+    --color-ink: #07140f;
+}
+
+html.dark .bg-white,
+html.dark input,
+html.dark select,
+html.dark textarea {
+    background-color: var(--color-card);
+    color: var(--color-ink);
+    border-color: rgba(215, 238, 227, 0.16);
+}
+
+html.dark .hero-copy,
+html.dark .hero-copy .text-cream\/75,
+html.dark [data-status] {
+    color: #f6f1e7;
+}
+
+html.dark .site-footer {
+    background: #050c0a;
+}
+
+html.dark .prose-content p,
+html.dark .prose-content li {
+    color: #c9d9d1;
+}
+
+html.dark .stat-card {
+    border-color: rgba(215, 238, 227, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+html.dark header {
+    background-color: color-mix(in srgb, var(--color-cream) 92%, transparent);
+}
+
+html.dark [data-mobile-panel] {
+    background-color: var(--color-cream);
+}
+
+[data-city-results] {
+    max-height: 20rem;
+    overflow-y: auto;
+}
+
+html.dark .prayer-row.is-current {
+    background: linear-gradient(90deg, #1e6f52, #2d8a66);
+    color: #f6f1e7;
+}
+
+html.dark .leaflet-container {
+    background: #10201a;
+}
+
+html.dark .leaflet-control-zoom a,
+html.dark .leaflet-bar a {
+    background: #10201a;
+    color: #f3eee3;
+    border-color: rgba(215, 238, 227, 0.16);
+}
+
+.font-display {
+    font-family: var(--font-display);
+}
+
+[dir='rtl'] body,
+[dir='rtl'] .font-arabic {
+    font-family: var(--font-arabic), var(--font-sans);
+}
+
+.pattern-bg {
+    background-color: #07140f;
+    background-image:
+        radial-gradient(ellipse at top, rgba(201, 162, 39, 0.18), transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(26, 107, 74, 0.35), transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L32 28L60 30L32 32L30 60L28 32L0 30L28 28Z' fill='%23c9a227' fill-opacity='0.06'/%3E%3C/svg%3E");
+}
+
+.gold-border {
+    border: 1px solid rgba(201, 162, 39, 0.35);
+}
+
+.compass-shell {
+    position: relative;
+    width: min(92vw, 440px);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #07140f;
+    box-shadow:
+        0 0 0 2px #ead78a,
+        0 0 0 11px #c9a227,
+        0 0 0 15px #3d3010,
+        0 32px 60px rgba(0, 0, 0, 0.45);
+}
+
+.compass-bezel,
+.compass-rose {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.compass-rose {
+    transform-origin: 50% 50%;
+    transform-box: fill-box;
+    transition: transform 80ms linear;
+    will-change: transform;
+    pointer-events: none;
+}
+
+.compass-hub {
+    position: absolute;
+    inset: 34%;
+    z-index: 8;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    pointer-events: none;
+    color: #f6f1e7;
+}
+
+.compass-hub-place {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(232, 212, 139, 0.75);
+    max-width: 9rem;
+    margin-inline: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.compass-hub-heading {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    line-height: 1;
+    margin-top: 0.15rem;
+}
+
+.compass-hub-qibla {
+    margin-top: 0.2rem;
+    font-size: 11px;
+    color: #e8d48b;
+}
+
+.compass-permission {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    text-align: center;
+    padding: 18%;
+    background: rgba(6, 16, 12, 0.78);
+    backdrop-filter: blur(6px);
+}
+
+.compass-permission.hidden {
+    display: none;
+}
+
+.aligned .compass-shell {
+    box-shadow:
+        0 0 0 2px #ead78a,
+        0 0 0 11px #c9a227,
+        0 0 0 15px #3d3010,
+        0 0 40px rgba(201, 162, 39, 0.65);
+}
+
+.stat-card {
+    background: var(--color-card);
+    border: 1px solid rgba(13, 59, 46, 0.08);
+    box-shadow: 0 10px 30px rgba(7, 20, 15, 0.06);
+}
+
+.prayer-row.is-current {
+    background: linear-gradient(90deg, #0d3b2e, #1a6b4a);
+    color: #fff;
+}
+
+.prayer-row.is-next {
+    outline: 2px solid var(--color-gold);
+}
+
+#qibla-map {
+    height: 360px;
+    width: 100%;
+    border-radius: 1.5rem;
+    overflow: hidden;
+}
+
+.admin-shell {
+    min-height: 100vh;
+    background: #f4efe4;
+}
+
+.prose-content h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    margin-top: 1.6rem;
+    margin-bottom: 0.6rem;
+}
+
+.prose-content p,
+.prose-content li {
+    color: #2b3a34;
+    line-height: 1.8;
+}
+
+.prose-content ul {
+    list-style: disc;
+    padding-inline-start: 1.2rem;
+    margin: 0.8rem 0;
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    background: var(--color-gold);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.is-active::after {
+    transform: scaleX(1);
+}
