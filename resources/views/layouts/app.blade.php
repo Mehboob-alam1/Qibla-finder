@@ -33,7 +33,7 @@
             gtag('config', @json($siteSettings['ga_id']));
         </script>
     @endif
-    @if (\App\Support\SiteSettings::adsenseEnabled())
+    @if (\App\Support\SiteSettings::adsenseEnabled() && ! \App\Support\SiteSettings::adsensePreview())
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ \App\Support\SiteSettings::adsenseClient() }}" crossorigin="anonymous"></script>
     @endif
 </head>
@@ -123,8 +123,8 @@
         </div>
     </footer>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    @if (\App\Support\SiteSettings::adsenseEnabled() && \App\Support\SiteSettings::adsenseSlot('banner') !== '' && ! request()->routeIs('home'))
-        <div class="ad-interstitial is-hidden" data-ad-interstitial data-hours="12" hidden>
+    @if (\App\Support\SiteSettings::adsenseVisible() && (\App\Support\SiteSettings::adsensePreview() || \App\Support\SiteSettings::adsenseSlot('banner') !== '') && ! request()->routeIs('home'))
+        <div class="ad-interstitial is-hidden" data-ad-interstitial data-hours="12" @if (\App\Support\SiteSettings::adsensePreview()) data-preview="1" @endif hidden>
             <div class="ad-interstitial__panel" role="dialog" aria-modal="true" aria-label="{{ __('ui.Advertisement') }}">
                 <p class="ad-unit__label">{{ __('ui.Advertisement') }}</p>
                 @include('partials.ad', ['type' => 'interstitial'])

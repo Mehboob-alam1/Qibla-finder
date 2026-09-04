@@ -48,6 +48,34 @@ class SiteSettings
         return (string) static::get('tagline', 'Face the Kaaba with certainty.');
     }
 
+    public static function adsensePreview(): bool
+    {
+        if (app()->runningInConsole() && ! app()->runningUnitTests()) {
+            return false;
+        }
+
+        try {
+            $request = request();
+        } catch (Throwable) {
+            return false;
+        }
+
+        if ($request->has('ads_preview')) {
+            return $request->boolean('ads_preview');
+        }
+
+        if ($request->cookie('qf_ads_preview') === '1') {
+            return true;
+        }
+
+        return filter_var(static::get('adsense_preview', '0'), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public static function adsenseVisible(): bool
+    {
+        return static::adsensePreview() || static::adsenseEnabled();
+    }
+
     public static function adsenseEnabled(): bool
     {
         if (! filter_var(static::get('adsense_enabled', '0'), FILTER_VALIDATE_BOOLEAN)) {

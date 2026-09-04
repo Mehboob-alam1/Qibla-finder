@@ -40,6 +40,10 @@
             <input type="checkbox" name="adsense_enabled" value="1" @checked(old('adsense_enabled', $settings['adsense_enabled'] ?? '') == '1')>
             Enable ads on the public site
         </label>
+        <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="adsense_preview" value="1" @checked(old('adsense_preview', $settings['adsense_preview'] ?? '') == '1')>
+            Preview placements with fake ads (no Google ads, good for testing)
+        </label>
         <label class="text-sm block">Publisher ID (ca-pub-…)
             <input name="adsense_client" value="{{ old('adsense_client', $settings['adsense_client'] ?? '') }}" placeholder="ca-pub-0000000000000000" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
         </label>

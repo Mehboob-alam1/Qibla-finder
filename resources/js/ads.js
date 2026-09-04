@@ -21,7 +21,15 @@ function interstitialKey() {
 }
 
 function shouldShowInterstitial(root) {
-    if (! root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (! root) {
+        return false;
+    }
+
+    if (root.dataset.preview === '1') {
+        return true;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return false;
     }
 

@@ -21,6 +21,14 @@ class AppServiceProvider extends ServiceProvider
     {
         EnsureDatabase::bootstrap();
 
+        if (! app()->runningInConsole() && request()->has('ads_preview')) {
+            cookie()->queue(
+                request()->boolean('ads_preview')
+                    ? cookie('qf_ads_preview', '1', 120)
+                    : cookie()->forget('qf_ads_preview'),
+            );
+        }
+
         View::composer('*', function ($view) {
             $locale = app()->getLocale();
             $locales = config('qibla.locales');
