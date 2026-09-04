@@ -67,9 +67,21 @@ Change this password before any public deploy.
 
 ## Deploy on Hostinger
 
-Hostinger Git **does not run** `composer` or `npm`. This repo is set up so you can connect GitHub in hPanel and then finish one SSH (or hPanel terminal) command.
+Laravel 13 needs **PHP 8.3 or newer**. Hostinger Git often runs `composer` with the plan’s default CLI PHP (commonly 8.2), which is why deploy logs show:
 
-### 1. Connect the GitHub repo (required — in your Hostinger account)
+`Your lock file does not contain a compatible set of packages`
+
+### 0. Set PHP 8.3+ first (required)
+
+In hPanel, before deploying:
+
+1. **Websites** → your site → **Dashboard** → **Advanced** → **PHP Configuration**
+2. Choose **PHP 8.3** or **8.4** and save
+3. If there is a **PHP version** dropdown on the Git page, set that to **8.3+** too
+
+Website PHP and Git/SSH PHP are separate on Hostinger. Changing only the website version does not always change the Composer CLI.
+
+### 1. Connect the GitHub repo
 
 1. Open [hPanel](https://hpanel.hostinger.com) → **Websites** → your site → **Dashboard**
 2. Sidebar: **Advanced** → **Git**
@@ -83,15 +95,12 @@ Hostinger Git **does not run** `composer` or `npm`. This repo is set up so you c
 
 Every later push to `main` auto-deploys.
 
-### 2. PHP and database
+### 2. Database and `.env`
 
-In hPanel:
-
-- Set **PHP** to **8.3** or newer
 - Create a **MySQL** database and user
 - Copy `.env.hostinger.example` to `.env` on the server (File Manager) and fill `APP_URL`, `APP_KEY` (or generate it in the next step), and the MySQL details
 
-### 3. Install Laravel on the server
+### 3. Finish Laravel on the server
 
 SSH (Advanced → **SSH Access**, often port **65002**):
 
@@ -99,6 +108,12 @@ SSH (Advanced → **SSH Access**, often port **65002**):
 cd ~/domains/YOUR-DOMAIN/public_html
 # or: cd ~/public_html
 bash scripts/hostinger-setup.sh
+```
+
+If `php -v` is still older than 8.3:
+
+```bash
+/opt/alt/php83/usr/bin/php /usr/local/bin/composer2 install --no-dev --optimize-autoloader --no-interaction
 ```
 
 The site is served from `public/` via the root `.htaccess` (normal Hostinger `public_html` document root).
