@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use App\Models\Post;
+use App\Support\PublicUrl;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Response;
 use Throwable;
@@ -12,6 +13,8 @@ class SitemapController extends Controller
 {
     public function xml(): Response
     {
+        PublicUrl::apply();
+
         $urls = [
             $this->entry(route('home'), now(), 'daily', '1.0'),
             $this->entry(route('prayer-times'), now(), 'daily', '0.9'),
@@ -61,6 +64,8 @@ class SitemapController extends Controller
 
     public function robots(): Response
     {
+        PublicUrl::apply();
+
         $lines = [
             'User-agent: *',
             'Allow: /',

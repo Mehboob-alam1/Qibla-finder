@@ -54,6 +54,18 @@ class ExampleTest extends TestCase
             ->assertSee('Sitemap:', false)
             ->assertSee('/sitemap.xml', false);
 
+        config(['app.url' => 'http://localhost']);
+
+        $this->get('https://qiblafinders.io/sitemap.xml')
+            ->assertOk()
+            ->assertSee('<loc>https://qiblafinders.io</loc>', false)
+            ->assertSee('<loc>https://qiblafinders.io/prayer-times</loc>', false)
+            ->assertDontSee('http://localhost', false);
+
+        $this->get('https://qiblafinders.io/robots.txt')
+            ->assertOk()
+            ->assertSee('Sitemap: https://qiblafinders.io/sitemap.xml', false);
+
         $this->assertFileExists(public_path('sitemap.php'));
         $this->assertFileExists(public_path('robots.php'));
     }

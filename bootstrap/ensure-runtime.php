@@ -76,13 +76,16 @@ if ($createdEnv || $needsKey || $notInstalled) {
         $contents = $set($contents, 'DB_CONNECTION', 'sqlite');
         $contents = $set($contents, 'DB_DATABASE', $sqlite);
     }
+}
 
-    $host = $_SERVER['HTTP_HOST'] ?? '';
-    if ($host !== '' && (str_contains($contents, 'YOUR-DOMAIN.com') || preg_match('/^APP_URL=\s*$/m', $contents) === 1)) {
-        $https = ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-        $scheme = $https || (! empty($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443) ? 'https' : 'http';
-        $contents = $set($contents, 'APP_URL', $scheme.'://'.$host);
-    }
+$host = strtolower(trim((string) ($_SERVER['HTTP_HOST'] ?? '')));
+$host = preg_replace('/:\d+$/', '', $host) ?? '';
+$placeholderUrl = str_contains($contents, 'YOUR-DOMAIN.com')
+    || preg_match('/^APP_URL=\s*$/m', $contents) === 1
+    || preg_match('/^APP_URL=https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?\s*$/m', $contents) === 1;
+
+if ($host !== '' && ! in_array($host, ['localhost', '127.0.0.1'], true) && $placeholderUrl) {
+    $contents = $set($contents, 'APP_URL', 'https://'.$host);
 }
 
 if ($contents !== $original) {
