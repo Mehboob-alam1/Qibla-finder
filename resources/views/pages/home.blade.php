@@ -132,18 +132,18 @@
             </div>
 
             <div data-settings-modal class="hidden fixed inset-0 z-50 bg-black/60 grid place-items-center p-4">
-                <div class="bg-cream text-ink rounded-3xl p-6 w-full max-w-md space-y-4">
+                <div class="theme-panel rounded-3xl p-6 w-full max-w-md space-y-4 shadow-xl">
                     <div class="flex justify-between items-center">
                         <h3 class="font-display text-3xl">{{ __('ui.Settings') }}</h3>
                         <button data-settings-close type="button" class="text-2xl">×</button>
                     </div>
-                    <label class="flex items-center justify-between gap-4"><span>{{ __('ui.Vibration') }}</span><input data-toggle-vib type="checkbox" class="h-5 w-5"></label>
-                    <label class="flex items-center justify-between gap-4"><span>{{ __('ui.Audio') }}</span><input data-toggle-audio type="checkbox" class="h-5 w-5"></label>
+                    <label class="flex items-center justify-between gap-4"><span>{{ __('ui.Vibration') }}</span><input data-toggle-vib type="checkbox" class="h-5 w-5 accent-gold"></label>
+                    <label class="flex items-center justify-between gap-4"><span>{{ __('ui.Audio') }}</span><input data-toggle-audio type="checkbox" class="h-5 w-5 accent-gold"></label>
                     <label class="block text-sm">{{ __('ui.Update Interval') }}
-                        <input data-interval-input type="number" min="5" max="3600" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
+                        <input data-interval-input type="number" min="5" max="3600" class="field mt-1 w-full rounded-2xl border px-4 py-2.5">
                     </label>
                     <label class="block text-sm">{{ __('ui.Display Mode') }}
-                        <select data-mode-select class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5 bg-white cursor-pointer">
+                        <select data-mode-select class="field mt-1 w-full rounded-2xl border px-4 py-2.5 cursor-pointer">
                             <option value="compass">{{ __('ui.Compass') }}</option>
                             <option value="arrow">{{ __('ui.Arrow') }}</option>
                         </select>
@@ -153,7 +153,7 @@
             </div>
 
             <div data-calibrate-modal class="hidden fixed inset-0 z-50 bg-black/60 grid place-items-center p-4">
-                <div class="bg-cream text-ink rounded-3xl p-6 w-full max-w-md">
+                <div class="theme-panel rounded-3xl p-6 w-full max-w-md shadow-xl">
                     <h3 class="font-display text-3xl mb-3">{{ __('ui.calibrate_title') }}</h3>
                     <ol class="list-decimal ps-5 space-y-2 text-forest/80">
                         <li>{{ __('ui.calibrate_1') }}</li>

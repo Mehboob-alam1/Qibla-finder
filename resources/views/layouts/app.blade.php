@@ -15,6 +15,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="@yield('title', $siteSettings['meta_title'] ?? $siteName)">
     <meta name="twitter:description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />

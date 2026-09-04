@@ -38,6 +38,26 @@ class ExampleTest extends TestCase
             ->assertSee('Motion &amp; Orientation Access', false);
     }
 
+    public function test_sitemap_and_robots_are_ready_for_search_console(): void
+    {
+        $this->get('/sitemap.xml')
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->assertSee('http://www.sitemaps.org/schemas/sitemap/0.9', false)
+            ->assertSee('/prayer-times', false)
+            ->assertSee('/faq', false)
+            ->assertSee('/guides', false)
+            ->assertSee('/contact', false);
+
+        $this->get('/robots.txt')
+            ->assertOk()
+            ->assertSee('Sitemap:', false)
+            ->assertSee('/sitemap.xml', false);
+
+        $this->assertFileExists(public_path('sitemap.php'));
+        $this->assertFileExists(public_path('robots.php'));
+    }
+
     public function test_custom_head_and_footer_html_render(): void
     {
         SiteSettings::put([

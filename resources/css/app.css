@@ -58,12 +58,36 @@ html.dark .site-footer {
 }
 
 html.dark .bg-white,
-html.dark input,
+html.dark input:not([type='checkbox']):not([type='radio']),
 html.dark select,
 html.dark textarea {
     background-color: var(--color-card);
     color: var(--color-ink);
-    border-color: rgba(215, 238, 227, 0.16);
+    border-color: color-mix(in srgb, var(--color-forest) 22%, transparent);
+}
+
+.field,
+.field option {
+    background-color: var(--color-card);
+    color: var(--color-ink);
+    border-color: color-mix(in srgb, var(--color-forest) 22%, transparent);
+    color-scheme: inherit;
+}
+
+.theme-panel {
+    background: var(--color-card);
+    color: var(--color-ink);
+}
+
+html.dark .pattern-bg .theme-panel {
+    --color-ink: #f3eee3;
+    --color-forest: #d7eee3;
+    --color-moss: #7dcaa8;
+    --color-gold: #e0c15a;
+    --color-cream: #08140f;
+    --color-sand: #15241e;
+    --color-card: #1a2f28;
+    color-scheme: dark;
 }
 
 html.dark .hero-copy,

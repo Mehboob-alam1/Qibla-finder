@@ -8,6 +8,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Hostinger serves missing .xml/.txt as static 404s. Send them to PHP first.
+    RewriteRule ^sitemap\.xml$ /public/sitemap.php [L]
+    RewriteRule ^robots\.txt$ /public/robots.php [L]
+
     RewriteRule ^(?:\.git|app|bootstrap|config|database|resources|routes|storage|vendor|tests|lang|node_modules)(?:/|$) - [F,L]
     RewriteRule ^(?:\.env|artisan|composer\.(json|lock)|package(-lock)?\.json)$ - [F,L]
 

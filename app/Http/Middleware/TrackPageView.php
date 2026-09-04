@@ -13,7 +13,7 @@ class TrackPageView
     {
         $response = $next($request);
 
-        if ($request->isMethod('GET') && ! $request->is('admin*') && ! $request->ajax()) {
+        if ($request->isMethod('GET') && ! $request->is('admin*', 'sitemap.xml', 'robots.txt', 'qibla.json', 'places/search', 'up') && ! $request->ajax()) {
             try {
                 PageView::query()->create([
                     'path' => '/'.ltrim($request->path(), '/'),

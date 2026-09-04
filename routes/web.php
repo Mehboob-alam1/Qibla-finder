@@ -15,9 +15,12 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlaceSearchController;
 use App\Http\Controllers\PrayerTimesController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/sitemap.xml', [SitemapController::class, 'xml'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('/qibla.json', [HomeController::class, 'qibla'])->name('qibla.json');
 Route::get('/places/search', [PlaceSearchController::class, 'search'])
     ->middleware('throttle:30,1')

@@ -63,6 +63,10 @@
             <input name="google_site_verification" value="{{ old('google_site_verification', $settings['google_site_verification'] ?? '') }}" placeholder="jtIemhVXRpmISnRTllfMePhuh4tKciCLrzFRDSVF6wc" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5 font-mono text-sm">
             <span class="block mt-1 text-forest/50">Paste the content value, or the whole <code>&lt;meta name="google-site-verification" …&gt;</code> tag.</span>
         </label>
+        <p class="text-sm text-forest/70">Search Console sitemap<br>
+            <a href="{{ url('/sitemap.xml') }}" class="font-mono text-gold break-all" target="_blank" rel="noopener">{{ url('/sitemap.xml') }}</a>
+            <span class="block mt-1 text-forest/50">In Google Search Console, open Sitemaps and submit that URL.</span>
+        </p>
         <label class="text-sm block">Header HTML
             <textarea name="head_html" rows="6" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5 font-mono text-sm" placeholder="&lt;meta name=&quot;msvalidate.01&quot; content=&quot;…&quot;&gt;">{{ old('head_html', $settings['head_html'] ?? '') }}</textarea>
         </label>
@@ -82,10 +86,10 @@
             Enable Audio Feedback
         </label>
         <label class="text-sm block">Update Interval (seconds)
-            <input type="number" name="qibla_update_interval" min="5" max="3600" value="{{ old('qibla_update_interval', $settings['qibla_update_interval'] ?? '300') }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
+            <input type="number" name="qibla_update_interval" min="5" max="3600" value="{{ old('qibla_update_interval', $settings['qibla_update_interval'] ?? '300') }}" class="field mt-1 w-full rounded-2xl border px-4 py-2.5">
         </label>
         <label class="text-sm block">Display Mode
-            <select name="qibla_display_mode" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
+            <select name="qibla_display_mode" class="field mt-1 w-full rounded-2xl border px-4 py-2.5 cursor-pointer">
                 <option value="compass" @selected(old('qibla_display_mode', $settings['qibla_display_mode'] ?? 'compass') === 'compass')>Compass</option>
                 <option value="arrow" @selected(old('qibla_display_mode', $settings['qibla_display_mode'] ?? 'compass') === 'arrow')>Arrow</option>
             </select>
