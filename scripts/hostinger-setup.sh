@@ -51,5 +51,6 @@ fi
 "$PHP_BIN" artisan view:cache
 
 chmod -R ug+rwx storage bootstrap/cache || true
+touch storage/framework/installed || true
 
 echo "Hostinger setup finished. Visit your domain and log in at /admin/login"

@@ -13,8 +13,15 @@ class HomeController extends Controller
 {
     public function index(Request $request, QiblaService $qibla): View
     {
-        $faqs = Faq::query()->published()->forLocale()->orderBy('sort_order')->limit(6)->get();
-        $posts = Post::query()->published()->forLocale()->latest('published_at')->limit(3)->get();
+        $faqs = collect();
+        $posts = collect();
+
+        try {
+            $faqs = Faq::query()->published()->forLocale()->orderBy('sort_order')->limit(6)->get();
+            $posts = Post::query()->published()->forLocale()->latest('published_at')->limit(3)->get();
+        } catch (\Throwable) {
+            // CMS tables are optional until migrations have been run.
+        }
 
         return view('pages.home', [
             'faqs' => $faqs,

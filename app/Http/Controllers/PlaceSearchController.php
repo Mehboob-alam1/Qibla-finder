@@ -30,11 +30,17 @@ class PlaceSearchController extends Controller
             ))
             ->values();
 
-        $remote = Cache::remember(
-            'places:v1:'.md5($needle.'|'.app()->getLocale()),
-            now()->addHours(12),
-            fn (): array => $this->searchNominatim($query),
-        );
+        $remote = [];
+
+        try {
+            $remote = Cache::remember(
+                'places:v1:'.md5($needle.'|'.app()->getLocale()),
+                now()->addHours(12),
+                fn (): array => $this->searchNominatim($query),
+            );
+        } catch (Throwable) {
+            $remote = $this->searchNominatim($query);
+        }
 
         $places = $local
             ->concat($remote)

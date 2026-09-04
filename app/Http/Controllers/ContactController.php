@@ -26,7 +26,11 @@ class ContactController extends Controller
             'message' => ['required', 'string', 'max:5000'],
         ]);
 
-        ContactMessage::query()->create($data);
+        try {
+            ContactMessage::query()->create($data);
+        } catch (\Throwable) {
+            return back()->withErrors(['message' => __('Unable to save your message right now. Please try again later.')]);
+        }
 
         return back()->with('status', __('Thank you. Your message has been received.'));
     }

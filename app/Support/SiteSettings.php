@@ -5,18 +5,23 @@ namespace App\Support;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 class SiteSettings
 {
     public static function all(): array
     {
-        if (! Schema::hasTable('settings')) {
+        try {
+            if (! Schema::hasTable('settings')) {
+                return [];
+            }
+
+            return Cache::remember('site_settings', 60, function () {
+                return Setting::query()->pluck('value', 'key')->all();
+            });
+        } catch (Throwable) {
             return [];
         }
-
-        return Cache::remember('site_settings', 60, function () {
-            return Setting::query()->pluck('value', 'key')->all();
-        });
     }
 
     public static function get(string $key, mixed $default = null): mixed

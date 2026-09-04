@@ -7,6 +7,7 @@ use App\Support\SiteSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,8 +23,12 @@ class AppServiceProvider extends ServiceProvider
             $locales = config('qibla.locales');
             $footerPages = collect();
 
-            if (Schema::hasTable('pages')) {
-                $footerPages = Page::query()->published()->forLocale()->orderBy('sort_order')->get(['title', 'slug']);
+            try {
+                if (Schema::hasTable('pages')) {
+                    $footerPages = Page::query()->published()->forLocale()->orderBy('sort_order')->get(['title', 'slug']);
+                }
+            } catch (Throwable) {
+                $footerPages = collect();
             }
 
             $view->with([
