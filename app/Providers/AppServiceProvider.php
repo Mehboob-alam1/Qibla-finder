@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Page;
+use App\Support\EnsureDatabase;
 use App\Support\SiteSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -18,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        EnsureDatabase::bootstrap();
+
         View::composer('*', function ($view) {
             $locale = app()->getLocale();
             $locales = config('qibla.locales');

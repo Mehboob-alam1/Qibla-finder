@@ -7,6 +7,7 @@
 $root = dirname(__DIR__);
 
 $directories = [
+    $root.'/database',
     $root.'/bootstrap/cache',
     $root.'/storage/app/public',
     $root.'/storage/framework/cache/data',
@@ -62,6 +63,19 @@ if ($createdEnv || $needsKey || $notInstalled) {
     $contents = $set($contents, 'SESSION_DRIVER', 'file');
     $contents = $set($contents, 'CACHE_STORE', 'file');
     $contents = $set($contents, 'QUEUE_CONNECTION', 'sync');
+
+    preg_match('/^DB_DATABASE=(.*)$/m', $contents, $databaseMatch);
+    $databaseName = trim($databaseMatch[1] ?? '', " \t\"'");
+    $mysqlNotConfigured = in_array($databaseName, ['', 'your_database_name', 'laravel'], true);
+
+    if ($mysqlNotConfigured) {
+        $sqlite = $root.'/database/database.sqlite';
+        if (! is_file($sqlite)) {
+            @touch($sqlite);
+        }
+        $contents = $set($contents, 'DB_CONNECTION', 'sqlite');
+        $contents = $set($contents, 'DB_DATABASE', $sqlite);
+    }
 
     $host = $_SERVER['HTTP_HOST'] ?? '';
     if ($host !== '' && (str_contains($contents, 'YOUR-DOMAIN.com') || preg_match('/^APP_URL=\s*$/m', $contents) === 1)) {

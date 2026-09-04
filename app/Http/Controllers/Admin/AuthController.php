@@ -7,13 +7,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Throwable;
 
 class AuthController extends Controller
 {
     public function create(): View|RedirectResponse
     {
-        if (Auth::check() && Auth::user()->is_admin) {
-            return redirect()->route('admin.dashboard');
+        try {
+            if (Auth::check() && Auth::user()?->is_admin) {
+                return redirect()->route('admin.dashboard');
+            }
+        } catch (Throwable) {
+            // Continue to the login form if the database is still starting.
         }
 
         return view('admin.auth.login');
@@ -26,13 +31,19 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()->withErrors(['email' => 'These credentials do not match our records.'])->onlyInput('email');
+        try {
+            if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+                return back()->withErrors(['email' => 'These credentials do not match our records.'])->onlyInput('email');
+            }
+        } catch (Throwable) {
+            return back()->withErrors([
+                'email' => 'The database is not ready yet. Refresh this page and try again in a few seconds.',
+            ])->onlyInput('email');
         }
 
         $request->session()->regenerate();
 
-        if (! Auth::user()->is_admin) {
+        if (! Auth::user()?->is_admin) {
             Auth::logout();
 
             return back()->withErrors(['email' => 'Administrator access is required.']);
