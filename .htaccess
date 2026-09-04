@@ -1,0 +1,16 @@
+# Hostinger: serve Laravel from public_html (Git auto-deploy)
+<IfModule mod_authz_core.c>
+    <FilesMatch "(^\.env|composer\.(json|lock)|package(-lock)?\.json|^artisan$)">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^(?:\.git|app|bootstrap|config|database|resources|routes|storage|vendor|tests|lang|node_modules)(?:/|$) - [F,L]
+    RewriteRule ^(?:\.env|artisan|composer\.(json|lock)|package(-lock)?\.json)$ - [F,L]
+
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ /public/$1 [L]
+</IfModule>

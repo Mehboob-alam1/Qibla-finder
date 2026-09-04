@@ -65,6 +65,52 @@ Change this password before any public deploy.
 - Run `npm run build` and serve the `public/` directory
 - Do not commit `.env`
 
+## Deploy on Hostinger
+
+Hostinger Git **does not run** `composer` or `npm`. This repo is set up so you can connect GitHub in hPanel and then finish one SSH (or hPanel terminal) command.
+
+### 1. Connect the GitHub repo (required — in your Hostinger account)
+
+1. Open [hPanel](https://hpanel.hostinger.com) → **Websites** → your site → **Dashboard**
+2. Sidebar: **Advanced** → **Git**
+3. Click **Connect with GitHub** (or **Continue with GitHub**)
+4. Authorize the Hostinger GitHub App and grant access to **`Mehboob-alam1/Qibla-finder`**
+5. Choose:
+   - **Repository:** `Mehboob-alam1/Qibla-finder`
+   - **Branch:** `main`
+   - **Deploy directory:** `public_html` (empty this folder first if Git refuses a non-empty directory)
+6. Click **Deploy**
+
+Every later push to `main` auto-deploys.
+
+### 2. PHP and database
+
+In hPanel:
+
+- Set **PHP** to **8.3** or newer
+- Create a **MySQL** database and user
+- Copy `.env.hostinger.example` to `.env` on the server (File Manager) and fill `APP_URL`, `APP_KEY` (or generate it in the next step), and the MySQL details
+
+### 3. Install Laravel on the server
+
+SSH (Advanced → **SSH Access**, often port **65002**):
+
+```bash
+cd ~/domains/YOUR-DOMAIN/public_html
+# or: cd ~/public_html
+bash scripts/hostinger-setup.sh
+```
+
+The site is served from `public/` via the root `.htaccess` (normal Hostinger `public_html` document root).
+
+### 4. Admin
+
+Change the seeded password immediately:
+
+- URL: `https://YOUR-DOMAIN/admin/login`
+- Email: `admin@qiblafinder.test`
+- Password: `password`
+
 ## License
 
 MIT
