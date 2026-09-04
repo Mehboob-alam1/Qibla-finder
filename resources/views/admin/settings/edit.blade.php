@@ -70,6 +70,27 @@
             <textarea name="footer_html" rows="6" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5 font-mono text-sm" placeholder="&lt;script&gt;…&lt;/script&gt;">{{ old('footer_html', $settings['footer_html'] ?? '') }}</textarea>
         </label>
     </fieldset>
+    <fieldset class="md:col-span-2 rounded-3xl border border-forest/10 p-5 space-y-4">
+        <legend class="font-display text-2xl text-forest px-2">Compass defaults</legend>
+        <p class="text-sm text-forest/60">These are the starting options for new visitors. Anyone can still change them in the on-page compass Settings. Location refresh uses the update interval instead of a constant GPS watch, which is gentler on battery.</p>
+        <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="qibla_vibration" value="1" @checked(old('qibla_vibration', $settings['qibla_vibration'] ?? '1') == '1')>
+            Enable Vibration
+        </label>
+        <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="qibla_audio" value="1" @checked(old('qibla_audio', $settings['qibla_audio'] ?? '0') == '1')>
+            Enable Audio Feedback
+        </label>
+        <label class="text-sm block">Update Interval (seconds)
+            <input type="number" name="qibla_update_interval" min="5" max="3600" value="{{ old('qibla_update_interval', $settings['qibla_update_interval'] ?? '300') }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
+        </label>
+        <label class="text-sm block">Display Mode
+            <select name="qibla_display_mode" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
+                <option value="compass" @selected(old('qibla_display_mode', $settings['qibla_display_mode'] ?? 'compass') === 'compass')>Compass</option>
+                <option value="arrow" @selected(old('qibla_display_mode', $settings['qibla_display_mode'] ?? 'compass') === 'arrow')>Arrow</option>
+            </select>
+        </label>
+    </fieldset>
     <div class="md:col-span-2">
         <button class="bg-forest text-cream rounded-full px-6 py-3 font-semibold">Save settings</button>
     </div>

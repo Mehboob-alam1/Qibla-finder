@@ -13,6 +13,7 @@
         'motion_permission' => __('ui.motion_permission'),
         'true_north' => __('ui.True north'),
         'facing_qibla' => __('ui.Facing Qibla'),
+        'qibla_locked' => __('ui.qibla_locked'),
         'you' => __('ui.You'),
         'kaaba' => __('ui.Kaaba'),
         'searching_places' => __('ui.searching_places'),
@@ -37,6 +38,10 @@
              data-cities="{{ json_encode($cities, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS) }}"
              data-i18n="{{ json_encode($qiblaI18n, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS) }}"
              data-places-url="{{ route('places.search') }}"
+             data-default-vibration="{{ ($siteSettings['qibla_vibration'] ?? '1') === '1' ? '1' : '0' }}"
+             data-default-audio="{{ ($siteSettings['qibla_audio'] ?? '0') === '1' ? '1' : '0' }}"
+             data-default-mode="{{ ($siteSettings['qibla_display_mode'] ?? 'compass') === 'arrow' ? 'arrow' : 'compass' }}"
+             data-update-interval="{{ max(5, min(3600, (int) ($siteSettings['qibla_update_interval'] ?? 300))) }}"
              class="relative">
             <div class="absolute -top-3 inset-x-0 flex justify-center z-10">
                 <span data-aligned class="hidden bg-gold text-ink text-sm font-semibold px-4 py-1.5 rounded-full shadow-lg">{{ __('ui.Facing Qibla') }}</span>
@@ -88,6 +93,9 @@
                     <text x="286" y="298" text-anchor="middle" fill="rgba(232,212,139,0.8)" font-size="14">SE</text>
                     <text x="114" y="298" text-anchor="middle" fill="rgba(232,212,139,0.8)" font-size="14">SW</text>
                     <text x="114" y="118" text-anchor="middle" fill="rgba(232,212,139,0.8)" font-size="14">NW</text>
+                </svg>
+
+                <svg data-needle-layer class="compass-needle" viewBox="0 0 400 400" aria-hidden="true">
                     <g data-needle>
                         <line x1="200" y1="200" x2="200" y2="78" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
                         <polygon points="200,46 211,78 189,78" fill="#c9a227"/>
@@ -115,6 +123,7 @@
                 <button data-locate type="button" class="bg-gold text-ink px-5 py-2.5 rounded-full font-semibold">{{ __('ui.Enable location') }}</button>
                 <button data-calibrate type="button" class="border border-gold/40 text-gold px-5 py-2.5 rounded-full">{{ __('ui.Recalibrate') }}</button>
                 <button data-settings-open type="button" class="border border-white/20 px-5 py-2.5 rounded-full">{{ __('ui.Settings') }}</button>
+                @include('partials.share', ['shareUrl' => url('/'), 'shareAlign' => 'start-0'])
             </div>
 
             <div class="relative mt-4">
@@ -130,10 +139,15 @@
                     </div>
                     <label class="flex items-center justify-between gap-4"><span>{{ __('ui.Vibration') }}</span><input data-toggle-vib type="checkbox" class="h-5 w-5"></label>
                     <label class="flex items-center justify-between gap-4"><span>{{ __('ui.Audio') }}</span><input data-toggle-audio type="checkbox" class="h-5 w-5"></label>
-                    <div class="flex gap-2">
-                        <button data-mode="compass" type="button" class="flex-1 border rounded-full py-2 is-active">{{ __('ui.Compass') }}</button>
-                        <button data-mode="arrow" type="button" class="flex-1 border rounded-full py-2">{{ __('ui.Arrow') }}</button>
-                    </div>
+                    <label class="block text-sm">{{ __('ui.Update Interval') }}
+                        <input data-interval-input type="number" min="5" max="3600" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
+                    </label>
+                    <label class="block text-sm">{{ __('ui.Display Mode') }}
+                        <select data-mode-select class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5 bg-white cursor-pointer">
+                            <option value="compass">{{ __('ui.Compass') }}</option>
+                            <option value="arrow">{{ __('ui.Arrow') }}</option>
+                        </select>
+                    </label>
                     <button data-settings-close type="button" class="w-full bg-forest text-cream rounded-full py-3">{{ __('ui.Close') }}</button>
                 </div>
             </div>
@@ -196,6 +210,8 @@
     </div>
 </section>
 
+@include('partials.qibla-help')
+
 @include('partials.ad', ['type' => 'banner'])
 
 @if ($faqs->isNotEmpty())
@@ -208,7 +224,7 @@
         @foreach ($faqs as $faq)
             <article class="stat-card rounded-3xl p-6">
                 <h3 class="font-semibold text-forest">{{ $faq->question }}</h3>
-                <p class="mt-2 text-forest/70">{{ $faq->answer }}</p>
+                <p class="mt-2 text-forest/70 whitespace-pre-line line-clamp-5">{{ $faq->answer }}</p>
             </article>
         @endforeach
     </div>

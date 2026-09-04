@@ -15,7 +15,11 @@ class ExampleTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertDontSee('pagead2.googlesyndication.com', false)
-            ->assertDontSee('Banner ad preview');
+            ->assertDontSee('Banner ad preview')
+            ->assertSee('data-update-interval="300"', false)
+            ->assertSee('What devices can use this Qibla Finder?', false)
+            ->assertSee('chrome://flags/#enable-generic-sensor-extra-classes', false)
+            ->assertSee('data-share', false);
     }
 
     public function test_ad_preview_shows_placeholder_units(): void
@@ -24,6 +28,14 @@ class ExampleTest extends TestCase
             ->assertOk()
             ->assertSee('Banner ad preview')
             ->assertDontSee('pagead2.googlesyndication.com', false);
+    }
+
+    public function test_faq_page_includes_setup_instructions(): void
+    {
+        $this->get('/faq')
+            ->assertOk()
+            ->assertSee('Setup for Chrome', false)
+            ->assertSee('Motion &amp; Orientation Access', false);
     }
 
     public function test_custom_head_and_footer_html_render(): void

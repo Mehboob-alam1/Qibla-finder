@@ -35,6 +35,10 @@ class SiteSeeder extends Seeder
             'google_site_verification' => '',
             'head_html' => '',
             'footer_html' => '',
+            'qibla_vibration' => '1',
+            'qibla_audio' => '0',
+            'qibla_update_interval' => '300',
+            'qibla_display_mode' => 'compass',
         ];
 
         foreach ($settings as $key => $value) {
@@ -166,12 +170,15 @@ HTML,
     protected function faqs(): void
     {
         $faqs = [
-            ['Why does the compass need my location?', 'The Qibla is different in every city. We use your coordinates only to compute the bearing and distance to the Kaaba. You can also pick a city manually.', 'qibla', 1],
-            ['The arrow does not move on my laptop.', 'Most laptops have no magnetometer. Use the map, the numeric bearing, or open the site on your phone for a live compass.', 'qibla', 2],
-            ['Is this accurate enough for salah?', 'The geodesic is astronomically precise. Remaining error is almost always the device compass or an uncalibrated sensor. Calibrate, then confirm with a physical compass if you can.', 'qibla', 3],
-            ['Which prayer method should I use?', 'Use the same method as your local mosque. If you are unsure, Muslim World League is a respected worldwide default.', 'prayer', 4],
-            ['Do you work offline?', 'After the page loads, the compass and last-known location continue to work if the tab stays open. A full offline install is available as a Progressive Web App on supported browsers.', 'general', 5],
-            ['Can I use Arabic?', 'Yes. Switch language from the globe menu. Arabic uses a full right-to-left layout.', 'general', 6],
+            ['How to use this Qibla Finder?', 'Open this page, tap Find Qibla Direction, and allow location when asked. Hold the phone flat — the gold Kaaba marker points to the side where the Qibla is. Turn until it meets the notch at the top. If it does not move, see the Chrome, Edge, or Safari setup on this page.', 'qibla', 1],
+            ['What devices can use this Qibla Finder?', 'Any device with a magnetometer will work, Android or iOS. Even older and inexpensive phones usually have this sensor. Laptops typically do not — use the numeric bearing and the map, or open the site on a phone.', 'qibla', 2],
+            ['Qibla Finder does not work. What should I do?', 'Allow location and motion/orientation sensors in your browser. Chrome and Edge may need Generic Sensor Extra Classes enabled (chrome://flags/#enable-generic-sensor-extra-classes or the matching edge://flags page). Safari needs Motion & Orientation Access.', 'qibla', 3],
+            ['Is the Qibla Finder accurate?', 'The bearing to the Kaaba is a precise geodesic. Remaining error is almost always the device compass. Move the phone in a figure-8 a few times, keep it away from metal, and hold it flat.', 'qibla', 4],
+            ['Why does the compass need my location?', 'The Qibla is different in every city. We use your coordinates only to compute the bearing and distance to the Kaaba. You can also pick a city manually.', 'qibla', 5],
+            ['The arrow does not move on my laptop.', 'Most laptops have no magnetometer. Use the map, the numeric bearing, or open the site on your phone for a live compass.', 'qibla', 6],
+            ['Which prayer method should I use?', 'Use the same method as your local mosque. If you are unsure, Muslim World League is a respected worldwide default.', 'prayer', 7],
+            ['Do you work offline?', 'After the page loads, the compass and last-known location continue to work if the tab stays open. A full offline install is available as a Progressive Web App on supported browsers.', 'general', 8],
+            ['Can I use Arabic?', 'Yes. Switch language from the globe menu. Arabic uses a full right-to-left layout.', 'general', 9],
         ];
 
         foreach ($faqs as [$question, $answer, $category, $order]) {

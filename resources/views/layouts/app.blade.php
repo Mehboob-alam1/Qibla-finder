@@ -7,6 +7,14 @@
     <title>@yield('title', $siteSettings['meta_title'] ?? $siteName)</title>
     <meta name="description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
     <meta name="theme-color" content="#0d3b2e">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:title" content="@yield('title', $siteSettings['meta_title'] ?? $siteName)">
+    <meta property="og:description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="@yield('title', $siteSettings['meta_title'] ?? $siteName)">
+    <meta name="twitter:description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -65,6 +73,12 @@
             </nav>
 
             <div class="flex items-center gap-2">
+                <div class="hidden md:block">
+                    @include('partials.share', [
+                        'shareUrl' => url('/'),
+                        'shareClass' => 'h-10 px-3 rounded-full border border-forest/15 bg-card text-sm text-forest',
+                    ])
+                </div>
                 <button type="button" data-theme-toggle class="h-10 w-10 rounded-full border border-forest/15 bg-card grid place-items-center text-forest" aria-label="{{ __('ui.Theme') }}" title="{{ __('ui.Theme') }}">
                     <span class="hidden dark:inline" aria-hidden="true">☀</span>
                     <span class="inline dark:hidden" aria-hidden="true">☾</span>
@@ -92,6 +106,12 @@
             <a class="block" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
             <a class="block" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
             <a class="block" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
+            <div>
+                @include('partials.share', [
+                    'shareUrl' => url('/'),
+                    'shareClass' => 'h-10 px-3 rounded-full border border-forest/15 bg-card text-sm text-forest',
+                ])
+            </div>
         </div>
     </header>
 
@@ -102,6 +122,13 @@
             <div class="md:col-span-2">
                 <p class="font-display text-4xl text-gold">{{ $siteName }}</p>
                 <p class="mt-3 max-w-md text-cream/70">{{ $siteSettings['footer_text'] ?? $siteTagline }}</p>
+                <div class="mt-5">
+                    @include('partials.share', [
+                        'shareUrl' => url('/'),
+                        'shareClass' => 'border border-gold/40 text-gold px-5 py-2.5 rounded-full',
+                        'shareMenuClass' => 'start-0 bottom-full mb-2',
+                    ])
+                </div>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Explore') }}</p>
@@ -110,6 +137,7 @@
                     <a class="block hover:text-gold" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
                     <a class="block hover:text-gold" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
                     <a class="block hover:text-gold" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
+                    <a class="block hover:text-gold" href="{{ url('/#setup') }}">{{ __('ui.help_kicker') }}</a>
                 </div>
             </div>
             <div>

@@ -28,8 +28,27 @@ export function distanceKm(lat, lng) {
     return 6371.0088 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function storedFlag(key, fallback) {
+    const stored = localStorage.getItem(key);
+    if (stored === '1') {
+        return true;
+    }
+    if (stored === '0') {
+        return false;
+    }
+
+    return fallback;
+}
+
+function storedValue(key, fallback) {
+    const stored = localStorage.getItem(key);
+
+    return stored === null || stored === '' ? fallback : stored;
+}
+
 function cardinal(bearing) {
     const labels = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+
     return labels[Math.round(bearing / 22.5) % 16];
 }
 
@@ -42,11 +61,39 @@ function formatLocation(lat, lng, label) {
     return `${Math.abs(lat).toFixed(4)}° ${ns}, ${Math.abs(lng).toFixed(4)}° ${ew}`;
 }
 
+function screenHeadingOffset() {
+    if (typeof screen.orientation?.angle === 'number') {
+        return screen.orientation.angle;
+    }
+    if (typeof window.orientation === 'number') {
+        return window.orientation;
+    }
+
+    return 0;
+}
+
+function normalizeDegrees(value) {
+    return ((value % 360) + 360) % 360;
+}
+
+function shortestDelta(from, to) {
+    return ((((to - from) % 360) + 540) % 360) - 180;
+}
+
+function unwrapToward(previous, nextNormalized) {
+    if (previous == null || Number.isNaN(previous)) {
+        return nextNormalized;
+    }
+
+    return previous + shortestDelta(normalizeDegrees(previous), nextNormalized);
+}
+
 class QiblaApp {
     constructor(root) {
         this.root = root;
         this.rose = root.querySelector('[data-rose]');
         this.needle = root.querySelector('[data-needle]');
+        this.needleLayer = root.querySelector('[data-needle-layer]');
         this.status = root.querySelector('[data-status]');
         this.overlay = root.querySelector('[data-permission-overlay]');
         this.bearingEl = document.querySelector('[data-bearing]');
@@ -64,9 +111,10 @@ class QiblaApp {
         this.i18n = JSON.parse(root.dataset.i18n || '{}');
         this.placesUrl = root.dataset.placesUrl || '/places/search';
         this.settings = {
-            vibration: localStorage.getItem('qf_vib') !== '0',
-            audio: localStorage.getItem('qf_audio') === '1',
-            mode: localStorage.getItem('qf_mode') || 'compass',
+            vibration: storedFlag('qf_vib', root.dataset.defaultVibration !== '0'),
+            audio: storedFlag('qf_audio', root.dataset.defaultAudio === '1'),
+            mode: storedValue('qf_mode', root.dataset.defaultMode || 'compass') === 'arrow' ? 'arrow' : 'compass',
+            interval: Math.max(5, Math.min(3600, Number(storedValue('qf_interval', root.dataset.updateInterval || '300')) || 300)),
         };
         this.state = {
             lat: null,
@@ -75,14 +123,19 @@ class QiblaApp {
             qibla: null,
             heading: null,
             aligned: false,
+            locked: false,
             sensor: false,
+            headingSource: null,
         };
         this.map = null;
         this.userMarker = null;
         this.line = null;
         this.audioCtx = null;
         this.compassStarted = false;
-        this.geoWatch = null;
+        this.locationTimer = null;
+        this.displayNeedle = 0;
+        this.displayRose = 0;
+        this.smoothedHeading = null;
         this.bind();
         this.restore();
         this.askLocation();
@@ -92,19 +145,21 @@ class QiblaApp {
     bind() {
         this.root.querySelectorAll('[data-locate]').forEach((button) => {
             button.addEventListener('click', () => {
+                this.unlockQibla();
                 this.startCompass();
                 this.askLocation(true);
             });
         });
         this.root.querySelector('[data-calibrate]')?.addEventListener('click', () => {
+            this.unlockQibla();
             this.startCompass();
             this.showCalibrate(true);
         });
         this.root.querySelectorAll('[data-close-calibrate]').forEach((el) => {
             el.addEventListener('click', () => this.showCalibrate(false));
         });
-        this.root.querySelectorAll('[data-mode]').forEach((el) => {
-            el.addEventListener('click', () => this.setMode(el.dataset.mode));
+        this.root.querySelector('[data-mode-select]')?.addEventListener('change', (e) => {
+            this.setMode(e.target.value);
         });
         this.root.querySelector('[data-toggle-vib]')?.addEventListener('change', (e) => {
             this.settings.vibration = e.target.checked;
@@ -113,6 +168,13 @@ class QiblaApp {
         this.root.querySelector('[data-toggle-audio]')?.addEventListener('change', (e) => {
             this.settings.audio = e.target.checked;
             localStorage.setItem('qf_audio', e.target.checked ? '1' : '0');
+        });
+        this.root.querySelector('[data-interval-input]')?.addEventListener('change', (e) => {
+            const seconds = Math.max(5, Math.min(3600, Number(e.target.value) || 300));
+            this.settings.interval = seconds;
+            e.target.value = String(seconds);
+            localStorage.setItem('qf_interval', String(seconds));
+            this.scheduleLocationUpdates();
         });
         this.root.querySelector('[data-settings-open]')?.addEventListener('click', () => this.showSettings(true));
         this.root.querySelectorAll('[data-settings-close]').forEach((el) => {
@@ -126,6 +188,7 @@ class QiblaApp {
             searchingLabel: this.i18n.searching_places || 'Searching…',
             emptyLabel: this.i18n.no_places || 'No places found.',
             onPick: (place) => {
+                this.unlockQibla();
                 this.setLocation(place.lat, place.lng, place.label);
                 this.startCompass();
             },
@@ -151,11 +214,14 @@ class QiblaApp {
     syncToggles() {
         const vib = this.root.querySelector('[data-toggle-vib]');
         const audio = this.root.querySelector('[data-toggle-audio]');
+        const interval = this.root.querySelector('[data-interval-input]');
         if (vib) vib.checked = this.settings.vibration;
         if (audio) audio.checked = this.settings.audio;
-        this.root.querySelectorAll('[data-mode]').forEach((el) => {
-            el.classList.toggle('is-active', el.dataset.mode === this.settings.mode);
-        });
+        if (interval) interval.value = String(this.settings.interval);
+        const modeSelect = this.root.querySelector('[data-mode-select]');
+        if (modeSelect) {
+            modeSelect.value = this.settings.mode === 'arrow' ? 'arrow' : 'compass';
+        }
     }
 
     showCalibrate(open) {
@@ -167,8 +233,8 @@ class QiblaApp {
     }
 
     setMode(mode) {
-        this.settings.mode = mode;
-        localStorage.setItem('qf_mode', mode);
+        this.settings.mode = mode === 'arrow' ? 'arrow' : 'compass';
+        localStorage.setItem('qf_mode', this.settings.mode);
         this.syncToggles();
         this.render();
     }
@@ -195,13 +261,7 @@ class QiblaApp {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 applyPosition(pos, true);
-                if (this.geoWatch == null) {
-                    this.geoWatch = navigator.geolocation.watchPosition(
-                        (next) => applyPosition(next, false),
-                        () => {},
-                        { enableHighAccuracy: true, maximumAge: 15000 },
-                    );
-                }
+                this.scheduleLocationUpdates();
             },
             () => {
                 if (this.state.lat == null) {
@@ -215,6 +275,32 @@ class QiblaApp {
                 maximumAge: fromGesture ? 0 : 60000,
             },
         );
+    }
+
+    scheduleLocationUpdates() {
+        if (this.locationTimer) {
+            window.clearInterval(this.locationTimer);
+            this.locationTimer = null;
+        }
+        if (this.state.locked || ! navigator.geolocation) {
+            return;
+        }
+        const ms = this.settings.interval * 1000;
+        this.locationTimer = window.setInterval(() => {
+            if (this.state.locked) {
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    if (this.state.locked) {
+                        return;
+                    }
+                    this.setLocation(pos.coords.latitude, pos.coords.longitude, this.state.label, true);
+                },
+                () => {},
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: ms },
+            );
+        }, ms);
     }
 
     async reverseAndSet(lat, lng) {
@@ -237,6 +323,9 @@ class QiblaApp {
     }
 
     setLocation(lat, lng, label = null, persist = true) {
+        if (this.state.locked) {
+            return;
+        }
         this.state.lat = lat;
         this.state.lng = lng;
         this.state.label = label;
@@ -272,17 +361,53 @@ class QiblaApp {
     }
 
     onOrientation(event) {
+        const fromWebkit = typeof event.webkitCompassHeading === 'number';
+        const fromAbsolute = event.type === 'deviceorientationabsolute' || event.absolute === true;
         let heading = null;
-        if (typeof event.webkitCompassHeading === 'number') {
+        let source = this.state.headingSource;
+
+        if (fromWebkit) {
             heading = event.webkitCompassHeading;
-        } else if (typeof event.alpha === 'number') {
+            source = 'webkit';
+        } else if (fromAbsolute && typeof event.alpha === 'number') {
+            if (this.state.headingSource === 'webkit') {
+                return;
+            }
             heading = (360 - event.alpha) % 360;
+            source = 'absolute';
+        } else if (typeof event.alpha === 'number' && this.state.headingSource !== 'webkit' && this.state.headingSource !== 'absolute') {
+            heading = (360 - event.alpha) % 360;
+            source = 'relative';
         }
+
         if (heading === null || Number.isNaN(heading)) {
             return;
         }
+
         this.state.sensor = true;
-        this.state.heading = heading;
+        this.state.headingSource = source;
+        const raw = normalizeDegrees(heading + screenHeadingOffset());
+
+        if (this.state.locked) {
+            this.state.heading = raw;
+            if (this.state.qibla != null && Math.abs(shortestDelta(raw, this.state.qibla)) > 22) {
+                this.unlockQibla();
+                this.smoothedHeading = raw;
+                this.state.heading = raw;
+                this.render();
+            }
+
+            return;
+        }
+
+        if (this.smoothedHeading == null) {
+            this.smoothedHeading = raw;
+        } else {
+            this.smoothedHeading = normalizeDegrees(
+                this.smoothedHeading + shortestDelta(this.smoothedHeading, raw) * 0.4,
+            );
+        }
+        this.state.heading = this.smoothedHeading;
         this.render();
     }
 
@@ -318,26 +443,71 @@ class QiblaApp {
         }
 
         const device = heading ?? 0;
-        if (this.settings.mode === 'compass') {
-            if (this.rose) this.rose.style.transform = `rotate(${-device}deg)`;
-            if (this.needle) this.needle.setAttribute('transform', `rotate(${qibla} 200 200)`);
-        } else {
-            if (this.rose) this.rose.style.transform = 'rotate(0deg)';
-            if (this.needle) this.needle.setAttribute('transform', `rotate(${qibla - device} 200 200)`);
+        const delta = Math.abs(shortestDelta(device, qibla));
+        const relative = normalizeDegrees(qibla - device);
+        const roseAngle = this.settings.mode === 'compass' ? normalizeDegrees(-device) : 0;
+
+        if (! this.state.locked) {
+            this.displayNeedle = unwrapToward(this.displayNeedle, relative);
+            this.displayRose = unwrapToward(this.displayRose, roseAngle);
+            this.applyPointer();
         }
 
-        const delta = Math.abs((((qibla - device + 540) % 360) - 180));
-        const aligned = this.state.sensor && delta <= 8;
+        const aligned = this.state.sensor && (this.state.locked || delta <= 10);
         this.root.classList.toggle('aligned', aligned);
+        this.root.classList.toggle('qibla-locked', this.state.locked);
         this.alignBadge?.classList.toggle('hidden', !aligned);
-        if (aligned && !this.state.aligned) {
-            this.celebrate();
+
+        if (this.state.sensor && ! this.state.locked && delta <= 10) {
+            this.lockQibla();
+
+            return;
         }
+
         this.state.aligned = aligned;
     }
 
+    applyPointer() {
+        if (this.needleLayer) {
+            this.needleLayer.style.transform = `rotate(${this.displayNeedle}deg)`;
+        } else if (this.needle) {
+            this.needle.setAttribute('transform', `rotate(${normalizeDegrees(this.displayNeedle)} 200 200)`);
+        }
+        if (this.rose) {
+            this.rose.style.transform = `rotate(${this.displayRose}deg)`;
+        }
+    }
+
+    lockQibla() {
+        if (this.state.locked) {
+            return;
+        }
+        this.state.locked = true;
+        this.state.aligned = true;
+        this.displayNeedle = unwrapToward(this.displayNeedle, 0);
+        this.applyPointer();
+        this.root.classList.add('aligned', 'qibla-locked');
+        this.alignBadge?.classList.remove('hidden');
+        if (this.locationTimer) {
+            window.clearInterval(this.locationTimer);
+            this.locationTimer = null;
+        }
+        this.celebrate();
+    }
+
+    unlockQibla() {
+        const wasLocked = this.state.locked;
+        this.state.locked = false;
+        this.state.aligned = false;
+        this.root.classList.remove('aligned', 'qibla-locked');
+        this.alignBadge?.classList.add('hidden');
+        if (wasLocked) {
+            this.scheduleLocationUpdates();
+        }
+    }
+
     celebrate() {
-        this.setStatus(this.i18n.facing_qibla || 'You are facing the Qibla.');
+        this.setStatus(this.i18n.qibla_locked || 'Qibla locked. Hold still — your direction is set.');
         if (this.settings.vibration && navigator.vibrate) {
             navigator.vibrate([40, 40, 80]);
         }

@@ -44,6 +44,10 @@ class SettingController extends Controller
             'google_site_verification' => ['nullable', 'string', 'max:400'],
             'head_html' => ['nullable', 'string', 'max:20000'],
             'footer_html' => ['nullable', 'string', 'max:20000'],
+            'qibla_vibration' => ['sometimes', 'boolean'],
+            'qibla_audio' => ['sometimes', 'boolean'],
+            'qibla_update_interval' => ['required', 'integer', 'min:5', 'max:3600'],
+            'qibla_display_mode' => ['required', 'in:compass,arrow'],
         ]);
 
         $data['adsense_enabled'] = $request->boolean('adsense_enabled') ? '1' : '0';
@@ -56,6 +60,10 @@ class SettingController extends Controller
         );
         $data['head_html'] = (string) $request->input('head_html', '');
         $data['footer_html'] = (string) $request->input('footer_html', '');
+        $data['qibla_vibration'] = $request->boolean('qibla_vibration') ? '1' : '0';
+        $data['qibla_audio'] = $request->boolean('qibla_audio') ? '1' : '0';
+        $data['qibla_update_interval'] = (string) max(5, min(3600, (int) $request->input('qibla_update_interval', 300)));
+        $data['qibla_display_mode'] = $request->input('qibla_display_mode') === 'arrow' ? 'arrow' : 'compass';
 
         SiteSettings::put($data);
 
