@@ -32,6 +32,9 @@ class SiteSeeder extends Seeder
             'adsense_native_slot' => '',
             'default_calculation_method' => 'MWL',
             'announcement' => '',
+            'google_site_verification' => '',
+            'head_html' => '',
+            'footer_html' => '',
         ];
 
         foreach ($settings as $key => $value) {

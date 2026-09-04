@@ -103,4 +103,20 @@ class SiteSettings
 
         return $banner;
     }
+
+    public static function normalizeVerificationToken(string $value): string
+    {
+        $value = trim($value);
+
+        if (preg_match('/content\s*=\s*["\']([^"\']+)["\']/i', $value, $match) === 1) {
+            return $match[1];
+        }
+
+        return $value;
+    }
+
+    public static function googleSiteVerification(): string
+    {
+        return static::normalizeVerificationToken((string) static::get('google_site_verification', ''));
+    }
 }

@@ -36,6 +36,10 @@
     @if (\App\Support\SiteSettings::adsenseEnabled() && ! \App\Support\SiteSettings::adsensePreview())
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ \App\Support\SiteSettings::adsenseClient() }}" crossorigin="anonymous"></script>
     @endif
+    @if (\App\Support\SiteSettings::googleSiteVerification() !== '')
+        <meta name="google-site-verification" content="{{ \App\Support\SiteSettings::googleSiteVerification() }}">
+    @endif
+    {!! $siteSettings['head_html'] ?? '' !!}
 </head>
 <body class="min-h-screen antialiased bg-cream text-ink">
     @if (!empty($siteSettings['announcement']))
@@ -132,5 +136,6 @@
             </div>
         </div>
     @endif
+    {!! $siteSettings['footer_html'] ?? '' !!}
 </body>
 </html>

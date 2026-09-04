@@ -41,6 +41,9 @@ class SettingController extends Controller
             'adsense_native_slot' => ['nullable', 'string', 'max:20'],
             'default_calculation_method' => ['required', 'string', 'max:32'],
             'announcement' => ['nullable', 'string', 'max:255'],
+            'google_site_verification' => ['nullable', 'string', 'max:400'],
+            'head_html' => ['nullable', 'string', 'max:20000'],
+            'footer_html' => ['nullable', 'string', 'max:20000'],
         ]);
 
         $data['adsense_enabled'] = $request->boolean('adsense_enabled') ? '1' : '0';
@@ -48,6 +51,11 @@ class SettingController extends Controller
         $data['adsense_client'] = trim((string) $request->input('adsense_client', ''));
         $data['adsense_banner_slot'] = preg_replace('/\D+/', '', (string) $request->input('adsense_banner_slot', '')) ?? '';
         $data['adsense_native_slot'] = preg_replace('/\D+/', '', (string) $request->input('adsense_native_slot', '')) ?? '';
+        $data['google_site_verification'] = SiteSettings::normalizeVerificationToken(
+            (string) $request->input('google_site_verification', ''),
+        );
+        $data['head_html'] = (string) $request->input('head_html', '');
+        $data['footer_html'] = (string) $request->input('footer_html', '');
 
         SiteSettings::put($data);
 
