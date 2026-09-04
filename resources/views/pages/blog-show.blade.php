@@ -8,6 +8,7 @@
     <p class="text-gold uppercase tracking-[0.25em] text-xs">{{ optional($post->published_at)->format('F j, Y') }}</p>
     <h1 class="font-display text-5xl md:text-6xl text-forest mt-3">{{ $post->title }}</h1>
     <div class="prose-content mt-8 text-lg">{!! $post->content !!}</div>
+    @include('partials.ad', ['type' => 'native'])
 </article>
 @if ($related->isNotEmpty())
 <section class="mx-auto max-w-6xl px-4 pb-16">

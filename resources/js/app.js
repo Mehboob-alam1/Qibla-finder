@@ -1,5 +1,6 @@
 import './qibla';
 import './prayer';
+import './ads';
 
 const menu = document.querySelector('[data-mobile-toggle]');
 const panel = document.querySelector('[data-mobile-panel]');

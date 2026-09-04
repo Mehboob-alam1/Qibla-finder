@@ -73,5 +73,6 @@
         <p>{{ __('ui.prayer_explained_p1') }}</p>
         <p>{{ __('ui.prayer_explained_p2') }}</p>
     </article>
+    @include('partials.ad', ['type' => 'banner'])
 </div>
 @endsection

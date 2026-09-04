@@ -34,9 +34,18 @@ class SettingController extends Controller
             'twitter' => ['nullable', 'url', 'max:255'],
             'youtube' => ['nullable', 'url', 'max:255'],
             'ga_id' => ['nullable', 'string', 'max:40'],
+            'adsense_enabled' => ['sometimes', 'boolean'],
+            'adsense_client' => ['nullable', 'string', 'max:40', 'regex:/^(ca-pub-\d+)?$/'],
+            'adsense_banner_slot' => ['nullable', 'string', 'max:20'],
+            'adsense_native_slot' => ['nullable', 'string', 'max:20'],
             'default_calculation_method' => ['required', 'string', 'max:32'],
             'announcement' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $data['adsense_enabled'] = $request->boolean('adsense_enabled') ? '1' : '0';
+        $data['adsense_client'] = trim((string) $request->input('adsense_client', ''));
+        $data['adsense_banner_slot'] = preg_replace('/\D+/', '', (string) $request->input('adsense_banner_slot', '')) ?? '';
+        $data['adsense_native_slot'] = preg_replace('/\D+/', '', (string) $request->input('adsense_native_slot', '')) ?? '';
 
         SiteSettings::put($data);
 

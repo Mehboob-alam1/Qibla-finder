@@ -196,6 +196,8 @@
     </div>
 </section>
 
+@include('partials.ad', ['type' => 'banner'])
+
 @if ($faqs->isNotEmpty())
 <section class="mx-auto max-w-6xl px-4 mt-20">
     <div class="flex items-end justify-between mb-6">
@@ -212,6 +214,8 @@
     </div>
 </section>
 @endif
+
+@include('partials.ad', ['type' => 'native'])
 
 @if ($posts->isNotEmpty())
 <section class="mx-auto max-w-6xl px-4 mt-20 mb-8">

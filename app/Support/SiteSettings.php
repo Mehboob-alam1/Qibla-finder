@@ -47,4 +47,32 @@ class SiteSettings
     {
         return (string) static::get('tagline', 'Face the Kaaba with certainty.');
     }
+
+    public static function adsenseEnabled(): bool
+    {
+        if (! filter_var(static::get('adsense_enabled', '0'), FILTER_VALIDATE_BOOLEAN)) {
+            return false;
+        }
+
+        return static::adsenseClient() !== '';
+    }
+
+    public static function adsenseClient(): string
+    {
+        $raw = trim((string) static::get('adsense_client', ''));
+
+        return preg_match('/ca-pub-\d+/', $raw, $match) === 1 ? $match[0] : '';
+    }
+
+    public static function adsenseSlot(string $type): string
+    {
+        $banner = preg_replace('/\D+/', '', (string) static::get('adsense_banner_slot', '')) ?? '';
+        $native = preg_replace('/\D+/', '', (string) static::get('adsense_native_slot', '')) ?? '';
+
+        if ($type === 'native' && $native !== '') {
+            return $native;
+        }
+
+        return $banner;
+    }
 }

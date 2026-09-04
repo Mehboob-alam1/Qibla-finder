@@ -31,5 +31,6 @@
         </label>
         <button class="w-full bg-forest text-cream rounded-full py-3 font-semibold">{{ __('ui.Send message') }}</button>
     </form>
+    @include('partials.ad', ['type' => 'banner'])
 </div>
 @endsection

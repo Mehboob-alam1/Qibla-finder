@@ -20,5 +20,6 @@
     @empty
         <p class="mt-8 text-forest/60">{{ __('ui.faq_empty') }}</p>
     @endforelse
+    @include('partials.ad', ['type' => 'banner'])
 </div>
 @endsection

@@ -15,5 +15,6 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
+        $response->assertDontSee('pagead2.googlesyndication.com', false);
     }
 }

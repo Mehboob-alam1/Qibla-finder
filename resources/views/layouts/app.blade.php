@@ -33,6 +33,9 @@
             gtag('config', @json($siteSettings['ga_id']));
         </script>
     @endif
+    @if (\App\Support\SiteSettings::adsenseEnabled())
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ \App\Support\SiteSettings::adsenseClient() }}" crossorigin="anonymous"></script>
+    @endif
 </head>
 <body class="min-h-screen antialiased bg-cream text-ink">
     @if (!empty($siteSettings['announcement']))
@@ -120,5 +123,14 @@
         </div>
     </footer>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @if (\App\Support\SiteSettings::adsenseEnabled() && \App\Support\SiteSettings::adsenseSlot('banner') !== '' && ! request()->routeIs('home'))
+        <div class="ad-interstitial is-hidden" data-ad-interstitial data-hours="12" hidden>
+            <div class="ad-interstitial__panel" role="dialog" aria-modal="true" aria-label="{{ __('ui.Advertisement') }}">
+                <p class="ad-unit__label">{{ __('ui.Advertisement') }}</p>
+                @include('partials.ad', ['type' => 'interstitial'])
+                <button type="button" class="ad-interstitial__close" data-ad-interstitial-close>{{ __('ui.Continue to site') }}</button>
+            </div>
+        </div>
+    @endif
 </body>
 </html>

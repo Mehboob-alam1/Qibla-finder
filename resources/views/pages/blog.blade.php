@@ -9,6 +9,8 @@
     <h1 class="font-display text-6xl text-forest mt-2">{{ __('ui.Guides') }}</h1>
     <p class="mt-3 max-w-2xl text-forest/70">{{ __('ui.guides_intro') }}</p>
 
+    @include('partials.ad', ['type' => 'native'])
+
     <div class="grid md:grid-cols-3 gap-5 mt-10">
         @forelse ($posts as $post)
             <a href="{{ route('blog.show', $post->slug) }}" class="stat-card rounded-3xl p-6 block hover:-translate-y-1 transition">

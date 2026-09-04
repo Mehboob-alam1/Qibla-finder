@@ -294,3 +294,74 @@ html.dark .leaflet-bar a {
 .nav-link.is-active::after {
     transform: scaleX(1);
 }
+
+.ad-unit {
+    margin: 2.5rem auto;
+    max-width: 72rem;
+    padding: 0 1rem;
+}
+
+.ad-unit__label {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-forest) 45%, transparent);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.ad-unit--native {
+    max-width: 48rem;
+}
+
+.ad-unit--banner .adsbygoogle,
+.ad-unit--native .adsbygoogle {
+    min-height: 90px;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-card) 88%, var(--color-sand));
+}
+
+.ad-interstitial {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    padding: 1.25rem;
+    background: rgba(6, 20, 15, 0.72);
+    backdrop-filter: blur(8px);
+}
+
+.ad-interstitial.is-hidden,
+.ad-interstitial[hidden] {
+    display: none;
+}
+
+.ad-interstitial__panel {
+    width: min(36rem, 100%);
+    background: var(--color-cream);
+    color: var(--color-ink);
+    border-radius: 1.75rem;
+    padding: 1.25rem 1.25rem 1.5rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.ad-interstitial__panel .ad-unit {
+    margin: 0.75rem 0 1rem;
+    padding: 0;
+}
+
+.ad-interstitial__close {
+    display: block;
+    width: 100%;
+    border-radius: 999px;
+    background: var(--color-forest);
+    color: var(--color-cream);
+    font-weight: 600;
+    padding: 0.85rem 1rem;
+}
+
+body.ad-interstitial-open {
+    overflow: hidden;
+}

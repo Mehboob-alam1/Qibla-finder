@@ -26,6 +26,10 @@ class SiteSeeder extends Seeder
             'twitter' => '',
             'youtube' => '',
             'ga_id' => '',
+            'adsense_enabled' => '0',
+            'adsense_client' => '',
+            'adsense_banner_slot' => '',
+            'adsense_native_slot' => '',
             'default_calculation_method' => 'MWL',
             'announcement' => '',
         ];
@@ -76,6 +80,8 @@ HTML,
 <p>If you write to us, we store your name, email, and message so we can reply. You may ask us to delete that record.</p>
 <h2>Cookies</h2>
 <p>A language cookie remembers your locale. An admin session cookie is used only after you sign in to the dashboard.</p>
+<h2>Advertising</h2>
+<p>If ads are enabled, Google AdSense may show a small number of banner, native, and occasional full-screen ads. Google may use cookies or similar technology to serve those ads. You can learn more in Google’s advertising policies. The Qibla compass itself is never covered by an ad on first load.</p>
 HTML,
             ],
             [

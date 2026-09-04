@@ -55,6 +55,8 @@ return [
     'Explore' => 'Explore',
     'Legal' => 'Legal',
     'Close' => 'Close',
+    'Advertisement' => 'Advertisement',
+    'Continue to site' => 'Continue',
     'Done' => 'Done',
     'View all' => 'View all',
     'All guides' => 'All guides',
