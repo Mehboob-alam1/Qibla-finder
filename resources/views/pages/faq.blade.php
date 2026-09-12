@@ -3,6 +3,10 @@
 @section('title', __('ui.FAQ') . ' — ' . $siteName)
 @section('description', __('ui.faq_intro'))
 
+@push('head')
+    @include('partials.faq-schema', ['schemaFaqs' => $faqs->flatten()])
+@endpush
+
 @section('content')
 <div class="mx-auto max-w-3xl px-4 pt-14">
     <h1 class="font-display text-6xl text-forest">{{ __('ui.FAQ') }}</h1>

@@ -19,13 +19,16 @@ class Page extends Model
     {
         return [
             'admin',
+            'cities',
             'contact',
             'faq',
             'guides',
             'locale',
+            'offline',
             'p',
             'places',
             'prayer-times',
+            'qibla',
             'qibla.json',
             'robots.txt',
             'sitemap.xml',

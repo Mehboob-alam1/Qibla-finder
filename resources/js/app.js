@@ -122,6 +122,36 @@ document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
     });
 });
 
+if ('serviceWorker' in navigator && window.isSecureContext) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+}
+
+let deferredInstall = null;
+const installBar = document.querySelector('[data-install-bar]');
+window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredInstall = event;
+    if (localStorage.getItem('qf_install_hide') === '1') {
+        return;
+    }
+    installBar?.classList.remove('hidden');
+});
+document.querySelector('[data-install-accept]')?.addEventListener('click', async () => {
+    if (! deferredInstall) {
+        return;
+    }
+    deferredInstall.prompt();
+    await deferredInstall.userChoice;
+    deferredInstall = null;
+    installBar?.classList.add('hidden');
+});
+document.querySelector('[data-install-dismiss]')?.addEventListener('click', () => {
+    localStorage.setItem('qf_install_hide', '1');
+    installBar?.classList.add('hidden');
+});
+
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
     if (localStorage.getItem('qf_theme')) {
         return;

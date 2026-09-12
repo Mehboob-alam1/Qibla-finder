@@ -37,6 +37,12 @@
                 <button class="px-6 py-3 rounded-full border border-gold/40 text-gold lg:hidden" type="button" data-hero-camera>{{ __('ui.Camera') }}</button>
                 <a href="{{ route('prayer-times') }}" class="px-6 py-3 rounded-full border border-gold/40 text-gold">{{ __('ui.Prayer Times') }}</a>
             </div>
+            <div class="mt-6 flex flex-wrap gap-2">
+                @foreach (\App\Support\Cities::popular() as $city)
+                    <a class="rounded-full border border-gold/30 text-gold/90 px-3 py-1.5 text-xs" href="{{ route('cities.qibla', $city['slug']) }}">{{ $city['name'] }}</a>
+                @endforeach
+                <a class="rounded-full border border-white/20 text-cream/70 px-3 py-1.5 text-xs" href="{{ route('cities.index') }}">{{ __('ui.cities_all') }}</a>
+            </div>
         </div>
 
         <div data-qibla-app

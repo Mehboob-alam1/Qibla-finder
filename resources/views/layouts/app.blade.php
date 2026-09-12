@@ -12,12 +12,20 @@
     <meta property="og:title" content="@yield('title', $siteSettings['meta_title'] ?? $siteName)">
     <meta property="og:description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', $siteSettings['meta_title'] ?? $siteName)">
     <meta name="twitter:description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
+    <meta property="og:image" content="{{ url('/og.png') }}">
+    <meta name="twitter:image" content="{{ url('/og.png') }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+    @foreach ($locales as $code => $meta)
+        <link rel="alternate" hreflang="{{ $code }}" href="{{ url()->current() }}?hl={{ $code }}">
+    @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('icon-192.png') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script>
         (function () {
@@ -52,6 +60,7 @@
         <meta name="msvalidate.01" content="{{ \App\Support\SiteSettings::bingSiteVerification() }}">
     @endif
     {!! $siteSettings['head_html'] ?? '' !!}
+    @stack('head')
 </head>
 <body class="min-h-screen antialiased bg-cream text-ink">
     @if (!empty($siteSettings['announcement']))
@@ -71,6 +80,7 @@
             <nav class="hidden lg:flex items-center gap-6 text-sm font-medium text-forest">
                 <a class="nav-link {{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
                 <a class="nav-link {{ request()->routeIs('prayer-times') ? 'is-active' : '' }}" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
+                <a class="nav-link {{ request()->routeIs('cities.*') ? 'is-active' : '' }}" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
                 <a class="nav-link {{ request()->routeIs('blog.*') ? 'is-active' : '' }}" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
                 <a class="nav-link {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
                 @foreach ($headerPages as $page)
@@ -110,6 +120,7 @@
         <div data-mobile-panel class="hidden lg:hidden border-t border-forest/10 bg-cream px-4 py-4 space-y-3 text-forest">
             <a class="block" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
             <a class="block" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
+            <a class="block" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
             <a class="block" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
             <a class="block" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
             @foreach ($headerPages as $page)
@@ -145,6 +156,7 @@
                 <div class="space-y-2 text-cream/80">
                     <a class="block hover:text-gold" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
                     <a class="block hover:text-gold" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
+                    <a class="block hover:text-gold" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
                     <a class="block hover:text-gold" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
                     <a class="block hover:text-gold" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
                     <a class="block hover:text-gold" href="{{ url('/#setup') }}">{{ __('ui.help_kicker') }}</a>
@@ -165,6 +177,7 @@
         </div>
     </footer>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @stack('scripts')
     @if (\App\Support\SiteSettings::adsenseVisible() && (\App\Support\SiteSettings::adsensePreview() || \App\Support\SiteSettings::adsenseSlot('banner') !== '') && ! request()->routeIs('home'))
         <div class="ad-interstitial is-hidden" data-ad-interstitial data-hours="12" @if (\App\Support\SiteSettings::adsensePreview()) data-preview="1" @endif hidden>
             <div class="ad-interstitial__panel" role="dialog" aria-modal="true" aria-label="{{ __('ui.Advertisement') }}">
@@ -174,6 +187,15 @@
             </div>
         </div>
     @endif
+    <div data-install-bar class="hidden fixed inset-x-0 bottom-0 z-40 bg-forest text-cream px-4 py-3 shadow-2xl">
+        <div class="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm"><strong>{{ __('ui.install_app') }}</strong> — {{ __('ui.install_app_body') }}</p>
+            <div class="flex gap-2">
+                <button type="button" data-install-accept class="bg-gold text-ink rounded-full px-4 py-2 text-sm font-semibold">{{ __('ui.install_app') }}</button>
+                <button type="button" data-install-dismiss class="border border-white/20 rounded-full px-4 py-2 text-sm">{{ __('ui.Close') }}</button>
+            </div>
+        </div>
+    </div>
     {!! $siteSettings['footer_html'] ?? '' !!}
 </body>
 </html>

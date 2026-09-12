@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocaleController;
@@ -28,6 +29,10 @@ Route::get('/places/search', [PlaceSearchController::class, 'search'])
     ->name('places.search');
 Route::get('/prayer-times', [PrayerTimesController::class, 'index'])->name('prayer-times');
 Route::post('/prayer-times/calculate', [PrayerTimesController::class, 'calculate'])->name('prayer-times.calculate');
+Route::get('/cities', [CityController::class, 'index'])->name('cities.index');
+Route::get('/qibla/{slug}', [CityController::class, 'qibla'])->where('slug', '[A-Za-z0-9\-]+')->name('cities.qibla');
+Route::get('/prayer-times/{slug}', [CityController::class, 'prayer'])->where('slug', '[A-Za-z0-9\-]+')->name('cities.prayer');
+Route::get('/offline', fn () => view('pages.offline'))->name('offline');
 Route::get('/guides', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/guides/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/faq', [BlogController::class, 'faq'])->name('faq');

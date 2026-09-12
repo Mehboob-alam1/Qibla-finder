@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use App\Models\Post;
+use App\Support\Cities;
 use App\Support\PublicUrl;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Response;
@@ -21,7 +22,13 @@ class SitemapController extends Controller
             $this->entry(route('faq'), now(), 'weekly', '0.8'),
             $this->entry(route('blog.index'), now(), 'weekly', '0.8'),
             $this->entry(route('contact'), now(), 'monthly', '0.5'),
+            $this->entry(route('cities.index'), now(), 'weekly', '0.8'),
         ];
+
+        foreach (Cities::all() as $city) {
+            $urls[] = $this->entry(route('cities.qibla', $city['slug']), now(), 'weekly', '0.7');
+            $urls[] = $this->entry(route('cities.prayer', $city['slug']), now(), 'weekly', '0.7');
+        }
 
         try {
             Page::query()->published()->orderBy('updated_at')->get()->unique('slug')->each(function (Page $page) use (&$urls): void {

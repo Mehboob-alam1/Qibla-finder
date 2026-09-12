@@ -149,6 +149,32 @@ HTML,
 HTML,
             ],
             [
+                'title' => 'How to find the Qibla without a compass',
+                'slug' => 'find-qibla-without-compass',
+                'excerpt' => 'Use the sun, a map, or a printed bearing when the magnetometer is not available.',
+                'content' => <<<'HTML'
+<p>If your phone has no compass, or you are on a laptop, you can still face the Kaaba with the numeric bearing on this site.</p>
+<ol>
+<li>Open a city page such as <a href="/qibla/london">Qibla in London</a> or search your city on the home page.</li>
+<li>Note the bearing and cardinal, for example 118° ESE.</li>
+<li>Place a printed map or the on-page map so that north matches the street or a known landmark.</li>
+<li>Turn until you face that bearing. In a hotel room, a window toward a known street often helps.</li>
+</ol>
+<p>This is a geographic aid. Follow your local mosque when the room or vehicle makes a precise heading hard to keep.</p>
+HTML,
+            ],
+            [
+                'title' => 'Qibla direction on a plane, train, or in a hotel',
+                'slug' => 'qibla-on-plane-train-hotel',
+                'excerpt' => 'How to use a bearing when you cannot stand still or hold a phone flat.',
+                'content' => <<<'HTML'
+<p>The Qibla is still a great-circle bearing when you move. What changes is how well a compass can hold a heading.</p>
+<p><strong>Hotel or apartment:</strong> use the city page for that town, then the live compass by a window away from metal furniture. Recalibrate with a figure-8.</p>
+<p><strong>Train or car:</strong> metal and motion confuse magnetometers. Use the map bearing for the city you are passing, and accept a wider tolerance.</p>
+<p><strong>Airplane:</strong> heading changes continuously. Many travellers use the in-flight map plus the Qibla bearing for the destination, or follow the airline’s published guidance. We do not issue a ruling for salah in the air.</p>
+HTML,
+            ],
+            [
                 'title' => 'Calibrate your compass on iPhone and Android',
                 'slug' => 'calibrate-compass',
                 'excerpt' => 'A two-minute setup that fixes most “the arrow is wrong” reports.',
