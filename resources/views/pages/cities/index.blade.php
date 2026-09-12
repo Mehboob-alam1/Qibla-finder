@@ -11,7 +11,7 @@
 
     <label class="mt-8 block max-w-xl">
         <span class="sr-only">{{ __('ui.Search any city') }}</span>
-        <input type="search" data-city-filter value="{{ request('q') }}" placeholder="{{ __('ui.Search any city') }}" autocomplete="off" class="w-full rounded-full border border-forest/15 bg-card px-5 py-3 text-forest">
+        <input type="search" data-city-filter value="{{ request('q') }}" placeholder="{{ __('ui.Search any city') }}" autocomplete="off" class="w-full rounded-full border border-forest/15 bg-card px-5 py-3 text-ink placeholder:text-forest/45">
     </label>
 
     <div class="mt-8 flex flex-wrap gap-2" data-city-popular>

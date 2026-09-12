@@ -18,9 +18,18 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlaceSearchController;
 use App\Http\Controllers\PrayerTimesController;
 use App\Http\Controllers\SitemapController;
+use App\Support\LocalizedPaths;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/kiblat-online', [HomeController::class, 'index'])->name('home.id');
+Route::get('/kiblat', [HomeController::class, 'index'])->name('home.ms');
+Route::get('/jadwal-sholat', [PrayerTimesController::class, 'index'])->name('prayer-times.id');
+Route::get('/waktu-solat', [PrayerTimesController::class, 'index'])->name('prayer-times.ms');
+
+foreach (LocalizedPaths::redirects() as $from => $to) {
+    Route::redirect($from, $to, 301);
+}
 Route::get('/sitemap.xml', [SitemapController::class, 'xml'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('/qibla.json', [HomeController::class, 'qibla'])->name('qibla.json');

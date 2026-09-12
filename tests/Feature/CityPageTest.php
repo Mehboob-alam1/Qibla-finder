@@ -68,6 +68,25 @@ class CityPageTest extends TestCase
     {
         $this->get('/qibla/istanbul?hl=ar')
             ->assertOk()
-            ->assertSee('lang="ar"', false);
+            ->assertSee('lang="ar"', false)
+            ->assertSee('اتجاه القبلة في Istanbul', false);
+    }
+
+    public function test_arabic_falls_back_to_english_faqs_and_translates_chrome(): void
+    {
+        Faq::query()->create([
+            'question' => 'Why does the compass need my location?',
+            'answer' => '<p>The Qibla is different in every city.</p>',
+            'category' => 'qibla',
+            'locale' => 'en',
+            'sort_order' => 1,
+            'is_published' => true,
+        ]);
+
+        $this->get('/faq?hl=ar')
+            ->assertOk()
+            ->assertSee('Why does the compass need my location?', false)
+            ->assertSee('الأسئلة الشائعة', false)
+            ->assertSee('كيف تستخدم دليل القبلة هذا', false);
     }
 }

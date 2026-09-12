@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LocalizesContent;
+use App\Support\LocalizedPaths;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +12,8 @@ use Illuminate\Support\Str;
 #[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'show_in_header', 'show_in_footer', 'sort_order'])]
 class Page extends Model
 {
+    use LocalizesContent;
+
     /**
      * Paths that already belong to the app and cannot be used as flat CMS URLs.
      *
@@ -23,6 +27,7 @@ class Page extends Model
             'contact',
             'faq',
             'guides',
+            ...LocalizedPaths::reservedSlugs(),
             'locale',
             'offline',
             'p',
@@ -56,6 +61,22 @@ class Page extends Model
         return '/'.ltrim(request()->path(), '/') === $this->publicPath();
     }
 
+    public function navLabel(): string
+    {
+        return match ($this->slug) {
+            'duas-qibla' => __('ui.Dua'),
+            'about' => __('ui.About'),
+            'privacy' => __('ui.Privacy Policy'),
+            'terms' => __('ui.Terms of Service'),
+            default => $this->title,
+        };
+    }
+
+    protected static function localeIdentityColumn(): ?string
+    {
+        return 'slug';
+    }
+
     protected function casts(): array
     {
         return [
@@ -77,11 +98,6 @@ class Page extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);
-    }
-
-    public function scopeForLocale(Builder $query, ?string $locale = null): Builder
-    {
-        return $query->where('locale', $locale ?: app()->getLocale());
     }
 
     public function scopeInHeader(Builder $query): Builder

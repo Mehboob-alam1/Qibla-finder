@@ -61,9 +61,13 @@ class Cities
     /**
      * @return Collection<int, array{name: string, country: string, lat: float, lng: float, slug: string}>
      */
-    public static function popular(): Collection
+    public static function popular(?string $locale = null): Collection
     {
-        $slugs = ['makkah', 'madinah', 'london', 'new-york', 'dubai', 'istanbul', 'jakarta', 'karachi', 'cairo', 'kuala-lumpur'];
+        $slugs = match ($locale ?: app()->getLocale()) {
+            'id' => ['jakarta', 'surabaya', 'bandung', 'kuala-lumpur', 'makkah', 'singapore', 'dubai', 'istanbul', 'london', 'new-york'],
+            'ms' => ['kuala-lumpur', 'singapore', 'jakarta', 'brunei', 'makkah', 'dubai', 'london', 'istanbul', 'new-york', 'cairo'],
+            default => ['makkah', 'madinah', 'london', 'new-york', 'dubai', 'istanbul', 'jakarta', 'karachi', 'cairo', 'kuala-lumpur'],
+        };
 
         return static::all()->whereIn('slug', $slugs)->sortBy(fn (array $city) => array_search($city['slug'], $slugs, true))->values();
     }

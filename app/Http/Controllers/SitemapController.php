@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Page;
 use App\Models\Post;
 use App\Support\Cities;
+use App\Support\LocalizedPaths;
 use App\Support\PublicUrl;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Response;
@@ -17,8 +18,12 @@ class SitemapController extends Controller
         PublicUrl::apply();
 
         $urls = [
-            $this->entry(route('home'), now(), 'daily', '1.0'),
-            $this->entry(route('prayer-times'), now(), 'daily', '0.9'),
+            $this->entry(LocalizedPaths::url('home', 'en'), now(), 'daily', '1.0', LocalizedPaths::alternates('/')),
+            $this->entry(LocalizedPaths::url('home', 'id'), now(), 'daily', '0.95', LocalizedPaths::alternates('/kiblat-online')),
+            $this->entry(LocalizedPaths::url('home', 'ms'), now(), 'daily', '0.95', LocalizedPaths::alternates('/kiblat')),
+            $this->entry(LocalizedPaths::url('prayer-times', 'en'), now(), 'daily', '0.9', LocalizedPaths::alternates('/prayer-times')),
+            $this->entry(LocalizedPaths::url('prayer-times', 'id'), now(), 'daily', '0.85', LocalizedPaths::alternates('/jadwal-sholat')),
+            $this->entry(LocalizedPaths::url('prayer-times', 'ms'), now(), 'daily', '0.85', LocalizedPaths::alternates('/waktu-solat')),
             $this->entry(route('faq'), now(), 'weekly', '0.8'),
             $this->entry(route('blog.index'), now(), 'weekly', '0.8'),
             $this->entry(route('contact'), now(), 'monthly', '0.5'),
@@ -48,7 +53,7 @@ class SitemapController extends Controller
         }
 
         $body = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-        $body .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+        $body .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'."\n";
 
         foreach ($urls as $url) {
             $body .= '  <url>'."\n";
@@ -58,6 +63,9 @@ class SitemapController extends Controller
             }
             $body .= '    <changefreq>'.$this->escape($url['changefreq']).'</changefreq>'."\n";
             $body .= '    <priority>'.$this->escape($url['priority']).'</priority>'."\n";
+            foreach ($url['alternates'] as $code => $href) {
+                $body .= '    <xhtml:link rel="alternate" hreflang="'.$this->escape($code).'" href="'.$this->escape($href).'"/>'."\n";
+            }
             $body .= '  </url>'."\n";
         }
 
@@ -92,9 +100,10 @@ class SitemapController extends Controller
     }
 
     /**
-     * @return array{loc: string, lastmod: string|null, changefreq: string, priority: string}
+     * @param  array<string, string>  $alternates
+     * @return array{loc: string, lastmod: string|null, changefreq: string, priority: string, alternates: array<string, string>}
      */
-    protected function entry(string $loc, mixed $lastmod, string $changefreq, string $priority): array
+    protected function entry(string $loc, mixed $lastmod, string $changefreq, string $priority, array $alternates = []): array
     {
         $stamp = null;
         if ($lastmod instanceof CarbonInterface) {
@@ -106,6 +115,7 @@ class SitemapController extends Controller
             'lastmod' => $stamp,
             'changefreq' => $changefreq,
             'priority' => $priority,
+            'alternates' => $alternates,
         ];
     }
 

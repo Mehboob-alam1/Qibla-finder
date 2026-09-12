@@ -62,8 +62,15 @@ html.dark input:not([type='checkbox']):not([type='radio']),
 html.dark select,
 html.dark textarea {
     background-color: var(--color-card);
-    color: var(--color-ink);
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
     border-color: color-mix(in srgb, var(--color-forest) 22%, transparent);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.55);
 }
 
 .field,

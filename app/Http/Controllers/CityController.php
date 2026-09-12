@@ -7,6 +7,7 @@ use App\Services\QiblaService;
 use App\Support\Cities;
 use DateTimeImmutable;
 use DateTimeZone;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class CityController extends Controller
@@ -49,7 +50,7 @@ class CityController extends Controller
             'city' => $city,
             'times' => $times,
             'month' => $month,
-            'monthLabel' => $monthDate->format('F Y'),
+            'monthLabel' => Carbon::createFromImmutable($monthDate)->translatedFormat('F Y'),
             'snapshot' => $qibla->snapshot($city['lat'], $city['lng']),
             'related' => Cities::inCountry($city['country'], $city['slug']),
             'labels' => [

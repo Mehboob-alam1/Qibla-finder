@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', __('ui.Prayer Times'))
-@section('description', 'Location-aware Fajr, Dhuhr, Asr, Maghrib and Isha with Hijri date, countdown, and monthly timetable.')
+@section('title', __('ui.prayer_times_title'))
+@section('description', __('ui.prayer_times_desc'))
 
 @section('content')
 @php
@@ -33,7 +33,8 @@
      data-places-url="{{ route('places.search') }}"
      class="mx-auto max-w-3xl px-4 py-12">
     <p class="text-gold uppercase tracking-[0.25em] text-xs text-center">{{ __('ui.Salah') }} · {{ now()->translatedFormat('l') }}</p>
-    <h1 class="font-display text-6xl text-center text-forest mt-2">{{ __('ui.Prayer Times') }}</h1>
+    <h1 class="font-display text-6xl text-center text-forest mt-2">{{ __('ui.prayer_times_title') }}</h1>
+    <p class="mt-4 text-center text-forest/70 max-w-2xl mx-auto">{{ __('ui.prayer_times_lead') }}</p>
     <p data-clock class="text-center font-display text-5xl text-moss mt-4 tabular-nums">00:00:00</p>
     <p data-next class="text-center text-forest mt-2">{{ __('ui.Next prayer') }}</p>
     <p data-hijri class="text-center text-forest/50 mt-1"></p>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\LocalizedPaths;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -17,11 +18,15 @@ class LocaleController extends Controller
 
         $request->session()->put('locale', $locale);
 
-        $fallback = url()->previous();
-        if (! $fallback || $fallback === $request->fullUrl() || str_contains($fallback, '/locale/')) {
-            $fallback = route('home');
+        $previous = url()->previous();
+        if (! $previous || $previous === $request->fullUrl() || str_contains($previous, '/locale/')) {
+            return redirect()
+                ->to(LocalizedPaths::url('home', $locale))
+                ->withCookie(cookie()->forever('locale', $locale));
         }
 
-        return redirect()->to($fallback)->withCookie(cookie()->forever('locale', $locale));
+        return redirect()
+            ->to(LocalizedPaths::swap($previous, $locale))
+            ->withCookie(cookie()->forever('locale', $locale));
     }
 }

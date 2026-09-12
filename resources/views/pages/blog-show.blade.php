@@ -5,7 +5,7 @@
 
 @section('content')
 <article class="mx-auto max-w-3xl px-4 py-14">
-    <p class="text-gold uppercase tracking-[0.25em] text-xs">{{ optional($post->published_at)->format('F j, Y') }}</p>
+    <p class="text-gold uppercase tracking-[0.25em] text-xs">{{ optional($post->published_at)->translatedFormat('F j, Y') }}</p>
     <h1 class="font-display text-5xl md:text-6xl text-forest mt-3">{{ $post->title }}</h1>
     <div class="prose-content mt-8 text-lg">{!! $post->content !!}</div>
     @include('partials.ad', ['type' => 'native'])

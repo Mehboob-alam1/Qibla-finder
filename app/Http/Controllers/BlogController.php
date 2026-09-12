@@ -30,7 +30,7 @@ class BlogController extends Controller
     public function show(string $slug): View
     {
         try {
-            $post = Post::query()->published()->where('slug', $slug)->firstOrFail();
+            $post = Post::query()->published()->forLocale()->where('slug', $slug)->firstOrFail();
             $related = Post::query()
                 ->published()
                 ->forLocale()

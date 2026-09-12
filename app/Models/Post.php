@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LocalizesContent;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,13 @@ use Illuminate\Support\Str;
 #[Fillable(['title', 'slug', 'locale', 'excerpt', 'content', 'cover_image', 'meta_title', 'meta_description', 'is_published', 'published_at'])]
 class Post extends Model
 {
+    use LocalizesContent;
+
+    protected static function localeIdentityColumn(): ?string
+    {
+        return 'slug';
+    }
+
     protected function casts(): array
     {
         return [
@@ -36,10 +44,5 @@ class Post extends Model
             ->where(function (Builder $builder) {
                 $builder->whereNull('published_at')->orWhere('published_at', '<=', now());
             });
-    }
-
-    public function scopeForLocale(Builder $query, ?string $locale = null): Builder
-    {
-        return $query->where('locale', $locale ?: app()->getLocale());
     }
 }

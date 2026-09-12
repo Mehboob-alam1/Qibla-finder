@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Page;
 use App\Support\EnsureDatabase;
+use App\Support\LocalizedPaths;
 use App\Support\PublicUrl;
 use App\Support\SiteSettings;
 use Illuminate\Support\Facades\Schema;
@@ -70,6 +71,9 @@ class AppServiceProvider extends ServiceProvider
                 'documentDir' => $locales[$locale]['dir'] ?? 'ltr',
                 'headerPages' => $headerPages,
                 'footerPages' => $footerPages,
+                'homeUrl' => LocalizedPaths::url('home', $locale),
+                'prayerUrl' => LocalizedPaths::url('prayer-times', $locale),
+                'hreflangUrls' => LocalizedPaths::alternates(),
             ]);
         });
     }

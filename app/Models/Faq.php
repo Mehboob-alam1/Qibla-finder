@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LocalizesContent;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['question', 'answer', 'locale', 'category', 'is_published', 'sort_order'])]
 class Faq extends Model
 {
+    use LocalizesContent;
+
     protected function casts(): array
     {
         return [
@@ -19,10 +22,5 @@ class Faq extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);
-    }
-
-    public function scopeForLocale(Builder $query, ?string $locale = null): Builder
-    {
-        return $query->where('locale', $locale ?: app()->getLocale());
     }
 }

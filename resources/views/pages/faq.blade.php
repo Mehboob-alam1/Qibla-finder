@@ -17,7 +17,12 @@
 
 <div class="mx-auto max-w-3xl px-4 pb-14">
     @forelse ($faqs as $category => $items)
-        <h2 class="mt-12 font-display text-3xl text-gold capitalize">{{ $category }}</h2>
+        <h2 class="mt-12 font-display text-3xl text-gold capitalize">{{ __(match ($category) {
+            'qibla' => 'ui.Find Qibla',
+            'prayer' => 'ui.Prayer Times',
+            'general' => 'ui.How it works',
+            default => 'ui.FAQ',
+        }) }}</h2>
         <div class="mt-4 space-y-4">
             @foreach ($items as $faq)
                 <details class="stat-card rounded-3xl px-6 py-4">

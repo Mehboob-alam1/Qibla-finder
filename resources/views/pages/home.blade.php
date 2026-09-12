@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', ($siteSettings['meta_title'] ?? 'Qibla Finder — Accurate Qibla Direction'))
-@section('description', $siteSettings['meta_description'] ?? $siteTagline)
+@section('title', __('ui.meta_title'))
+@section('description', __('ui.meta_description'))
 
 @section('content')
 @php
@@ -34,7 +34,7 @@
             <p class="mt-5 text-cream/75 text-lg max-w-xl">{{ __('ui.hero_lead') }}</p>
             <div class="mt-8 flex flex-wrap gap-3">
                 <button class="bg-gold text-ink font-semibold px-6 py-3 rounded-full" type="button" onclick="document.querySelector('[data-qibla-app] [data-locate]')?.click()">{{ __('ui.Find Qibla Direction') }}</button>
-                <a href="{{ route('prayer-times') }}" class="px-6 py-3 rounded-full border border-gold/40 text-gold">{{ __('ui.Prayer Times') }}</a>
+                <a href="{{ $prayerUrl ?? route('prayer-times') }}" class="px-6 py-3 rounded-full border border-gold/40 text-gold">{{ __('ui.Prayer Times') }}</a>
             </div>
             <div class="mt-6 flex flex-wrap gap-2">
                 @foreach (\App\Support\Cities::popular() as $city)
@@ -243,6 +243,17 @@
     </div>
 </section>
 
+<section class="mx-auto max-w-6xl px-4 mt-20">
+    <article class="prose-content max-w-3xl">
+        <h2>{{ __('ui.seo_qibla_h2_a') }}</h2>
+        <p>{{ __('ui.seo_qibla_p_a') }}</p>
+        <h2>{{ __('ui.seo_qibla_h2_b') }}</h2>
+        <p>{{ __('ui.seo_qibla_p_b') }}</p>
+        <h2>{{ __('ui.seo_qibla_h2_c') }}</h2>
+        <p>{{ __('ui.seo_qibla_p_c') }}</p>
+    </article>
+</section>
+
 @include('partials.qibla-help')
 
 @include('partials.ad', ['type' => 'banner'])
@@ -275,7 +286,7 @@
     <div class="grid md:grid-cols-3 gap-5">
         @foreach ($posts as $post)
             <a href="{{ route('blog.show', $post->slug) }}" class="stat-card rounded-3xl p-6 block hover:-translate-y-1 transition">
-                <p class="text-xs text-gold uppercase tracking-widest">{{ optional($post->published_at)->format('M j, Y') }}</p>
+                <p class="text-xs text-gold uppercase tracking-widest">{{ optional($post->published_at)->translatedFormat('M j, Y') }}</p>
                 <h3 class="font-display text-3xl mt-2 text-forest">{{ $post->title }}</h3>
                 <p class="mt-3 text-forest/70">{{ $post->excerpt }}</p>
             </a>

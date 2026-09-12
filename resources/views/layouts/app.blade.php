@@ -4,24 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', $siteSettings['meta_title'] ?? $siteName)</title>
-    <meta name="description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
+    <title>@yield('title', $currentLocale === 'en' ? ($siteSettings['meta_title'] ?? $siteName) : __('ui.meta_title'))</title>
+    <meta name="description" content="@yield('description', $currentLocale === 'en' ? ($siteSettings['meta_description'] ?? $siteTagline) : __('ui.meta_description'))">
     <meta name="theme-color" content="#0d3b2e">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $siteName }}">
-    <meta property="og:title" content="@yield('title', $siteSettings['meta_title'] ?? $siteName)">
-    <meta property="og:description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
+    <meta property="og:title" content="@yield('title', $currentLocale === 'en' ? ($siteSettings['meta_title'] ?? $siteName) : __('ui.meta_title'))">
+    <meta property="og:description" content="@yield('description', $currentLocale === 'en' ? ($siteSettings['meta_description'] ?? $siteTagline) : __('ui.meta_description'))">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('title', $siteSettings['meta_title'] ?? $siteName)">
-    <meta name="twitter:description" content="@yield('description', $siteSettings['meta_description'] ?? $siteTagline)">
+    <meta name="twitter:title" content="@yield('title', $currentLocale === 'en' ? ($siteSettings['meta_title'] ?? $siteName) : __('ui.meta_title'))">
+    <meta name="twitter:description" content="@yield('description', $currentLocale === 'en' ? ($siteSettings['meta_description'] ?? $siteTagline) : __('ui.meta_description'))">
     <meta property="og:image" content="{{ url('/og.png') }}">
     <meta name="twitter:image" content="{{ url('/og.png') }}">
     <link rel="canonical" href="{{ url()->current() }}">
-    @foreach ($locales as $code => $meta)
-        <link rel="alternate" hreflang="{{ $code }}" href="{{ url()->current() }}?hl={{ $code }}">
+    @foreach ($hreflangUrls ?? [] as $code => $href)
+        <link rel="alternate" hreflang="{{ $code }}" href="{{ $href }}">
     @endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ url()->current() }}">
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
@@ -69,7 +68,7 @@
 
     <header class="sticky top-0 z-40 bg-cream/90 backdrop-blur border-b border-forest/10">
         <div class="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-4">
-            <a href="{{ route('home') }}" class="flex items-center gap-2 min-w-0">
+            <a href="{{ $homeUrl ?? route('home') }}" class="flex items-center gap-2 min-w-0">
                 <span class="h-8 w-8 shrink-0 rounded-xl bg-forest text-gold grid place-items-center font-display text-lg">ق</span>
                 <span class="min-w-0">
                     <span class="block font-display text-lg leading-none text-forest truncate">{{ $siteName }}</span>
@@ -78,13 +77,13 @@
             </a>
 
             <nav class="hidden lg:flex items-center gap-3 xl:gap-4 text-forest">
-                <a class="nav-link {{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
-                <a class="nav-link {{ request()->routeIs('prayer-times') ? 'is-active' : '' }}" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
+                <a class="nav-link {{ \App\Support\LocalizedPaths::is('home') ? 'is-active' : '' }}" href="{{ $homeUrl ?? route('home') }}">{{ __('ui.Find Qibla') }}</a>
+                <a class="nav-link {{ \App\Support\LocalizedPaths::is('prayer-times') ? 'is-active' : '' }}" href="{{ $prayerUrl ?? route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
                 <a class="nav-link {{ request()->routeIs('cities.*') ? 'is-active' : '' }}" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
                 <a class="nav-link {{ request()->routeIs('blog.*') ? 'is-active' : '' }}" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
                 <a class="nav-link {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
                 @foreach ($headerPages as $page)
-                    <a class="nav-link {{ $page->isCurrent() ? 'is-active' : '' }}" href="{{ $page->publicPath() }}">{{ $page->title }}</a>
+                    <a class="nav-link {{ $page->isCurrent() ? 'is-active' : '' }}" href="{{ $page->publicPath() }}">{{ $page->navLabel() }}</a>
                 @endforeach
                 <a class="nav-link {{ request()->routeIs('contact') ? 'is-active' : '' }}" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
             </nav>
@@ -118,13 +117,13 @@
             </div>
         </div>
         <div data-mobile-panel class="hidden lg:hidden border-t border-forest/10 bg-cream px-4 py-4 space-y-2.5 text-sm text-forest">
-            <a class="block" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
-            <a class="block" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
+            <a class="block" href="{{ $homeUrl ?? route('home') }}">{{ __('ui.Find Qibla') }}</a>
+            <a class="block" href="{{ $prayerUrl ?? route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
             <a class="block" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
             <a class="block" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
             <a class="block" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
             @foreach ($headerPages as $page)
-                <a class="block" href="{{ $page->publicPath() }}">{{ $page->title }}</a>
+                <a class="block" href="{{ $page->publicPath() }}">{{ $page->navLabel() }}</a>
             @endforeach
             <a class="block" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
             <div>
@@ -142,7 +141,7 @@
         <div class="mx-auto max-w-6xl px-4 py-14 grid md:grid-cols-4 gap-10">
             <div class="md:col-span-2">
                 <p class="font-display text-4xl text-gold">{{ $siteName }}</p>
-                <p class="mt-3 max-w-md text-cream/70">{{ $siteSettings['footer_text'] ?? $siteTagline }}</p>
+                <p class="mt-3 max-w-md text-cream/70">{{ $currentLocale === 'en' ? ($siteSettings['footer_text'] ?? $siteTagline) : __('ui.footer_text') }}</p>
                 <div class="mt-5">
                     @include('partials.share', [
                         'shareUrl' => url('/'),
@@ -154,19 +153,19 @@
             <div>
                 <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Explore') }}</p>
                 <div class="space-y-2 text-cream/80">
-                    <a class="block hover:text-gold" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
-                    <a class="block hover:text-gold" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
+                    <a class="block hover:text-gold" href="{{ $homeUrl ?? route('home') }}">{{ __('ui.Find Qibla') }}</a>
+                    <a class="block hover:text-gold" href="{{ $prayerUrl ?? route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
                     <a class="block hover:text-gold" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
                     <a class="block hover:text-gold" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
                     <a class="block hover:text-gold" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
-                    <a class="block hover:text-gold" href="{{ url('/#setup') }}">{{ __('ui.help_kicker') }}</a>
+                    <a class="block hover:text-gold" href="{{ ($homeUrl ?? url('/')).'#setup' }}">{{ __('ui.help_kicker') }}</a>
                 </div>
             </div>
             <div>
                 <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Legal') }}</p>
                 <div class="space-y-2 text-cream/80">
                     @foreach ($footerPages as $page)
-                        <a class="block hover:text-gold" href="{{ $page->publicPath() }}">{{ $page->title }}</a>
+                        <a class="block hover:text-gold" href="{{ $page->publicPath() }}">{{ $page->navLabel() }}</a>
                     @endforeach
                     <a class="block hover:text-gold" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
                 </div>

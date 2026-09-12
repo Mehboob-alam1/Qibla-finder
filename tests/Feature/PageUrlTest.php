@@ -92,11 +92,16 @@ class PageUrlTest extends TestCase
 
         $home = $this->get('/')->assertOk();
         $home->assertSee('href="/duas-qibla"', false);
-        $home->assertSee('>Duas Qibla</a>', false);
+        $home->assertSee('>Dua</a>', false);
 
         $this->assertSame(3, substr_count($home->getContent(), 'href="/duas-qibla"'));
         $this->assertSame(1, substr_count($home->getContent(), 'href="/p/about"'));
         $home->assertDontSee('nav-link" href="/p/about"', false);
+
+        $this->get('/?hl=ar')
+            ->assertOk()
+            ->assertSee('>دعاء</a>', false)
+            ->assertSee('>من نحن</a>', false);
     }
 
     public function test_pages_hidden_from_nav_do_not_appear_in_header_or_footer(): void
