@@ -109,6 +109,7 @@ return [
     'searching_places' => 'Dünya aranıyor…',
     'no_places' => 'Yer bulunamadı. Başka bir ad deneyin.',
     'qibla_short' => 'Kıble',
+    'mode_magnetometer' => 'Manyetometre',
     'Camera' => 'Canlı kamera',
     'camera_unavailable' => 'This browser cannot open the camera. Use the compass instead.',
     'camera_denied' => 'Camera access was denied. Allow the camera, then tap Live camera again.',

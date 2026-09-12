@@ -109,6 +109,7 @@ return [
     'searching_places' => 'دنیا بھر تلاش ہو رہی ہے…',
     'no_places' => 'کوئی مقام نہیں ملا۔ دوسرا نام آزمائیں۔',
     'qibla_short' => 'قبلہ',
+    'mode_magnetometer' => 'میگنیٹومیٹر',
     'Camera' => 'لائیو کیمرہ',
     'camera_unavailable' => 'This browser cannot open the camera. Use the compass instead.',
     'camera_denied' => 'Camera access was denied. Allow the camera, then tap Live camera again.',

@@ -109,6 +109,7 @@ return [
     'searching_places' => 'جارٍ البحث في العالم…',
     'no_places' => 'لا توجد أماكن. جرّب اسمًا آخر.',
     'qibla_short' => 'القبلة',
+    'mode_magnetometer' => 'مقياس المغناطيس',
     'Camera' => 'الكاميرا المباشرة',
     'camera_unavailable' => 'This browser cannot open the camera. Use the compass instead.',
     'camera_denied' => 'Camera access was denied. Allow the camera, then tap Live camera again.',

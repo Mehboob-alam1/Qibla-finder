@@ -254,7 +254,7 @@ class QiblaApp {
         if (interval) interval.value = String(this.settings.interval);
         const modeSelect = this.root.querySelector('[data-mode-select]');
         if (modeSelect) {
-            modeSelect.value = this.settings.mode;
+            modeSelect.value = this.settings.mode === 'camera' ? 'camera' : 'compass';
         }
         this.root.classList.toggle('is-camera', this.settings.mode === 'camera');
         this.cameraView?.classList.toggle('hidden', this.settings.mode !== 'camera');

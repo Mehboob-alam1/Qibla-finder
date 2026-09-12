@@ -6,6 +6,42 @@ const menu = document.querySelector('[data-mobile-toggle]');
 const panel = document.querySelector('[data-mobile-panel]');
 menu?.addEventListener('click', () => panel?.classList.toggle('hidden'));
 
+const cityFilter = document.querySelector('[data-city-filter]');
+if (cityFilter) {
+    const cards = document.querySelectorAll('[data-city-card]');
+    const chips = document.querySelectorAll('[data-city-chip]');
+    const groups = document.querySelectorAll('[data-city-group]');
+    const empty = document.querySelector('[data-city-empty]');
+
+    const applyCityFilter = () => {
+        const query = cityFilter.value.trim().toLowerCase();
+        let visible = 0;
+
+        cards.forEach((card) => {
+            const match = query === '' || (card.dataset.search || '').includes(query);
+            card.hidden = ! match;
+            if (match) {
+                visible += 1;
+            }
+        });
+
+        chips.forEach((chip) => {
+            chip.hidden = query !== '' && ! (chip.dataset.search || '').includes(query);
+        });
+
+        groups.forEach((group) => {
+            group.hidden = ! [...group.querySelectorAll('[data-city-card]')].some((card) => ! card.hidden);
+        });
+
+        if (empty) {
+            empty.classList.toggle('hidden', visible > 0);
+        }
+    };
+
+    cityFilter.addEventListener('input', applyCityFilter);
+    applyCityFilter();
+}
+
 document.querySelectorAll('[data-copy]').forEach((button) => {
     button.addEventListener('click', async () => {
         const root = button.closest('[data-share]');

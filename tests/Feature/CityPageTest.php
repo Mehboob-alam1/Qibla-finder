@@ -29,7 +29,8 @@ class CityPageTest extends TestCase
         $this->get('/cities')
             ->assertOk()
             ->assertSee('London', false)
-            ->assertSee('/qibla/new-york', false);
+            ->assertSee('/qibla/new-york', false)
+            ->assertSee('data-city-filter', false);
     }
 
     public function test_sitemap_lists_city_pages(): void

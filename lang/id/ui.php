@@ -109,6 +109,7 @@ return [
     'searching_places' => 'Mencari di seluruh dunia…',
     'no_places' => 'Tempat tidak ditemukan. Coba nama lain.',
     'qibla_short' => 'Kiblat',
+    'mode_magnetometer' => 'Magnetometer',
     'Camera' => 'Kamera langsung',
     'camera_unavailable' => 'This browser cannot open the camera. Use the compass instead.',
     'camera_denied' => 'Camera access was denied. Allow the camera, then tap Live camera again.',

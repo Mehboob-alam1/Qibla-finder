@@ -109,6 +109,7 @@ return [
     'searching_places' => 'در حال جستجوی جهان…',
     'no_places' => 'مکانی یافت نشد. نام دیگری امتحان کنید.',
     'qibla_short' => 'قبله',
+    'mode_magnetometer' => 'مغناطیس‌سنج',
     'Camera' => 'دوربین زنده',
     'camera_unavailable' => 'This browser cannot open the camera. Use the compass instead.',
     'camera_denied' => 'Camera access was denied. Allow the camera, then tap Live camera again.',

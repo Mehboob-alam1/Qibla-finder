@@ -109,6 +109,7 @@ return [
     'searching_places' => 'Søger i verden…',
     'no_places' => 'Ingen steder fundet. Prøv et andet navn.',
     'qibla_short' => 'Qibla',
+    'mode_magnetometer' => 'Magnetometer',
     'Camera' => 'Livekamera',
     'camera_unavailable' => 'This browser cannot open the camera. Use the compass instead.',
     'camera_denied' => 'Camera access was denied. Allow the camera, then tap Live camera again.',

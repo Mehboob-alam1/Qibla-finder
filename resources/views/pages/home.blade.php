@@ -34,7 +34,6 @@
             <p class="mt-5 text-cream/75 text-lg max-w-xl">{{ __('ui.hero_lead') }}</p>
             <div class="mt-8 flex flex-wrap gap-3">
                 <button class="bg-gold text-ink font-semibold px-6 py-3 rounded-full" type="button" onclick="document.querySelector('[data-qibla-app] [data-locate]')?.click()">{{ __('ui.Find Qibla Direction') }}</button>
-                <button class="px-6 py-3 rounded-full border border-gold/40 text-gold lg:hidden" type="button" data-hero-camera>{{ __('ui.Camera') }}</button>
                 <a href="{{ route('prayer-times') }}" class="px-6 py-3 rounded-full border border-gold/40 text-gold">{{ __('ui.Prayer Times') }}</a>
             </div>
             <div class="mt-6 flex flex-wrap gap-2">
@@ -155,7 +154,6 @@
 
             <div class="mt-6 flex flex-wrap justify-center gap-2">
                 <button data-locate type="button" class="bg-gold text-ink px-5 py-2.5 rounded-full font-semibold">{{ __('ui.Enable location') }}</button>
-                <button data-camera-open type="button" class="bg-gold/15 text-gold border border-gold/40 px-5 py-2.5 rounded-full font-semibold">{{ __('ui.Camera') }}</button>
                 <button data-calibrate type="button" class="border border-gold/40 text-gold px-5 py-2.5 rounded-full">{{ __('ui.Recalibrate') }}</button>
                 <button data-settings-open type="button" class="border border-white/20 px-5 py-2.5 rounded-full">{{ __('ui.Settings') }}</button>
                 @include('partials.share', ['shareUrl' => url('/'), 'shareAlign' => 'start-0'])
@@ -179,8 +177,7 @@
                     </label>
                     <label class="block text-sm">{{ __('ui.Display Mode') }}
                         <select data-mode-select class="field mt-1 w-full rounded-2xl border px-4 py-2.5 cursor-pointer">
-                            <option value="compass">{{ __('ui.Compass') }}</option>
-                            <option value="arrow">{{ __('ui.Arrow') }}</option>
+                            <option value="compass">{{ __('ui.mode_magnetometer') }}</option>
                             <option value="camera">{{ __('ui.Camera') }}</option>
                         </select>
                     </label>

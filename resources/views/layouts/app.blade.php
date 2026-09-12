@@ -69,15 +69,15 @@
 
     <header class="sticky top-0 z-40 bg-cream/90 backdrop-blur border-b border-forest/10">
         <div class="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-4">
-            <a href="{{ route('home') }}" class="flex items-center gap-3 min-w-0">
-                <span class="h-10 w-10 shrink-0 rounded-2xl bg-forest text-gold grid place-items-center font-display text-xl">ق</span>
+            <a href="{{ route('home') }}" class="flex items-center gap-2 min-w-0">
+                <span class="h-8 w-8 shrink-0 rounded-xl bg-forest text-gold grid place-items-center font-display text-lg">ق</span>
                 <span class="min-w-0">
-                    <span class="block font-display text-2xl leading-none text-forest truncate">{{ $siteName }}</span>
-                    <span class="hidden lg:block text-[11px] uppercase tracking-[0.18em] text-forest/50 truncate">{{ $siteTagline }}</span>
+                    <span class="block font-display text-lg leading-none text-forest truncate">{{ $siteName }}</span>
+                    <span class="hidden xl:block text-[10px] uppercase tracking-[0.16em] text-forest/50 truncate">{{ $siteTagline }}</span>
                 </span>
             </a>
 
-            <nav class="hidden lg:flex items-center gap-6 text-sm font-medium text-forest">
+            <nav class="hidden lg:flex items-center gap-3 xl:gap-4 text-forest">
                 <a class="nav-link {{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
                 <a class="nav-link {{ request()->routeIs('prayer-times') ? 'is-active' : '' }}" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
                 <a class="nav-link {{ request()->routeIs('cities.*') ? 'is-active' : '' }}" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
@@ -117,7 +117,7 @@
                 <button data-mobile-toggle class="lg:hidden h-10 w-10 rounded-xl bg-forest text-cream" aria-label="{{ __('ui.Menu') }}">☰</button>
             </div>
         </div>
-        <div data-mobile-panel class="hidden lg:hidden border-t border-forest/10 bg-cream px-4 py-4 space-y-3 text-forest">
+        <div data-mobile-panel class="hidden lg:hidden border-t border-forest/10 bg-cream px-4 py-4 space-y-2.5 text-sm text-forest">
             <a class="block" href="{{ route('home') }}">{{ __('ui.Find Qibla') }}</a>
             <a class="block" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
             <a class="block" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>

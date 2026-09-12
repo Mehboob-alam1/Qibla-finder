@@ -22,8 +22,10 @@ class ExampleTest extends TestCase
             ->assertSee('data-share', false)
             ->assertSee('name="msvalidate.01"', false)
             ->assertSee('167843586563944F086753F2A9641BFE', false)
-            ->assertSee('data-camera-open', false)
+            ->assertDontSee('data-camera-open', false)
+            ->assertDontSee('data-hero-camera', false)
             ->assertSee('data-camera-video', false)
+            ->assertSee('data-mode-select', false)
             ->assertSee('value="camera"', false)
             ->assertSee('Live camera on your phone', false);
     }
