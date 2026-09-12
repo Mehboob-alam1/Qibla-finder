@@ -18,7 +18,7 @@
             @foreach ($items as $faq)
                 <details class="stat-card rounded-3xl px-6 py-4">
                     <summary class="cursor-pointer font-semibold text-forest">{{ $faq->question }}</summary>
-                    <p class="mt-3 text-forest/70 leading-relaxed whitespace-pre-line">{{ $faq->answer }}</p>
+                    <div class="prose-content mt-3 text-forest/70">{!! $faq->answer !!}</div>
                 </details>
             @endforeach
         </div>

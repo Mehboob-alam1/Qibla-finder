@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
+use App\Support\HtmlContent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -50,13 +51,18 @@ class FaqController extends Controller
 
     protected function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'question' => ['required', 'string', 'max:255'],
-            'answer' => ['required', 'string'],
+            'answer' => ['required', 'string', 'max:50000'],
             'locale' => ['required', 'string', 'max:8'],
             'category' => ['required', 'string', 'max:40'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_published' => ['sometimes', 'boolean'],
-        ]) + ['is_published' => $request->boolean('is_published')];
+        ]);
+
+        $data['is_published'] = $request->boolean('is_published');
+        $data['answer'] = HtmlContent::clean($data['answer']);
+
+        return $data;
     }
 }

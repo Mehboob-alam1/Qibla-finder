@@ -18,7 +18,7 @@
         </label>
         <label class="text-sm">Sort <input type="number" name="sort_order" value="{{ old('sort_order', $page->sort_order ?? 0) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     </div>
-    <label class="block text-sm">Content <textarea name="content" rows="14" required class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-3 font-mono text-sm">{{ old('content', $page->content) }}</textarea></label>
+    @include('admin.partials.editor', ['name' => 'content', 'label' => 'Page content', 'value' => $page->content, 'required' => true])
     <label class="block text-sm">SEO title <input name="meta_title" value="{{ old('meta_title', $page->meta_title) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     <label class="block text-sm">SEO description <input name="meta_description" value="{{ old('meta_description', $page->meta_description) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_published" value="1" @checked(old('is_published', $page->is_published))> Published</label>

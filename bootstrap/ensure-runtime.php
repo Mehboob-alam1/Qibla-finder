@@ -10,6 +10,7 @@ $directories = [
     $root.'/database',
     $root.'/bootstrap/cache',
     $root.'/storage/app/public',
+    $root.'/public/media/articles',
     $root.'/storage/framework/cache/data',
     $root.'/storage/framework/sessions',
     $root.'/storage/framework/views',

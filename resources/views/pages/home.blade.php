@@ -224,7 +224,7 @@
         @foreach ($faqs as $faq)
             <article class="stat-card rounded-3xl p-6">
                 <h3 class="font-semibold text-forest">{{ $faq->question }}</h3>
-                <p class="mt-2 text-forest/70 whitespace-pre-line line-clamp-5">{{ $faq->answer }}</p>
+                <div class="prose-content mt-2 text-forest/70 line-clamp-5">{!! $faq->answer !!}</div>
             </article>
         @endforeach
     </div>

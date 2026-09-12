@@ -7,7 +7,7 @@
     @csrf
     @if ($faq->exists) @method('PUT') @endif
     <label class="block text-sm">Question <input name="question" value="{{ old('question', $faq->question) }}" required class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
-    <label class="block text-sm">Answer <textarea name="answer" rows="8" required class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-3">{{ old('answer', $faq->answer) }}</textarea></label>
+    @include('admin.partials.editor', ['name' => 'answer', 'label' => 'Answer', 'value' => $faq->answer, 'required' => true, 'rows' => 8])
     <div class="grid md:grid-cols-3 gap-4">
         <label class="text-sm">Category <input name="category" value="{{ old('category', $faq->category) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
         <label class="text-sm">Locale
