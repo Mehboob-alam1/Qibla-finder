@@ -24,7 +24,9 @@ class EnsureDatabase
         try {
             self::connectOrFallbackToSqlite();
 
-            if (! Schema::hasTable('users') || (Schema::hasTable('pages') && ! Schema::hasColumn('pages', 'url_style'))) {
+            if (! Schema::hasTable('users') || (Schema::hasTable('pages') && (
+                ! Schema::hasColumn('pages', 'url_style') || ! Schema::hasColumn('pages', 'show_in_header')
+            ))) {
                 Artisan::call('migrate', ['--force' => true]);
             }
 

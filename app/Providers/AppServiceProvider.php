@@ -34,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $locale = app()->getLocale();
             $locales = config('qibla.locales');
+            $headerPages = collect();
             $footerPages = collect();
 
             try {
@@ -42,10 +43,21 @@ class AppServiceProvider extends ServiceProvider
                     if (Schema::hasColumn('pages', 'url_style')) {
                         $columns[] = 'url_style';
                     }
+                    if (Schema::hasColumn('pages', 'show_in_header')) {
+                        $columns[] = 'show_in_header';
+                    }
+                    if (Schema::hasColumn('pages', 'show_in_footer')) {
+                        $columns[] = 'show_in_footer';
+                    }
 
-                    $footerPages = Page::query()->published()->forLocale()->orderBy('sort_order')->get($columns);
+                    $pages = Page::query()->published()->forLocale()->orderBy('sort_order')->get($columns);
+                    $headerPages = $pages->where('show_in_header', true)->values();
+                    $footerPages = Schema::hasColumn('pages', 'show_in_footer')
+                        ? $pages->where('show_in_footer', true)->values()
+                        : $pages;
                 }
             } catch (Throwable) {
+                $headerPages = collect();
                 $footerPages = collect();
             }
 
@@ -56,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
                 'locales' => $locales,
                 'currentLocale' => $locale,
                 'documentDir' => $locales[$locale]['dir'] ?? 'ltr',
+                'headerPages' => $headerPages,
                 'footerPages' => $footerPages,
             ]);
         });

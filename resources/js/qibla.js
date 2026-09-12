@@ -88,6 +88,10 @@ function unwrapToward(previous, nextNormalized) {
     return previous + shortestDelta(normalizeDegrees(previous), nextNormalized);
 }
 
+function normalizeMode(value) {
+    return value === 'arrow' || value === 'camera' ? value : 'compass';
+}
+
 class QiblaApp {
     constructor(root) {
         this.root = root;
@@ -113,7 +117,7 @@ class QiblaApp {
         this.settings = {
             vibration: storedFlag('qf_vib', root.dataset.defaultVibration !== '0'),
             audio: storedFlag('qf_audio', root.dataset.defaultAudio === '1'),
-            mode: storedValue('qf_mode', root.dataset.defaultMode || 'compass') === 'arrow' ? 'arrow' : 'compass',
+            mode: normalizeMode(storedValue('qf_mode', root.dataset.defaultMode || 'compass')),
             interval: Math.max(5, Math.min(3600, Number(storedValue('qf_interval', root.dataset.updateInterval || '300')) || 300)),
         };
         this.state = {
@@ -136,6 +140,15 @@ class QiblaApp {
         this.displayNeedle = 0;
         this.displayRose = 0;
         this.smoothedHeading = null;
+        this.cameraStream = null;
+        this.cameraStarting = false;
+        this.cameraVideo = root.querySelector('[data-camera-video]');
+        this.cameraView = root.querySelector('[data-camera-view]');
+        this.cameraKaaba = root.querySelector('[data-camera-kaaba]');
+        this.cameraHeadingEl = root.querySelector('[data-camera-heading]');
+        this.cameraQiblaEl = root.querySelector('[data-camera-qibla]');
+        this.cameraTurnLeft = root.querySelector('[data-camera-turn="left"]');
+        this.cameraTurnRight = root.querySelector('[data-camera-turn="right"]');
         this.bind();
         this.restore();
         this.askLocation();
@@ -159,7 +172,28 @@ class QiblaApp {
             el.addEventListener('click', () => this.showCalibrate(false));
         });
         this.root.querySelector('[data-mode-select]')?.addEventListener('change', (e) => {
-            this.setMode(e.target.value);
+            this.setMode(e.target.value, true);
+        });
+        this.root.querySelectorAll('[data-camera-open]').forEach((button) => {
+            button.addEventListener('click', () => this.setMode('camera', true));
+        });
+        document.querySelectorAll('[data-hero-camera]').forEach((button) => {
+            button.addEventListener('click', () => {
+                this.root.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                this.setMode('camera', true);
+            });
+        });
+        this.root.querySelector('[data-camera-close]')?.addEventListener('click', () => {
+            this.setMode('compass', true);
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.stopCamera();
+                return;
+            }
+            if (this.settings.mode === 'camera') {
+                this.startCamera();
+            }
         });
         this.root.querySelector('[data-toggle-vib]')?.addEventListener('change', (e) => {
             this.settings.vibration = e.target.checked;
@@ -220,8 +254,10 @@ class QiblaApp {
         if (interval) interval.value = String(this.settings.interval);
         const modeSelect = this.root.querySelector('[data-mode-select]');
         if (modeSelect) {
-            modeSelect.value = this.settings.mode === 'arrow' ? 'arrow' : 'compass';
+            modeSelect.value = this.settings.mode;
         }
+        this.root.classList.toggle('is-camera', this.settings.mode === 'camera');
+        this.cameraView?.classList.toggle('hidden', this.settings.mode !== 'camera');
     }
 
     showCalibrate(open) {
@@ -232,10 +268,23 @@ class QiblaApp {
         this.root.querySelector('[data-settings-modal]')?.classList.toggle('hidden', !open);
     }
 
-    setMode(mode) {
-        this.settings.mode = mode === 'arrow' ? 'arrow' : 'compass';
+    setMode(mode, fromGesture = false) {
+        this.settings.mode = normalizeMode(mode);
         localStorage.setItem('qf_mode', this.settings.mode);
         this.syncToggles();
+        if (this.settings.mode === 'camera') {
+            this.unlockQibla();
+            this.startCompass();
+            if (this.state.lat == null) {
+                this.askLocation(fromGesture);
+            }
+            if (fromGesture) {
+                this.startCamera();
+            }
+            this.setStatus(this.i18n.camera_hold || this.i18n.camera_hint || 'Hold the phone upright and turn toward the Kaaba.');
+        } else {
+            this.stopCamera();
+        }
         this.render();
     }
 
@@ -337,6 +386,64 @@ class QiblaApp {
         this.render();
         this.drawMap();
         this.setStatus(this.i18n.location_locked || 'Location locked. Hold your phone flat and turn toward the gold notch.');
+    }
+
+    async startCamera() {
+        if (this.cameraStream || this.cameraStarting) {
+            return;
+        }
+        if (! this.cameraVideo || ! navigator.mediaDevices?.getUserMedia) {
+            this.setStatus(this.i18n.camera_unavailable || 'This browser cannot open the camera. Use the compass instead.');
+            this.setMode('compass');
+            return;
+        }
+
+        this.cameraStarting = true;
+        try {
+            this.cameraStream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    facingMode: { ideal: 'environment' },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                },
+            });
+            this.cameraVideo.srcObject = this.cameraStream;
+            this.cameraVideo.setAttribute('playsinline', '');
+            this.cameraVideo.muted = true;
+            await this.cameraVideo.play();
+            this.setStatus(this.i18n.camera_hint || 'Hold the phone upright. Turn until the Kaaba meets the gold mark.');
+        } catch {
+            this.stopCamera();
+            this.setStatus(this.i18n.camera_denied || 'Camera access was denied. Allow the camera, then tap Live camera again.');
+            this.setMode('compass');
+        } finally {
+            this.cameraStarting = false;
+        }
+    }
+
+    stopCamera() {
+        this.cameraStream?.getTracks().forEach((track) => track.stop());
+        this.cameraStream = null;
+        if (this.cameraVideo) {
+            this.cameraVideo.srcObject = null;
+        }
+    }
+
+    applyCameraOverlay() {
+        if (! this.cameraKaaba || this.settings.mode !== 'camera') {
+            return;
+        }
+
+        const delta = shortestDelta(0, normalizeDegrees(this.displayNeedle));
+        const fov = 64;
+        const clamped = Math.max(-fov, Math.min(fov, delta));
+        const shift = (clamped / fov) * 42;
+        this.cameraKaaba.style.transform = `translate(calc(-50% + ${shift}%), -50%)`;
+
+        const off = Math.abs(delta) > fov * 0.92;
+        this.cameraTurnLeft?.classList.toggle('hidden', ! (off && delta < 0));
+        this.cameraTurnRight?.classList.toggle('hidden', ! (off && delta > 0));
     }
 
     async startCompass() {
@@ -441,6 +548,12 @@ class QiblaApp {
         if (this.headingEl) {
             this.headingEl.textContent = heading == null ? this.i18n.true_north || 'True north' : `${heading.toFixed(0)}°`;
         }
+        if (this.cameraHeadingEl) {
+            this.cameraHeadingEl.textContent = heading == null ? '—' : `${heading.toFixed(0)}°`;
+        }
+        if (this.cameraQiblaEl) {
+            this.cameraQiblaEl.textContent = `${this.i18n.qibla_short || 'Qibla'} ${qiblaText}`;
+        }
 
         const device = heading ?? 0;
         const delta = Math.abs(shortestDelta(device, qibla));
@@ -476,6 +589,7 @@ class QiblaApp {
         if (this.rose) {
             this.rose.style.transform = `rotate(${this.displayRose}deg)`;
         }
+        this.applyCameraOverlay();
     }
 
     lockQibla() {

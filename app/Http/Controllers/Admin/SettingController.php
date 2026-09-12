@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\QiblaDisplay;
 use App\Support\SiteSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class SettingController extends Controller
             'qibla_vibration' => ['sometimes', 'boolean'],
             'qibla_audio' => ['sometimes', 'boolean'],
             'qibla_update_interval' => ['required', 'integer', 'min:5', 'max:3600'],
-            'qibla_display_mode' => ['required', 'in:compass,arrow'],
+            'qibla_display_mode' => ['required', 'in:compass,arrow,camera'],
         ]);
 
         $data['adsense_enabled'] = $request->boolean('adsense_enabled') ? '1' : '0';
@@ -63,7 +64,7 @@ class SettingController extends Controller
         $data['qibla_vibration'] = $request->boolean('qibla_vibration') ? '1' : '0';
         $data['qibla_audio'] = $request->boolean('qibla_audio') ? '1' : '0';
         $data['qibla_update_interval'] = (string) max(5, min(3600, (int) $request->input('qibla_update_interval', 300)));
-        $data['qibla_display_mode'] = $request->input('qibla_display_mode') === 'arrow' ? 'arrow' : 'compass';
+        $data['qibla_display_mode'] = QiblaDisplay::mode($request->input('qibla_display_mode'));
 
         SiteSettings::put($data);
 

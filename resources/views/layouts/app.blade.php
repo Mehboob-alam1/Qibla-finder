@@ -70,6 +70,9 @@
                 <a class="nav-link {{ request()->routeIs('prayer-times') ? 'is-active' : '' }}" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
                 <a class="nav-link {{ request()->routeIs('blog.*') ? 'is-active' : '' }}" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
                 <a class="nav-link {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
+                @foreach ($headerPages as $page)
+                    <a class="nav-link {{ $page->isCurrent() ? 'is-active' : '' }}" href="{{ $page->publicPath() }}">{{ $page->title }}</a>
+                @endforeach
                 <a class="nav-link {{ request()->routeIs('contact') ? 'is-active' : '' }}" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
             </nav>
 
@@ -106,6 +109,9 @@
             <a class="block" href="{{ route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
             <a class="block" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
             <a class="block" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
+            @foreach ($headerPages as $page)
+                <a class="block" href="{{ $page->publicPath() }}">{{ $page->title }}</a>
+            @endforeach
             <a class="block" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
             <div>
                 @include('partials.share', [

@@ -20,6 +20,10 @@
         'no_places' => __('ui.no_places'),
         'permission_title' => __('ui.permission_title'),
         'qibla_short' => __('ui.qibla_short'),
+        'camera_unavailable' => __('ui.camera_unavailable'),
+        'camera_denied' => __('ui.camera_denied'),
+        'camera_hint' => __('ui.camera_hint'),
+        'camera_hold' => __('ui.camera_hold'),
     ];
 @endphp
 <section class="pattern-bg text-cream">
@@ -30,6 +34,7 @@
             <p class="mt-5 text-cream/75 text-lg max-w-xl">{{ __('ui.hero_lead') }}</p>
             <div class="mt-8 flex flex-wrap gap-3">
                 <button class="bg-gold text-ink font-semibold px-6 py-3 rounded-full" type="button" onclick="document.querySelector('[data-qibla-app] [data-locate]')?.click()">{{ __('ui.Find Qibla Direction') }}</button>
+                <button class="px-6 py-3 rounded-full border border-gold/40 text-gold lg:hidden" type="button" data-hero-camera>{{ __('ui.Camera') }}</button>
                 <a href="{{ route('prayer-times') }}" class="px-6 py-3 rounded-full border border-gold/40 text-gold">{{ __('ui.Prayer Times') }}</a>
             </div>
         </div>
@@ -40,7 +45,7 @@
              data-places-url="{{ route('places.search') }}"
              data-default-vibration="{{ ($siteSettings['qibla_vibration'] ?? '1') === '1' ? '1' : '0' }}"
              data-default-audio="{{ ($siteSettings['qibla_audio'] ?? '0') === '1' ? '1' : '0' }}"
-             data-default-mode="{{ ($siteSettings['qibla_display_mode'] ?? 'compass') === 'arrow' ? 'arrow' : 'compass' }}"
+             data-default-mode="{{ \App\Support\QiblaDisplay::mode($siteSettings['qibla_display_mode'] ?? 'compass') }}"
              data-update-interval="{{ max(5, min(3600, (int) ($siteSettings['qibla_update_interval'] ?? 300))) }}"
              class="relative">
             <div class="absolute -top-3 inset-x-0 flex justify-center z-10">
@@ -110,6 +115,29 @@
                     <p data-compass-qibla class="compass-hub-qibla">{{ __('ui.Qibla Direction') }}</p>
                 </div>
 
+                <div data-camera-view class="camera-view hidden">
+                    <video data-camera-video playsinline webkit-playsinline muted autoplay></video>
+                    <div class="camera-notch" aria-hidden="true"></div>
+                    <p data-camera-turn="left" class="camera-turn camera-turn--left hidden">{{ __('ui.camera_turn_left') }}</p>
+                    <p data-camera-turn="right" class="camera-turn camera-turn--right hidden">{{ __('ui.camera_turn_right') }}</p>
+                    <div data-camera-kaaba class="camera-kaaba" aria-hidden="true">
+                        <svg viewBox="0 0 120 140" role="img">
+                            <title>{{ __('ui.Kaaba') }}</title>
+                            <rect x="18" y="28" width="84" height="96" rx="3" fill="#121212"/>
+                            <rect x="18" y="28" width="84" height="18" fill="#3a2a10"/>
+                            <rect x="18" y="54" width="84" height="10" fill="#c9a227"/>
+                            <rect x="48" y="78" width="16" height="28" fill="#1c1408" stroke="#e8d48b" stroke-width="1.4"/>
+                            <path d="M18 28 L36 12 H100 L102 28 Z" fill="#2a2110"/>
+                            <text x="60" y="50" text-anchor="middle" fill="#e8d48b" font-size="14" font-family="Amiri">ك</text>
+                        </svg>
+                    </div>
+                    <div class="camera-readout">
+                        <span data-camera-heading>—</span>
+                        <span data-camera-qibla>{{ __('ui.qibla_short') }}</span>
+                    </div>
+                    <button data-camera-close type="button" class="camera-close">{{ __('ui.camera_close') }}</button>
+                </div>
+
                 <div data-permission-overlay class="compass-permission">
                     <p class="font-display text-2xl text-gold leading-tight">{{ __('ui.permission_title') }}</p>
                     <p class="mt-2 text-sm text-cream/75 max-w-[14rem]">{{ __('ui.permission_body') }}</p>
@@ -121,6 +149,7 @@
 
             <div class="mt-6 flex flex-wrap justify-center gap-2">
                 <button data-locate type="button" class="bg-gold text-ink px-5 py-2.5 rounded-full font-semibold">{{ __('ui.Enable location') }}</button>
+                <button data-camera-open type="button" class="bg-gold/15 text-gold border border-gold/40 px-5 py-2.5 rounded-full font-semibold">{{ __('ui.Camera') }}</button>
                 <button data-calibrate type="button" class="border border-gold/40 text-gold px-5 py-2.5 rounded-full">{{ __('ui.Recalibrate') }}</button>
                 <button data-settings-open type="button" class="border border-white/20 px-5 py-2.5 rounded-full">{{ __('ui.Settings') }}</button>
                 @include('partials.share', ['shareUrl' => url('/'), 'shareAlign' => 'start-0'])
@@ -146,6 +175,7 @@
                         <select data-mode-select class="field mt-1 w-full rounded-2xl border px-4 py-2.5 cursor-pointer">
                             <option value="compass">{{ __('ui.Compass') }}</option>
                             <option value="arrow">{{ __('ui.Arrow') }}</option>
+                            <option value="camera">{{ __('ui.Camera') }}</option>
                         </select>
                     </label>
                     <button data-settings-close type="button" class="w-full bg-forest text-cream rounded-full py-3">{{ __('ui.Close') }}</button>

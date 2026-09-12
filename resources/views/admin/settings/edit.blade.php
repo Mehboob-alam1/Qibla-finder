@@ -92,6 +92,7 @@
             <select name="qibla_display_mode" class="field mt-1 w-full rounded-2xl border px-4 py-2.5 cursor-pointer">
                 <option value="compass" @selected(old('qibla_display_mode', $settings['qibla_display_mode'] ?? 'compass') === 'compass')>Compass</option>
                 <option value="arrow" @selected(old('qibla_display_mode', $settings['qibla_display_mode'] ?? 'compass') === 'arrow')>Arrow</option>
+                <option value="camera" @selected(old('qibla_display_mode', $settings['qibla_display_mode'] ?? 'compass') === 'camera')>Live camera + Kaaba</option>
             </select>
         </label>
     </fieldset>

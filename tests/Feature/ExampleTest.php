@@ -19,7 +19,11 @@ class ExampleTest extends TestCase
             ->assertSee('data-update-interval="300"', false)
             ->assertSee('What devices can use this Qibla Finder?', false)
             ->assertSee('chrome://flags/#enable-generic-sensor-extra-classes', false)
-            ->assertSee('data-share', false);
+            ->assertSee('data-share', false)
+            ->assertSee('data-camera-open', false)
+            ->assertSee('data-camera-video', false)
+            ->assertSee('value="camera"', false)
+            ->assertSee('Live camera on your phone', false);
     }
 
     public function test_ad_preview_shows_placeholder_units(): void

@@ -8,12 +8,23 @@
 </div>
 <div class="stat-card rounded-3xl overflow-hidden">
     <table class="w-full text-sm">
-        <thead class="bg-sand text-start"><tr><th class="p-3 text-start">Title</th><th class="p-3">URL</th><th class="p-3">Locale</th><th class="p-3">Status</th><th></th></tr></thead>
+        <thead class="bg-sand text-start"><tr><th class="p-3 text-start">Title</th><th class="p-3">URL</th><th class="p-3">Shown in</th><th class="p-3">Locale</th><th class="p-3">Status</th><th></th></tr></thead>
         <tbody>
             @foreach ($pages as $page)
                 <tr class="border-t border-forest/10">
                     <td class="p-3">{{ $page->title }}</td>
                     <td class="p-3"><a class="text-gold font-mono" href="{{ $page->publicPath() }}" target="_blank" rel="noopener">{{ $page->publicPath() }}</a></td>
+                    <td class="p-3 text-forest/70">
+                        @if ($page->show_in_header && $page->show_in_footer)
+                            Header + footer
+                        @elseif ($page->show_in_header)
+                            Header
+                        @elseif ($page->show_in_footer)
+                            Footer
+                        @else
+                            Hidden
+                        @endif
+                    </td>
                     <td class="p-3">{{ $page->locale }}</td>
                     <td class="p-3">{{ $page->is_published ? 'Live' : 'Draft' }}</td>
                     <td class="p-3 text-end space-x-2">

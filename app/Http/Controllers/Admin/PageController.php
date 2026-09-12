@@ -23,7 +23,13 @@ class PageController extends Controller
 
     public function create(): View
     {
-        return view('admin.pages.form', ['page' => new Page(['is_published' => true, 'locale' => 'en', 'url_style' => 'flat'])]);
+        return view('admin.pages.form', ['page' => new Page([
+            'is_published' => true,
+            'locale' => 'en',
+            'url_style' => 'flat',
+            'show_in_header' => true,
+            'show_in_footer' => true,
+        ])]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -63,11 +69,15 @@ class PageController extends Controller
             'meta_title' => ['nullable', 'string', 'max:180'],
             'meta_description' => ['nullable', 'string', 'max:300'],
             'is_published' => ['sometimes', 'boolean'],
+            'show_in_header' => ['sometimes', 'boolean'],
+            'show_in_footer' => ['sometimes', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
         $data['is_published'] = $request->boolean('is_published');
+        $data['show_in_header'] = $request->boolean('show_in_header');
+        $data['show_in_footer'] = $request->boolean('show_in_footer');
         $data['content'] = HtmlContent::clean($data['content']);
 
         if ($data['url_style'] === 'flat' && in_array($data['slug'], Page::reservedSlugs(), true)) {

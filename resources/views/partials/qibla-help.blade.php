@@ -48,6 +48,10 @@
             </ul>
         </article>
         <article class="stat-card rounded-3xl p-6">
+            <h3 class="font-semibold text-forest text-lg">{{ __('ui.help_camera_title') }}</h3>
+            <p class="mt-3 text-forest/70 leading-relaxed">{{ __('ui.help_camera_body') }}</p>
+        </article>
+        <article class="stat-card rounded-3xl p-6">
             <h3 class="font-semibold text-forest text-lg">{{ __('ui.help_accuracy_title') }}</h3>
             <p class="mt-3 text-forest/70 leading-relaxed">{{ __('ui.help_accuracy_body') }}</p>
         </article>

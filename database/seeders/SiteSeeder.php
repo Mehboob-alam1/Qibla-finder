@@ -107,7 +107,13 @@ HTML,
         foreach ($pages as $i => $page) {
             Page::query()->updateOrCreate(
                 ['slug' => $page['slug'], 'locale' => 'en'],
-                $page + ['locale' => 'en', 'is_published' => true, 'sort_order' => $i + 1],
+                $page + [
+                    'locale' => 'en',
+                    'is_published' => true,
+                    'show_in_header' => false,
+                    'show_in_footer' => true,
+                    'sort_order' => $i + 1,
+                ],
             );
         }
     }

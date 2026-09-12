@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-#[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'sort_order'])]
+#[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'show_in_header', 'show_in_footer', 'sort_order'])]
 class Page extends Model
 {
     /**
@@ -48,10 +48,17 @@ class Page extends Model
         return url($this->publicPath());
     }
 
+    public function isCurrent(): bool
+    {
+        return '/'.ltrim(request()->path(), '/') === $this->publicPath();
+    }
+
     protected function casts(): array
     {
         return [
             'is_published' => 'boolean',
+            'show_in_header' => 'boolean',
+            'show_in_footer' => 'boolean',
         ];
     }
 
@@ -72,5 +79,15 @@ class Page extends Model
     public function scopeForLocale(Builder $query, ?string $locale = null): Builder
     {
         return $query->where('locale', $locale ?: app()->getLocale());
+    }
+
+    public function scopeInHeader(Builder $query): Builder
+    {
+        return $query->where('show_in_header', true);
+    }
+
+    public function scopeInFooter(Builder $query): Builder
+    {
+        return $query->where('show_in_footer', true);
     }
 }
