@@ -38,7 +38,12 @@ class AppServiceProvider extends ServiceProvider
 
             try {
                 if (Schema::hasTable('pages')) {
-                    $footerPages = Page::query()->published()->forLocale()->orderBy('sort_order')->get(['title', 'slug']);
+                    $columns = ['title', 'slug'];
+                    if (Schema::hasColumn('pages', 'url_style')) {
+                        $columns[] = 'url_style';
+                    }
+
+                    $footerPages = Page::query()->published()->forLocale()->orderBy('sort_order')->get($columns);
                 }
             } catch (Throwable) {
                 $footerPages = collect();

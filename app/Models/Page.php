@@ -7,9 +7,47 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-#[Fillable(['title', 'slug', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'sort_order'])]
+#[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'sort_order'])]
 class Page extends Model
 {
+    /**
+     * Paths that already belong to the app and cannot be used as flat CMS URLs.
+     *
+     * @return list<string>
+     */
+    public static function reservedSlugs(): array
+    {
+        return [
+            'admin',
+            'contact',
+            'faq',
+            'guides',
+            'locale',
+            'p',
+            'places',
+            'prayer-times',
+            'qibla.json',
+            'robots.txt',
+            'sitemap.xml',
+            'up',
+        ];
+    }
+
+    public function isFlat(): bool
+    {
+        return ($this->url_style ?: 'prefixed') === 'flat';
+    }
+
+    public function publicPath(): string
+    {
+        return $this->isFlat() ? '/'.$this->slug : '/p/'.$this->slug;
+    }
+
+    public function publicUrl(): string
+    {
+        return url($this->publicPath());
+    }
+
     protected function casts(): array
     {
         return [

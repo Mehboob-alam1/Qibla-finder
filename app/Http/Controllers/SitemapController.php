@@ -25,7 +25,7 @@ class SitemapController extends Controller
 
         try {
             Page::query()->published()->orderBy('updated_at')->get()->unique('slug')->each(function (Page $page) use (&$urls): void {
-                $urls[] = $this->entry(route('pages.show', $page->slug), $page->updated_at, 'monthly', '0.4');
+                $urls[] = $this->entry($page->publicUrl(), $page->updated_at, 'monthly', '0.4');
             });
 
             Post::query()->published()->orderByDesc('published_at')->get()->unique('slug')->each(function (Post $post) use (&$urls): void {

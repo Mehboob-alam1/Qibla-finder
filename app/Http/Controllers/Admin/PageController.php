@@ -7,6 +7,9 @@ use App\Models\Page;
 use App\Support\HtmlContent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -20,7 +23,7 @@ class PageController extends Controller
 
     public function create(): View
     {
-        return view('admin.pages.form', ['page' => new Page(['is_published' => true, 'locale' => 'en'])]);
+        return view('admin.pages.form', ['page' => new Page(['is_published' => true, 'locale' => 'en', 'url_style' => 'flat'])]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -53,7 +56,8 @@ class PageController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:180'],
-            'slug' => ['nullable', 'string', 'max:180', 'unique:pages,slug,'.($id ?: 'NULL')],
+            'slug' => ['nullable', 'string', 'max:180', 'alpha_dash', 'unique:pages,slug,'.($id ?: 'NULL')],
+            'url_style' => ['required', Rule::in(['flat', 'prefixed'])],
             'locale' => ['required', 'string', 'max:8'],
             'content' => ['required', 'string', 'max:200000'],
             'meta_title' => ['nullable', 'string', 'max:180'],
@@ -62,8 +66,15 @@ class PageController extends Controller
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
         $data['is_published'] = $request->boolean('is_published');
         $data['content'] = HtmlContent::clean($data['content']);
+
+        if ($data['url_style'] === 'flat' && in_array($data['slug'], Page::reservedSlugs(), true)) {
+            throw ValidationException::withMessages([
+                'slug' => 'That slug is already used by the site (for example /prayer-times or /faq). Pick another slug, or use a /p/ URL.',
+            ]);
+        }
 
         return $data;
     }

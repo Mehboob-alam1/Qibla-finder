@@ -55,3 +55,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class)->except('show');
     });
 });
+
+Route::get('/{slug}', [PageController::class, 'show'])
+    ->where('slug', '[A-Za-z0-9\-]+')
+    ->name('pages.flat');

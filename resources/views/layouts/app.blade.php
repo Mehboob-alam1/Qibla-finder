@@ -145,7 +145,7 @@
                 <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Legal') }}</p>
                 <div class="space-y-2 text-cream/80">
                     @foreach ($footerPages as $page)
-                        <a class="block hover:text-gold" href="{{ route('pages.show', $page->slug) }}">{{ $page->title }}</a>
+                        <a class="block hover:text-gold" href="{{ $page->publicPath() }}">{{ $page->title }}</a>
                     @endforeach
                     <a class="block hover:text-gold" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
                 </div>
