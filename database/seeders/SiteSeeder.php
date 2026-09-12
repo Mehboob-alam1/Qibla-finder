@@ -33,6 +33,7 @@ class SiteSeeder extends Seeder
             'default_calculation_method' => 'MWL',
             'announcement' => '',
             'google_site_verification' => '',
+            'bing_site_verification' => '167843586563944F086753F2A9641BFE',
             'head_html' => '',
             'footer_html' => '',
             'qibla_vibration' => '1',

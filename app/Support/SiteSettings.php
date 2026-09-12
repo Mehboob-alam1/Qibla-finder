@@ -119,4 +119,11 @@ class SiteSettings
     {
         return static::normalizeVerificationToken((string) static::get('google_site_verification', ''));
     }
+
+    public static function bingSiteVerification(): string
+    {
+        $token = static::normalizeVerificationToken((string) static::get('bing_site_verification', ''));
+
+        return $token !== '' ? $token : '167843586563944F086753F2A9641BFE';
+    }
 }

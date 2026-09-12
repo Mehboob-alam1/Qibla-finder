@@ -20,6 +20,8 @@ class ExampleTest extends TestCase
             ->assertSee('What devices can use this Qibla Finder?', false)
             ->assertSee('chrome://flags/#enable-generic-sensor-extra-classes', false)
             ->assertSee('data-share', false)
+            ->assertSee('name="msvalidate.01"', false)
+            ->assertSee('167843586563944F086753F2A9641BFE', false)
             ->assertSee('data-camera-open', false)
             ->assertSee('data-camera-video', false)
             ->assertSee('value="camera"', false)
@@ -88,5 +90,16 @@ class ExampleTest extends TestCase
             ->assertSee('jtIemhVXRpmISnRTllfMePhuh4tKciCLrzFRDSVF6wc', false)
             ->assertSee('<meta name="test-head" content="ok">', false)
             ->assertSee('<div id="test-foot"></div>', false);
+    }
+
+    public function test_bing_verification_meta_is_on_the_home_page(): void
+    {
+        SiteSettings::put([
+            'bing_site_verification' => '<meta name="msvalidate.01" content="167843586563944F086753F2A9641BFE" />',
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<meta name="msvalidate.01" content="167843586563944F086753F2A9641BFE">', false);
     }
 }

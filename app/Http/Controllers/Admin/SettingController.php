@@ -43,6 +43,7 @@ class SettingController extends Controller
             'default_calculation_method' => ['required', 'string', 'max:32'],
             'announcement' => ['nullable', 'string', 'max:255'],
             'google_site_verification' => ['nullable', 'string', 'max:400'],
+            'bing_site_verification' => ['nullable', 'string', 'max:400'],
             'head_html' => ['nullable', 'string', 'max:20000'],
             'footer_html' => ['nullable', 'string', 'max:20000'],
             'qibla_vibration' => ['sometimes', 'boolean'],
@@ -59,6 +60,9 @@ class SettingController extends Controller
         $data['google_site_verification'] = SiteSettings::normalizeVerificationToken(
             (string) $request->input('google_site_verification', ''),
         );
+        $data['bing_site_verification'] = SiteSettings::normalizeVerificationToken(
+            (string) $request->input('bing_site_verification', ''),
+        ) ?: SiteSettings::bingSiteVerification();
         $data['head_html'] = (string) $request->input('head_html', '');
         $data['footer_html'] = (string) $request->input('footer_html', '');
         $data['qibla_vibration'] = $request->boolean('qibla_vibration') ? '1' : '0';

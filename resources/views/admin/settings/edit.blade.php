@@ -63,6 +63,10 @@
             <input name="google_site_verification" value="{{ old('google_site_verification', $settings['google_site_verification'] ?? '') }}" placeholder="jtIemhVXRpmISnRTllfMePhuh4tKciCLrzFRDSVF6wc" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5 font-mono text-sm">
             <span class="block mt-1 text-forest/50">Paste the content value, or the whole <code>&lt;meta name="google-site-verification" …&gt;</code> tag.</span>
         </label>
+        <label class="text-sm block">Bing / Microsoft site verification
+            <input name="bing_site_verification" value="{{ old('bing_site_verification', $settings['bing_site_verification'] ?? \App\Support\SiteSettings::bingSiteVerification()) }}" placeholder="167843586563944F086753F2A9641BFE" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5 font-mono text-sm">
+            <span class="block mt-1 text-forest/50">Paste the content value, or the whole <code>&lt;meta name="msvalidate.01" …&gt;</code> tag. Keep this after Bing verifies the site.</span>
+        </label>
         <p class="text-sm text-forest/70">Search Console sitemap<br>
             <a href="{{ url('/sitemap.xml') }}" class="font-mono text-gold break-all" target="_blank" rel="noopener">{{ url('/sitemap.xml') }}</a>
             <span class="block mt-1 text-forest/50">In Google Search Console, open Sitemaps and submit that URL.</span>

@@ -48,6 +48,9 @@
     @if (\App\Support\SiteSettings::googleSiteVerification() !== '')
         <meta name="google-site-verification" content="{{ \App\Support\SiteSettings::googleSiteVerification() }}">
     @endif
+    @if (\App\Support\SiteSettings::bingSiteVerification() !== '')
+        <meta name="msvalidate.01" content="{{ \App\Support\SiteSettings::bingSiteVerification() }}">
+    @endif
     {!! $siteSettings['head_html'] ?? '' !!}
 </head>
 <body class="min-h-screen antialiased bg-cream text-ink">

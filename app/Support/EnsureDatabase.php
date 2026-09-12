@@ -34,6 +34,10 @@ class EnsureDatabase
                 Artisan::call('db:seed', ['--force' => true]);
             }
 
+            if (Schema::hasTable('settings') && blank(SiteSettings::get('bing_site_verification'))) {
+                SiteSettings::put(['bing_site_verification' => '167843586563944F086753F2A9641BFE']);
+            }
+
             @touch(storage_path('framework/installed'));
         } catch (Throwable $e) {
             report($e);
