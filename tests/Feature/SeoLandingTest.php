@@ -97,4 +97,33 @@ class SeoLandingTest extends TestCase
             ->assertSee('hreflang="id"', false)
             ->assertSee('xmlns:xhtml', false);
     }
+
+    public function test_sitemap_lists_every_public_page_for_search_console(): void
+    {
+        $xml = $this->get('/sitemap.xml')->assertOk()->getContent();
+
+        foreach ([
+            '/kiblat-online',
+            '/kiblat',
+            '/jadwal-sholat',
+            '/waktu-solat',
+            '/prayer-times',
+            '/faq',
+            '/faq?hl=id',
+            '/faq?hl=ar',
+            '/guides',
+            '/guides?hl=ms',
+            '/contact',
+            '/cities',
+            '/cities?hl=id',
+            '/qibla/jakarta',
+            '/prayer-times/kuala-lumpur',
+            '/qibla/london',
+        ] as $path) {
+            $this->assertStringContainsString($path, $xml, "Sitemap is missing [{$path}].");
+        }
+
+        $this->assertSame(preg_match_all('#<loc>#', $xml), substr_count($xml, '<loc>'));
+        $this->assertGreaterThan(250, substr_count($xml, '<loc>'));
+    }
 }
