@@ -343,13 +343,37 @@ body.ar-live .camera-view video {
     left: 50%;
     bottom: 0;
     z-index: 1;
-    width: 4.5rem;
+    width: 4.75rem;
     height: 46%;
     transform: translateX(-50%);
     transform-origin: bottom center;
-    background: linear-gradient(to top, rgba(201, 162, 39, 0.08), rgba(201, 162, 39, 0.55) 55%, rgba(232, 212, 139, 0.2));
+    background: linear-gradient(to top, rgba(201, 162, 39, 0.12), rgba(201, 162, 39, 0.62) 55%, rgba(232, 212, 139, 0.28));
     clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
-    opacity: 0.85;
+    opacity: 0.35;
+    transition: opacity 180ms ease;
+}
+
+.camera-beam.is-active {
+    opacity: 0.92;
+}
+
+.camera-guide {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 160ms ease;
+}
+
+.camera-guide.is-visible {
+    opacity: 1;
+}
+
+.camera-guide line {
+    filter: drop-shadow(0 0 6px rgba(201, 162, 39, 0.45));
 }
 
 .camera-tilt-hint {
@@ -390,25 +414,41 @@ body.ar-live .camera-view video {
 
 .camera-reticle {
     position: absolute;
-    top: 50%;
+    top: -0.35rem;
     left: 50%;
-    width: 108%;
-    height: 108%;
-    transform: translate(-50%, -50%);
-    border: 2px solid rgba(232, 212, 139, 0.88);
+    width: calc(100% + 1.1rem);
+    max-width: 7.5rem;
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border: 2px solid rgba(255, 255, 255, 0.9);
     border-radius: 50%;
     pointer-events: none;
+    z-index: 3;
 }
 
-.camera-distance {
-    margin-top: 0.55rem;
-    padding: 0.3rem 0.65rem;
+.camera-pin-distance {
+    position: relative;
+    z-index: 2;
+    margin-top: 2.35rem;
+    padding: 0.35rem 0.8rem;
     border-radius: 999px;
-    background: rgba(246, 241, 231, 0.88);
+    background: rgba(246, 241, 231, 0.92);
     color: #0d3b2e;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 700;
     pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.camera-pin-distance::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    margin: 0.12rem auto -0.42rem;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid rgba(246, 241, 231, 0.92);
 }
 
 .camera-mini {
@@ -447,17 +487,21 @@ body.ar-live .camera-view video {
     transition: transform 120ms linear;
 }
 
-.camera-mini-needle {
+.camera-mini-kaaba {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 2px;
-    height: 42%;
-    margin-left: -1px;
-    transform-origin: center bottom;
-    background: linear-gradient(to top, #c9a227, #e8d48b);
-    border-radius: 2px;
+    width: 1.25rem;
+    height: 1.25rem;
+    transform: translate(-50%, -100%);
+    transform-origin: 50% 130%;
     transition: transform 120ms linear;
+}
+
+.camera-mini-kaaba .kaaba-pin-icon {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 .camera-view.hidden {
@@ -480,72 +524,106 @@ body.ar-live .camera-view video {
 
 .camera-notch {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 6%);
+    top: calc(env(safe-area-inset-top, 0px) + 5%);
     left: 50%;
     z-index: 5;
     width: 0;
     height: 0;
     transform: translateX(-50%);
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 14px solid #c9a227;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 15px solid #c9a227;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
 }
 
 .ar-fullscreen .camera-notch {
-    top: calc(env(safe-area-inset-top, 0px) + 8%);
+    top: calc(env(safe-area-inset-top, 0px) + 7%);
 }
 
-.camera-aim {
+.camera-pin {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 6% + 14px);
     left: 50%;
-    z-index: 4;
-    width: 10px;
-    height: 10px;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    border: 2px solid rgba(232, 212, 139, 0.85);
-    box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.2);
-    pointer-events: none;
-}
-
-.ar-fullscreen .camera-aim {
-    top: calc(env(safe-area-inset-top, 0px) + 8% + 14px);
-}
-
-.camera-kaaba {
-    position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 6% + 14px);
-    left: 50%;
-    z-index: 3;
-    width: clamp(3.75rem, 20vw, 6.25rem);
+    top: 38%;
+    width: 10.5rem;
+    margin-left: -5.25rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transform: translate(-50%, -50%);
-    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
-    pointer-events: none;
+    z-index: 3;
     will-change: transform;
+    pointer-events: none;
 }
 
-.ar-fullscreen .camera-kaaba {
-    width: clamp(4.25rem, 22vw, 6.75rem);
+.camera-pin-head {
+    position: relative;
+    z-index: 2;
+    width: clamp(4.65rem, 23vw, 5.65rem);
+    height: clamp(4.65rem, 23vw, 5.65rem);
+    border-radius: 50%;
+    border: 5px solid #c9a227;
+    background: radial-gradient(circle at 50% 38%, #2d7358, #0d3b2e 72%);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+    display: grid;
+    place-items: center;
 }
 
-.camera-kaaba svg {
-    width: 100%;
-    height: auto;
+.camera-pin-head .kaaba-pin-icon {
+    width: 58%;
+    height: 58%;
     display: block;
 }
 
-.aligned .camera-kaaba {
-    filter: drop-shadow(0 0 22px rgba(201, 162, 39, 0.9));
+.camera-pin-point {
+    position: absolute;
+    left: 50%;
+    top: 4.35rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    background: linear-gradient(145deg, #ead78a, #c9a227);
+    transform: translate(-50%) rotate(45deg);
+    border-radius: 5px;
+    z-index: 1;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.42);
+}
+
+.camera-pin-point::after {
+    content: "";
+    position: absolute;
+    inset: 30%;
+    background: #0d3b2e;
+    border-radius: 2px;
+}
+
+.camera-pin-shadow {
+    position: absolute;
+    left: 50%;
+    top: 6.35rem;
+    width: 3.1rem;
+    height: 0.5rem;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.38);
+    border-radius: 50%;
+    filter: blur(2px);
+    z-index: 0;
+}
+
+.camera-pin.is-aligned .camera-reticle {
+    box-shadow: 0 0 0 9px rgba(201, 162, 39, 0.28);
+}
+
+.camera-pin.is-aligned .camera-pin-head {
+    box-shadow:
+        0 14px 32px rgba(0, 0, 0, 0.45),
+        0 0 28px rgba(201, 162, 39, 0.55);
+}
+
+.aligned .camera-pin .camera-pin-point {
+    background: linear-gradient(145deg, #fff3c4, #e8d48b);
 }
 
 .camera-turn {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 22%);
+    top: calc(env(safe-area-inset-top, 0px) + 28%);
     z-index: 3;
     padding: 0.35rem 0.7rem;
     border-radius: 999px;

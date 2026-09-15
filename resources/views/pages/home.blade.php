@@ -131,30 +131,38 @@
                             <span data-camera-status-sub class="camera-status-sub">{{ __('ui.camera_hint') }}</span>
                         </p>
                         <div data-camera-beam class="camera-beam" aria-hidden="true"></div>
+                        <svg data-camera-guide class="camera-guide" aria-hidden="true">
+                            <line data-camera-guide-line x1="50%" y1="100%" x2="50%" y2="40%" stroke="url(#cameraGuideGrad)" stroke-width="3" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="cameraGuideGrad" x1="0" y1="1" x2="0" y2="0">
+                                    <stop offset="0%" stop-color="rgba(201,162,39,0.15)"/>
+                                    <stop offset="55%" stop-color="rgba(201,162,39,0.75)"/>
+                                    <stop offset="100%" stop-color="rgba(232,212,139,0.95)"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
                         <p data-camera-tilt-hint class="camera-tilt-hint hidden">{{ __('ui.camera_hold') }}</p>
                         <p data-camera-turn="left" class="camera-turn camera-turn--left hidden">{{ __('ui.camera_turn_left') }}</p>
                         <p data-camera-turn="right" class="camera-turn camera-turn--right hidden">{{ __('ui.camera_turn_right') }}</p>
-                        <div data-camera-kaaba class="camera-kaaba" aria-hidden="true">
+                        <div data-camera-pin class="camera-pin" aria-hidden="true">
                             <div class="camera-reticle" aria-hidden="true"></div>
-                        <svg viewBox="0 0 120 140" role="img">
-                            <title>{{ __('ui.Kaaba') }}</title>
-                            <rect x="18" y="28" width="84" height="96" rx="3" fill="#121212"/>
-                            <rect x="18" y="28" width="84" height="18" fill="#3a2a10"/>
-                            <rect x="18" y="54" width="84" height="10" fill="#c9a227"/>
-                            <rect x="48" y="78" width="16" height="28" fill="#1c1408" stroke="#e8d48b" stroke-width="1.4"/>
-                            <path d="M18 28 L36 12 H100 L102 28 Z" fill="#2a2110"/>
-                            <text x="60" y="50" text-anchor="middle" fill="#e8d48b" font-size="14" font-family="Amiri">ك</text>
-                        </svg>
-                            <p data-camera-distance class="camera-distance">—</p>
+                            <div class="camera-pin-head">
+                                @include('partials.kaaba-pin-icon')
+                            </div>
+                            <span class="camera-pin-point" aria-hidden="true"></span>
+                            <span class="camera-pin-shadow" aria-hidden="true"></span>
+                            <span data-camera-distance class="camera-pin-distance">—</span>
                         </div>
                         <div data-camera-mini class="camera-mini" aria-hidden="true">
-                            <span class="camera-mini-n">N</span>
-                            <div data-camera-mini-rose class="camera-mini-rose"></div>
-                            <div data-camera-mini-needle class="camera-mini-needle"></div>
+                            <div data-camera-mini-rose class="camera-mini-rose">
+                                <span class="camera-mini-n">N</span>
+                            </div>
+                            <div data-camera-mini-needle class="camera-mini-kaaba">
+                                @include('partials.kaaba-pin-icon')
+                            </div>
                         </div>
                     </div>
                     <div class="camera-notch" aria-hidden="true"></div>
-                    <div class="camera-aim" aria-hidden="true"></div>
                     <div class="camera-readout">
                         <span data-camera-heading>—</span>
                         <span data-camera-qibla>{{ __('ui.qibla_short') }}</span>

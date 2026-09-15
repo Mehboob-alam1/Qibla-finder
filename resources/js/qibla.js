@@ -193,7 +193,9 @@ class QiblaApp {
         this.cameraDistance = root.querySelector('[data-camera-distance]');
         this.cameraMiniRose = root.querySelector('[data-camera-mini-rose]');
         this.cameraMiniNeedle = root.querySelector('[data-camera-mini-needle]');
-        this.cameraKaaba = root.querySelector('[data-camera-kaaba]');
+        this.cameraKaaba = root.querySelector('[data-camera-pin]');
+        this.cameraGuide = root.querySelector('[data-camera-guide]');
+        this.cameraGuideLine = root.querySelector('[data-camera-guide-line]');
         this.cameraHeadingEl = root.querySelector('[data-camera-heading]');
         this.cameraQiblaEl = root.querySelector('[data-camera-qibla]');
         this.cameraTurnLeft = root.querySelector('[data-camera-turn="left"]');
@@ -571,8 +573,8 @@ class QiblaApp {
 
     cameraFieldOfView() {
         return {
-            horizontal: 48,
-            vertical: 36,
+            horizontal: 58,
+            vertical: 46,
         };
     }
 
@@ -590,35 +592,48 @@ class QiblaApp {
         const { horizontal: fovH, vertical: fovV } = this.cameraFieldOfView();
         const width = rect?.width ?? 320;
         const height = rect?.height ?? 320;
-        const travelX = width * 0.46;
-        const travelY = height * 0.38;
+        const travelX = width * 0.5;
+        const travelY = height * 0.36;
         let shiftX = hasBearing ? (delta / fovH) * travelX : 0;
         let shiftY = hasBearing ? (pitchOffset / fovV) * travelY : 0;
-        const maxX = width * 0.48;
-        const maxY = height * 0.42;
+        const maxX = width * 0.52;
+        const maxY = height * 0.4;
         shiftX = Math.max(-maxX, Math.min(maxX, shiftX));
         shiftY = Math.max(-maxY, Math.min(maxY, shiftY));
 
-        if (this.cameraKaaba) {
-            this.cameraKaaba.style.transform = `translate3d(calc(-50% + ${shiftX.toFixed(2)}px), calc(-50% + ${shiftY.toFixed(2)}px), 0)`;
+        const pinCenterX = width / 2 + shiftX;
+        const pinCenterY = height * 0.38 + shiftY;
+
+        if (this.cameraPin) {
+            this.cameraPin.style.transform = `translate3d(${shiftX.toFixed(2)}px, ${shiftY.toFixed(2)}px, 0)`;
             const rawDelta = hasBearing ? Math.abs(shortestDelta(this.state.heading, qibla)) : 999;
             const rawPitch = Math.abs((this.state.pitch ?? 90) - 90);
             const cameraAligned = hasBearing && rawDelta <= 8 && rawPitch <= 18;
-            this.cameraKaaba.classList.toggle('is-aligned', cameraAligned);
+            this.cameraPin.classList.toggle('is-aligned', cameraAligned);
             this.cameraOverlay?.classList.toggle('is-aligned', cameraAligned);
         }
 
+        if (this.cameraGuide && this.cameraGuideLine && rect) {
+            this.cameraGuide.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            this.cameraGuideLine.setAttribute('x1', String(width / 2));
+            this.cameraGuideLine.setAttribute('y1', String(height));
+            this.cameraGuideLine.setAttribute('x2', String(pinCenterX));
+            this.cameraGuideLine.setAttribute('y2', String(pinCenterY + 8));
+            this.cameraGuide.classList.toggle('is-visible', hasBearing && (Math.abs(shiftX) > 4 || Math.abs(shiftY) > 4));
+        }
+
         if (this.cameraBeam && rect) {
-            const beamHeight = height * 0.5;
+            const beamHeight = height * 0.46;
             const angle = Math.atan2(shiftX, Math.max(beamHeight, 1)) * (180 / Math.PI);
             this.cameraBeam.style.transform = `translateX(-50%) rotate(${angle.toFixed(2)}deg)`;
+            this.cameraBeam.classList.toggle('is-active', hasBearing);
         }
 
         if (this.cameraMiniRose && this.state.heading != null) {
             this.cameraMiniRose.style.transform = `rotate(${-this.state.heading}deg)`;
         }
         if (this.cameraMiniNeedle) {
-            this.cameraMiniNeedle.style.transform = `rotate(${delta.toFixed(2)}deg)`;
+            this.cameraMiniNeedle.style.transform = `translate(-50%, -100%) rotate(${delta.toFixed(2)}deg)`;
         }
 
         if (this.cameraDistance && this.state.lat != null) {
