@@ -154,6 +154,7 @@
                         </div>
                     </div>
                     <div class="camera-notch" aria-hidden="true"></div>
+                    <div class="camera-aim" aria-hidden="true"></div>
                     <div class="camera-readout">
                         <span data-camera-heading>—</span>
                         <span data-camera-qibla>{{ __('ui.qibla_short') }}</span>

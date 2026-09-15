@@ -392,10 +392,10 @@ body.ar-live .camera-view video {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 118%;
-    height: 118%;
+    width: 108%;
+    height: 108%;
     transform: translate(-50%, -50%);
-    border: 2px solid rgba(232, 212, 139, 0.92);
+    border: 2px solid rgba(232, 212, 139, 0.88);
     border-radius: 50%;
     pointer-events: none;
 }
@@ -480,38 +480,63 @@ body.ar-live .camera-view video {
 
 .camera-notch {
     position: absolute;
-    top: 7%;
+    top: calc(env(safe-area-inset-top, 0px) + 6%);
     left: 50%;
-    z-index: 3;
+    z-index: 5;
     width: 0;
     height: 0;
     transform: translateX(-50%);
-    border-left: 9px solid transparent;
-    border-right: 9px solid transparent;
-    border-bottom: 16px solid #c9a227;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 14px solid #c9a227;
     filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+}
+
+.ar-fullscreen .camera-notch {
+    top: calc(env(safe-area-inset-top, 0px) + 8%);
+}
+
+.camera-aim {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 6% + 14px);
+    left: 50%;
+    z-index: 4;
+    width: 10px;
+    height: 10px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid rgba(232, 212, 139, 0.85);
+    box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.2);
+    pointer-events: none;
+}
+
+.ar-fullscreen .camera-aim {
+    top: calc(env(safe-area-inset-top, 0px) + 8% + 14px);
 }
 
 .camera-kaaba {
     position: absolute;
-    top: 44%;
+    top: calc(env(safe-area-inset-top, 0px) + 6% + 14px);
     left: 50%;
     z-index: 3;
-    width: 28%;
-    max-width: 9.5rem;
+    width: clamp(3.75rem, 20vw, 6.25rem);
     display: flex;
     flex-direction: column;
     align-items: center;
     transform: translate(-50%, -50%);
-    transition: transform 90ms linear;
-    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
     pointer-events: none;
     will-change: transform;
 }
 
 .ar-fullscreen .camera-kaaba {
-    width: 42%;
-    max-width: 11rem;
+    width: clamp(4.25rem, 22vw, 6.75rem);
+}
+
+.camera-kaaba svg {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
 .aligned .camera-kaaba {
@@ -520,7 +545,7 @@ body.ar-live .camera-view video {
 
 .camera-turn {
     position: absolute;
-    top: 46%;
+    top: calc(env(safe-area-inset-top, 0px) + 22%);
     z-index: 3;
     padding: 0.35rem 0.7rem;
     border-radius: 999px;

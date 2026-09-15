@@ -198,6 +198,9 @@ class QiblaApp {
         this.cameraQiblaEl = root.querySelector('[data-camera-qibla]');
         this.cameraTurnLeft = root.querySelector('[data-camera-turn="left"]');
         this.cameraTurnRight = root.querySelector('[data-camera-turn="right"]');
+        this.cameraDisplayDelta = 0;
+        this.cameraDisplayPitch = 0;
+        this.cameraFrame = null;
         this.bind();
         this.restore();
         this.askLocation();
@@ -237,11 +240,13 @@ class QiblaApp {
         });
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
+                this.stopCameraFrameLoop();
                 this.stopCamera();
                 return;
             }
             if (this.settings.mode === 'camera') {
                 this.startCamera();
+                this.startCameraFrameLoop();
             }
         });
         window.addEventListener('resize', () => {
@@ -250,6 +255,28 @@ class QiblaApp {
             }
             this.syncArLive();
         });
+        if (typeof window.visualViewport !== 'undefined') {
+            window.visualViewport.addEventListener('resize', () => {
+                if (this.settings.mode === 'camera') {
+                    this.applyCameraOverlay();
+                }
+            });
+        }
+        window.addEventListener('orientationchange', () => {
+            window.setTimeout(() => {
+                if (this.settings.mode === 'camera') {
+                    this.applyCameraOverlay();
+                }
+                this.syncArLive();
+            }, 120);
+        });
+        if (this.cameraOverlay && typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(() => {
+                if (this.settings.mode === 'camera') {
+                    this.applyCameraOverlay();
+                }
+            }).observe(this.cameraOverlay);
+        }
         this.root.querySelector('[data-toggle-vib]')?.addEventListener('change', (e) => {
             this.settings.vibration = e.target.checked;
             localStorage.setItem('qf_vib', e.target.checked ? '1' : '0');
@@ -343,8 +370,12 @@ class QiblaApp {
             if (fromGesture) {
                 this.startCamera();
             }
-            this.setStatus(this.i18n.camera_hold || this.i18n.camera_hint || 'Hold the phone upright and turn toward the Kaaba.');
+            this.cameraDisplayDelta = 0;
+            this.cameraDisplayPitch = 0;
+            this.startCameraFrameLoop();
+            this.setStatus(this.i18n.camera_hold || this.i18n.camera_hint || 'Hold the phone upright and turn toward the gold notch.');
         } else {
+            this.stopCameraFrameLoop();
             this.stopCamera();
         }
         this.render();
@@ -441,6 +472,10 @@ class QiblaApp {
         this.state.lng = lng;
         this.state.label = label;
         this.state.qibla = qiblaBearing(lat, lng);
+        if (this.settings.mode === 'camera' && this.state.heading != null) {
+            this.cameraDisplayDelta = shortestDelta(this.state.heading, this.state.qibla);
+            this.cameraDisplayPitch = (this.state.pitch ?? 90) - 90;
+        }
         if (persist) {
             localStorage.setItem('qf_last_location', JSON.stringify({ lat, lng, label, timezone: timezoneFromLng(lng) }));
         }
@@ -475,6 +510,7 @@ class QiblaApp {
             this.cameraVideo.setAttribute('playsinline', '');
             this.cameraVideo.muted = true;
             await this.cameraVideo.play();
+            this.applyCameraOverlay();
             this.setStatus(this.i18n.camera_hint || 'Hold the phone upright. Turn until the Kaaba meets the gold mark.');
         } catch {
             this.stopCamera();
@@ -493,42 +529,96 @@ class QiblaApp {
         }
     }
 
+    stopCameraFrameLoop() {
+        if (this.cameraFrame) {
+            cancelAnimationFrame(this.cameraFrame);
+            this.cameraFrame = null;
+        }
+    }
+
+    startCameraFrameLoop() {
+        if (this.cameraFrame) {
+            return;
+        }
+
+        const tick = () => {
+            if (this.settings.mode !== 'camera') {
+                this.cameraFrame = null;
+
+                return;
+            }
+
+            this.tickCameraMotion();
+            this.applyCameraOverlay();
+            this.cameraFrame = requestAnimationFrame(tick);
+        };
+
+        this.cameraFrame = requestAnimationFrame(tick);
+    }
+
+    tickCameraMotion() {
+        if (this.state.qibla == null || this.state.heading == null) {
+            return;
+        }
+
+        const targetDelta = shortestDelta(this.state.heading, this.state.qibla);
+        const targetPitch = (this.state.pitch ?? 90) - 90;
+        const smooth = 0.32;
+
+        this.cameraDisplayDelta += (targetDelta - this.cameraDisplayDelta) * smooth;
+        this.cameraDisplayPitch += (targetPitch - this.cameraDisplayPitch) * smooth;
+    }
+
+    cameraFieldOfView() {
+        return {
+            horizontal: 48,
+            vertical: 36,
+        };
+    }
+
     applyCameraOverlay() {
         if (this.settings.mode !== 'camera') {
             return;
         }
 
-        const heading = this.state.heading;
         const qibla = this.state.qibla;
-        const pitch = this.state.pitch ?? 90;
-        const hasBearing = heading != null && qibla != null;
-        const delta = hasBearing ? shortestDelta(heading, qibla) : 0;
+        const hasBearing = this.state.heading != null && qibla != null;
+        const delta = hasBearing ? this.cameraDisplayDelta : 0;
+        const pitchOffset = hasBearing ? this.cameraDisplayPitch : 0;
         const overlay = this.cameraOverlay;
         const rect = overlay?.getBoundingClientRect();
-        const fovH = 58;
-        const fovV = 46;
+        const { horizontal: fovH, vertical: fovV } = this.cameraFieldOfView();
         const width = rect?.width ?? 320;
         const height = rect?.height ?? 320;
-        const shiftX = hasBearing ? (delta / fovH) * width : 0;
-        const shiftY = hasBearing ? ((pitch - 90) / fovV) * height : 0;
+        const travelX = width * 0.46;
+        const travelY = height * 0.38;
+        let shiftX = hasBearing ? (delta / fovH) * travelX : 0;
+        let shiftY = hasBearing ? (pitchOffset / fovV) * travelY : 0;
+        const maxX = width * 0.48;
+        const maxY = height * 0.42;
+        shiftX = Math.max(-maxX, Math.min(maxX, shiftX));
+        shiftY = Math.max(-maxY, Math.min(maxY, shiftY));
 
         if (this.cameraKaaba) {
-            this.cameraKaaba.style.transform = `translate(calc(-50% + ${shiftX}px), calc(-50% + ${shiftY}px))`;
-            const cameraAligned = hasBearing && Math.abs(delta) <= 10 && Math.abs(pitch - 90) <= 22;
+            this.cameraKaaba.style.transform = `translate3d(calc(-50% + ${shiftX.toFixed(2)}px), calc(-50% + ${shiftY.toFixed(2)}px), 0)`;
+            const rawDelta = hasBearing ? Math.abs(shortestDelta(this.state.heading, qibla)) : 999;
+            const rawPitch = Math.abs((this.state.pitch ?? 90) - 90);
+            const cameraAligned = hasBearing && rawDelta <= 8 && rawPitch <= 18;
             this.cameraKaaba.classList.toggle('is-aligned', cameraAligned);
             this.cameraOverlay?.classList.toggle('is-aligned', cameraAligned);
         }
 
         if (this.cameraBeam && rect) {
-            const angle = Math.atan2(shiftX, height * 0.42) * (180 / Math.PI);
-            this.cameraBeam.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+            const beamHeight = height * 0.5;
+            const angle = Math.atan2(shiftX, Math.max(beamHeight, 1)) * (180 / Math.PI);
+            this.cameraBeam.style.transform = `translateX(-50%) rotate(${angle.toFixed(2)}deg)`;
         }
 
-        if (this.cameraMiniRose && heading != null) {
-            this.cameraMiniRose.style.transform = `rotate(${-heading}deg)`;
+        if (this.cameraMiniRose && this.state.heading != null) {
+            this.cameraMiniRose.style.transform = `rotate(${-this.state.heading}deg)`;
         }
         if (this.cameraMiniNeedle) {
-            this.cameraMiniNeedle.style.transform = `rotate(${delta}deg)`;
+            this.cameraMiniNeedle.style.transform = `rotate(${delta.toFixed(2)}deg)`;
         }
 
         if (this.cameraDistance && this.state.lat != null) {
@@ -536,23 +626,27 @@ class QiblaApp {
             this.cameraDistance.textContent = `${km.toFixed(0)} km`;
         }
 
-        const tiltOk = Math.abs(pitch - 90) <= 22;
+        const tiltOk = Math.abs((this.state.pitch ?? 90) - 90) <= 18;
         this.cameraTiltHint?.classList.toggle('hidden', tiltOk || ! hasBearing);
 
         if (this.cameraStatusTitle) {
-            const aligned = hasBearing && Math.abs(delta) <= 10 && tiltOk;
+            const aligned = hasBearing && Math.abs(shortestDelta(this.state.heading, qibla)) <= 8 && tiltOk;
             this.cameraStatusTitle.textContent = aligned
                 ? this.i18n.facing_qibla || 'You are facing the Qibla'
                 : this.i18n.turn_toward || 'Turn toward the marker';
         }
         if (this.cameraStatusSub && this.state.lat != null) {
             const km = distanceKm(this.state.lat, this.state.lng);
-            this.cameraStatusSub.textContent = `${this.i18n.kaaba || 'Kaaba'} · ${km.toFixed(0)} km`;
+            const degOff = hasBearing ? Math.abs(shortestDelta(this.state.heading, qibla)).toFixed(0) : '—';
+            this.cameraStatusSub.textContent = `${degOff}° · ${this.i18n.kaaba || 'Kaaba'} ${km.toFixed(0)} km`;
         }
 
-        this.cameraSparkles?.classList.toggle('hidden', ! (hasBearing && Math.abs(delta) <= 10 && tiltOk));
+        this.cameraSparkles?.classList.toggle(
+            'hidden',
+            ! (hasBearing && Math.abs(shortestDelta(this.state.heading, qibla)) <= 8 && tiltOk),
+        );
 
-        const off = hasBearing && Math.abs(delta) > fovH * 0.85;
+        const off = hasBearing && Math.abs(delta) > fovH * 0.82;
         this.cameraTurnLeft?.classList.toggle('hidden', ! (off && delta < 0));
         this.cameraTurnRight?.classList.toggle('hidden', ! (off && delta > 0));
     }
@@ -565,7 +659,7 @@ class QiblaApp {
         const delta = Math.abs(shortestDelta(this.state.heading, this.state.qibla));
         const pitch = this.state.pitch ?? 90;
 
-        return delta <= 10 && Math.abs(pitch - 90) <= 22;
+        return delta <= 8 && Math.abs(pitch - 90) <= 18;
     }
 
     async startCompass() {
@@ -594,7 +688,8 @@ class QiblaApp {
             if (this.state.pitch == null) {
                 this.state.pitch = event.beta;
             } else {
-                this.state.pitch += (event.beta - this.state.pitch) * 0.35;
+                const pitchFactor = this.settings.mode === 'camera' ? 0.45 : 0.35;
+                this.state.pitch += (event.beta - this.state.pitch) * pitchFactor;
             }
         }
 
@@ -647,8 +742,9 @@ class QiblaApp {
         if (this.smoothedHeading == null) {
             this.smoothedHeading = raw;
         } else {
+            const factor = this.settings.mode === 'camera' ? 0.58 : 0.4;
             this.smoothedHeading = normalizeDegrees(
-                this.smoothedHeading + shortestDelta(this.smoothedHeading, raw) * 0.4,
+                this.smoothedHeading + shortestDelta(this.smoothedHeading, raw) * factor,
             );
         }
         this.state.heading = this.smoothedHeading;
