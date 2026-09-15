@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::query()->updateOrCreate(
+        User::query()->firstOrCreate(
             ['email' => 'admin@qiblafinder.test'],
             [
                 'name' => 'Site Administrator',

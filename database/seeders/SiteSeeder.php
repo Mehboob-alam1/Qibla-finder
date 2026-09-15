@@ -43,6 +43,10 @@ class SiteSeeder extends Seeder
         ];
 
         foreach ($settings as $key => $value) {
+            if (Setting::query()->where('key', $key)->exists()) {
+                continue;
+            }
+
             Setting::setValue($key, $value);
         }
 
@@ -106,7 +110,7 @@ HTML,
         ];
 
         foreach ($pages as $i => $page) {
-            Page::query()->updateOrCreate(
+            Page::query()->firstOrCreate(
                 ['slug' => $page['slug'], 'locale' => 'en'],
                 $page + [
                     'locale' => 'en',
@@ -187,7 +191,7 @@ HTML,
         ];
 
         foreach ($posts as $post) {
-            Post::query()->updateOrCreate(
+            Post::query()->firstOrCreate(
                 ['slug' => $post['slug']],
                 $post + [
                     'locale' => 'en',
@@ -215,7 +219,7 @@ HTML,
         ];
 
         foreach ($faqs as [$question, $answer, $category, $order]) {
-            Faq::query()->updateOrCreate(
+            Faq::query()->firstOrCreate(
                 ['question' => $question, 'locale' => 'en'],
                 [
                     'answer' => $answer,

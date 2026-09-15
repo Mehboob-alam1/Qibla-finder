@@ -93,7 +93,7 @@ Website PHP and Git/SSH PHP are separate on Hostinger. Changing only the website
    - **Deploy directory:** `public_html` (empty this folder first if Git refuses a non-empty directory)
 6. Click **Deploy**
 
-Every later push to `main` auto-deploys.
+Every later push to `main` auto-deploys. Git deploy only updates code (`composer install`); it does **not** wipe your MySQL database. Do not run `php artisan migrate:fresh` or `db:seed` on production unless you intend to reset content.
 
 ### 2. Database and `.env`
 

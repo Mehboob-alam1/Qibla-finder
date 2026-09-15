@@ -13,6 +13,7 @@
         'motion_permission' => __('ui.motion_permission'),
         'true_north' => __('ui.True north'),
         'facing_qibla' => __('ui.Facing Qibla'),
+        'facing_qibla' => __('ui.Facing Qibla'),
         'qibla_locked' => __('ui.qibla_locked'),
         'you' => __('ui.You'),
         'kaaba' => __('ui.Kaaba'),
@@ -24,6 +25,7 @@
         'camera_denied' => __('ui.camera_denied'),
         'camera_hint' => __('ui.camera_hint'),
         'camera_hold' => __('ui.camera_hold'),
+        'turn_toward' => __('ui.Turn toward the marker'),
     ];
 @endphp
 <section class="pattern-bg text-cream">
@@ -122,10 +124,18 @@
 
                 <div data-camera-view class="camera-view hidden">
                     <video data-camera-video playsinline webkit-playsinline muted autoplay></video>
-                    <div class="camera-notch" aria-hidden="true"></div>
-                    <p data-camera-turn="left" class="camera-turn camera-turn--left hidden">{{ __('ui.camera_turn_left') }}</p>
-                    <p data-camera-turn="right" class="camera-turn camera-turn--right hidden">{{ __('ui.camera_turn_right') }}</p>
-                    <div data-camera-kaaba class="camera-kaaba" aria-hidden="true">
+                    <div data-camera-overlay class="camera-overlay">
+                        <div data-camera-sparkles class="camera-sparkles hidden" aria-hidden="true"></div>
+                        <p class="camera-status">
+                            <span data-camera-status-title>{{ __('ui.Turn toward the marker') }}</span>
+                            <span data-camera-status-sub class="camera-status-sub">{{ __('ui.camera_hint') }}</span>
+                        </p>
+                        <div data-camera-beam class="camera-beam" aria-hidden="true"></div>
+                        <p data-camera-tilt-hint class="camera-tilt-hint hidden">{{ __('ui.camera_hold') }}</p>
+                        <p data-camera-turn="left" class="camera-turn camera-turn--left hidden">{{ __('ui.camera_turn_left') }}</p>
+                        <p data-camera-turn="right" class="camera-turn camera-turn--right hidden">{{ __('ui.camera_turn_right') }}</p>
+                        <div data-camera-kaaba class="camera-kaaba" aria-hidden="true">
+                            <div class="camera-reticle" aria-hidden="true"></div>
                         <svg viewBox="0 0 120 140" role="img">
                             <title>{{ __('ui.Kaaba') }}</title>
                             <rect x="18" y="28" width="84" height="96" rx="3" fill="#121212"/>
@@ -135,7 +145,15 @@
                             <path d="M18 28 L36 12 H100 L102 28 Z" fill="#2a2110"/>
                             <text x="60" y="50" text-anchor="middle" fill="#e8d48b" font-size="14" font-family="Amiri">ك</text>
                         </svg>
+                            <p data-camera-distance class="camera-distance">—</p>
+                        </div>
+                        <div data-camera-mini class="camera-mini" aria-hidden="true">
+                            <span class="camera-mini-n">N</span>
+                            <div data-camera-mini-rose class="camera-mini-rose"></div>
+                            <div data-camera-mini-needle class="camera-mini-needle"></div>
+                        </div>
                     </div>
+                    <div class="camera-notch" aria-hidden="true"></div>
                     <div class="camera-readout">
                         <span data-camera-heading>—</span>
                         <span data-camera-qibla>{{ __('ui.qibla_short') }}</span>
@@ -154,6 +172,7 @@
 
             <div class="mt-6 flex flex-wrap justify-center gap-2">
                 <button data-locate type="button" class="bg-gold text-ink px-5 py-2.5 rounded-full font-semibold">{{ __('ui.Enable location') }}</button>
+                <button data-camera-open type="button" class="sm:hidden border border-gold/50 text-gold px-5 py-2.5 rounded-full font-semibold">{{ __('ui.Camera') }}</button>
                 <button data-calibrate type="button" class="border border-gold/40 text-gold px-5 py-2.5 rounded-full">{{ __('ui.Recalibrate') }}</button>
                 <button data-settings-open type="button" class="border border-white/20 px-5 py-2.5 rounded-full">{{ __('ui.Settings') }}</button>
                 @include('partials.share', ['shareUrl' => url('/'), 'shareAlign' => 'start-0'])

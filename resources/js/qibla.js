@@ -92,6 +92,45 @@ function normalizeMode(value) {
     return value === 'arrow' || value === 'camera' ? value : 'compass';
 }
 
+function tiltCompensatedHeading(alpha, beta, gamma) {
+    const d = Math.PI / 180;
+    const b = beta * d;
+    const g = gamma * d;
+    const a = alpha * d;
+    const sinB = Math.sin(b);
+    const cosG = Math.cos(g);
+    const sinG = Math.sin(g);
+    const cosA = Math.cos(a);
+    const sinA = Math.sin(a);
+    const x = -cosA * sinG - sinA * sinB * cosG;
+    const y = -sinA * sinG + cosA * sinB * cosG;
+
+    if (Math.hypot(x, y) < 0.2) {
+        return normalizeDegrees(360 - alpha);
+    }
+
+    return normalizeDegrees(toDeg(Math.atan2(x, y)));
+}
+
+function headingFromOrientationEvent(event) {
+    if (typeof event.webkitCompassHeading === 'number' && ! Number.isNaN(event.webkitCompassHeading)) {
+        return normalizeDegrees(event.webkitCompassHeading + screenHeadingOffset());
+    }
+
+    if (typeof event.alpha !== 'number') {
+        return null;
+    }
+
+    const beta = typeof event.beta === 'number' ? event.beta : 0;
+    const gamma = typeof event.gamma === 'number' ? event.gamma : 0;
+
+    return normalizeDegrees(tiltCompensatedHeading(event.alpha, beta, gamma) + screenHeadingOffset());
+}
+
+function prefersArFullscreen() {
+    return window.matchMedia('(max-width: 768px)').matches;
+}
+
 class QiblaApp {
     constructor(root) {
         this.root = root;
@@ -126,6 +165,7 @@ class QiblaApp {
             label: null,
             qibla: null,
             heading: null,
+            pitch: null,
             aligned: false,
             locked: false,
             sensor: false,
@@ -144,6 +184,15 @@ class QiblaApp {
         this.cameraStarting = false;
         this.cameraVideo = root.querySelector('[data-camera-video]');
         this.cameraView = root.querySelector('[data-camera-view]');
+        this.cameraOverlay = root.querySelector('[data-camera-overlay]');
+        this.cameraBeam = root.querySelector('[data-camera-beam]');
+        this.cameraSparkles = root.querySelector('[data-camera-sparkles]');
+        this.cameraStatusTitle = root.querySelector('[data-camera-status-title]');
+        this.cameraStatusSub = root.querySelector('[data-camera-status-sub]');
+        this.cameraTiltHint = root.querySelector('[data-camera-tilt-hint]');
+        this.cameraDistance = root.querySelector('[data-camera-distance]');
+        this.cameraMiniRose = root.querySelector('[data-camera-mini-rose]');
+        this.cameraMiniNeedle = root.querySelector('[data-camera-mini-needle]');
         this.cameraKaaba = root.querySelector('[data-camera-kaaba]');
         this.cameraHeadingEl = root.querySelector('[data-camera-heading]');
         this.cameraQiblaEl = root.querySelector('[data-camera-qibla]');
@@ -194,6 +243,12 @@ class QiblaApp {
             if (this.settings.mode === 'camera') {
                 this.startCamera();
             }
+        });
+        window.addEventListener('resize', () => {
+            if (this.settings.mode === 'camera') {
+                this.applyCameraOverlay();
+            }
+            this.syncArLive();
         });
         this.root.querySelector('[data-toggle-vib]')?.addEventListener('change', (e) => {
             this.settings.vibration = e.target.checked;
@@ -258,6 +313,13 @@ class QiblaApp {
         }
         this.root.classList.toggle('is-camera', this.settings.mode === 'camera');
         this.cameraView?.classList.toggle('hidden', this.settings.mode !== 'camera');
+        this.syncArLive();
+    }
+
+    syncArLive() {
+        const fullscreen = this.settings.mode === 'camera' && prefersArFullscreen();
+        document.body.classList.toggle('ar-live', fullscreen);
+        this.root.classList.toggle('ar-fullscreen', fullscreen);
     }
 
     showCalibrate(open) {
@@ -404,8 +466,9 @@ class QiblaApp {
                 audio: false,
                 video: {
                     facingMode: { ideal: 'environment' },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    aspectRatio: { ideal: 16 / 9 },
                 },
             });
             this.cameraVideo.srcObject = this.cameraStream;
@@ -431,19 +494,78 @@ class QiblaApp {
     }
 
     applyCameraOverlay() {
-        if (! this.cameraKaaba || this.settings.mode !== 'camera') {
+        if (this.settings.mode !== 'camera') {
             return;
         }
 
-        const delta = shortestDelta(0, normalizeDegrees(this.displayNeedle));
-        const fov = 64;
-        const clamped = Math.max(-fov, Math.min(fov, delta));
-        const shift = (clamped / fov) * 42;
-        this.cameraKaaba.style.transform = `translate(calc(-50% + ${shift}%), -50%)`;
+        const heading = this.state.heading;
+        const qibla = this.state.qibla;
+        const pitch = this.state.pitch ?? 90;
+        const hasBearing = heading != null && qibla != null;
+        const delta = hasBearing ? shortestDelta(heading, qibla) : 0;
+        const overlay = this.cameraOverlay;
+        const rect = overlay?.getBoundingClientRect();
+        const fovH = 58;
+        const fovV = 46;
+        const width = rect?.width ?? 320;
+        const height = rect?.height ?? 320;
+        const shiftX = hasBearing ? (delta / fovH) * width : 0;
+        const shiftY = hasBearing ? ((pitch - 90) / fovV) * height : 0;
 
-        const off = Math.abs(delta) > fov * 0.92;
+        if (this.cameraKaaba) {
+            this.cameraKaaba.style.transform = `translate(calc(-50% + ${shiftX}px), calc(-50% + ${shiftY}px))`;
+            const cameraAligned = hasBearing && Math.abs(delta) <= 10 && Math.abs(pitch - 90) <= 22;
+            this.cameraKaaba.classList.toggle('is-aligned', cameraAligned);
+            this.cameraOverlay?.classList.toggle('is-aligned', cameraAligned);
+        }
+
+        if (this.cameraBeam && rect) {
+            const angle = Math.atan2(shiftX, height * 0.42) * (180 / Math.PI);
+            this.cameraBeam.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+        }
+
+        if (this.cameraMiniRose && heading != null) {
+            this.cameraMiniRose.style.transform = `rotate(${-heading}deg)`;
+        }
+        if (this.cameraMiniNeedle) {
+            this.cameraMiniNeedle.style.transform = `rotate(${delta}deg)`;
+        }
+
+        if (this.cameraDistance && this.state.lat != null) {
+            const km = distanceKm(this.state.lat, this.state.lng);
+            this.cameraDistance.textContent = `${km.toFixed(0)} km`;
+        }
+
+        const tiltOk = Math.abs(pitch - 90) <= 22;
+        this.cameraTiltHint?.classList.toggle('hidden', tiltOk || ! hasBearing);
+
+        if (this.cameraStatusTitle) {
+            const aligned = hasBearing && Math.abs(delta) <= 10 && tiltOk;
+            this.cameraStatusTitle.textContent = aligned
+                ? this.i18n.facing_qibla || 'You are facing the Qibla'
+                : this.i18n.turn_toward || 'Turn toward the marker';
+        }
+        if (this.cameraStatusSub && this.state.lat != null) {
+            const km = distanceKm(this.state.lat, this.state.lng);
+            this.cameraStatusSub.textContent = `${this.i18n.kaaba || 'Kaaba'} · ${km.toFixed(0)} km`;
+        }
+
+        this.cameraSparkles?.classList.toggle('hidden', ! (hasBearing && Math.abs(delta) <= 10 && tiltOk));
+
+        const off = hasBearing && Math.abs(delta) > fovH * 0.85;
         this.cameraTurnLeft?.classList.toggle('hidden', ! (off && delta < 0));
         this.cameraTurnRight?.classList.toggle('hidden', ! (off && delta > 0));
+    }
+
+    cameraAligned() {
+        if (this.state.heading == null || this.state.qibla == null) {
+            return false;
+        }
+
+        const delta = Math.abs(shortestDelta(this.state.heading, this.state.qibla));
+        const pitch = this.state.pitch ?? 90;
+
+        return delta <= 10 && Math.abs(pitch - 90) <= 22;
     }
 
     async startCompass() {
@@ -468,6 +590,14 @@ class QiblaApp {
     }
 
     onOrientation(event) {
+        if (typeof event.beta === 'number' && ! Number.isNaN(event.beta)) {
+            if (this.state.pitch == null) {
+                this.state.pitch = event.beta;
+            } else {
+                this.state.pitch += (event.beta - this.state.pitch) * 0.35;
+            }
+        }
+
         const fromWebkit = typeof event.webkitCompassHeading === 'number';
         const fromAbsolute = event.type === 'deviceorientationabsolute' || event.absolute === true;
         let heading = null;
@@ -480,11 +610,18 @@ class QiblaApp {
             if (this.state.headingSource === 'webkit') {
                 return;
             }
-            heading = (360 - event.alpha) % 360;
+            heading = tiltCompensatedHeading(
+                event.alpha,
+                typeof event.beta === 'number' ? event.beta : 0,
+                typeof event.gamma === 'number' ? event.gamma : 0,
+            );
             source = 'absolute';
-        } else if (typeof event.alpha === 'number' && this.state.headingSource !== 'webkit' && this.state.headingSource !== 'absolute') {
-            heading = (360 - event.alpha) % 360;
-            source = 'relative';
+        } else if (this.state.headingSource !== 'webkit' && this.state.headingSource !== 'absolute') {
+            heading = headingFromOrientationEvent(event);
+            if (heading != null) {
+                heading = normalizeDegrees(heading - screenHeadingOffset());
+                source = 'relative';
+            }
         }
 
         if (heading === null || Number.isNaN(heading)) {
@@ -566,12 +703,12 @@ class QiblaApp {
             this.applyPointer();
         }
 
-        const aligned = this.state.sensor && (this.state.locked || delta <= 10);
+        const aligned = this.state.sensor && (this.state.locked || (this.settings.mode === 'camera' ? this.cameraAligned() : delta <= 10));
         this.root.classList.toggle('aligned', aligned);
         this.root.classList.toggle('qibla-locked', this.state.locked);
         this.alignBadge?.classList.toggle('hidden', !aligned);
 
-        if (this.state.sensor && ! this.state.locked && delta <= 10) {
+        if (this.state.sensor && ! this.state.locked && (this.settings.mode === 'camera' ? this.cameraAligned() : delta <= 10)) {
             this.lockQibla();
 
             return;

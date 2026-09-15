@@ -44,7 +44,13 @@ if ! grep -qE '^APP_KEY=base64:' .env; then
     "$PHP_BIN" artisan key:generate --force
 fi
 
-"$PHP_BIN" artisan migrate --force --seed
+"$PHP_BIN" artisan migrate --force
+
+if [[ ! -f storage/framework/installed ]]; then
+    "$PHP_BIN" artisan db:seed --force
+else
+    echo "Skipping db:seed — site already installed (keeps your CMS posts, pages, and settings)."
+fi
 "$PHP_BIN" artisan storage:link --force
 "$PHP_BIN" artisan config:cache
 "$PHP_BIN" artisan route:cache
