@@ -38,6 +38,7 @@ Route::get('/places/search', [PlaceSearchController::class, 'search'])
     ->name('places.search');
 Route::get('/prayer-times', [PrayerTimesController::class, 'index'])->name('prayer-times');
 Route::post('/prayer-times/calculate', [PrayerTimesController::class, 'calculate'])->name('prayer-times.calculate');
+Route::post('/prayer-times/timezone', [PrayerTimesController::class, 'timezone'])->name('prayer-times.timezone');
 Route::get('/cities', [CityController::class, 'index'])->name('cities.index');
 Route::get('/qibla/{slug}', [CityController::class, 'qibla'])->where('slug', '[A-Za-z0-9\-]+')->name('cities.qibla');
 Route::get('/prayer-times/{slug}', [CityController::class, 'prayer'])->where('slug', '[A-Za-z0-9\-]+')->name('cities.prayer');

@@ -717,6 +717,12 @@ body.ar-live .camera-view video {
     overflow: hidden;
 }
 
+.prayer-map {
+    height: min(52vh, 480px);
+    min-height: 280px;
+    width: 100%;
+}
+
 .admin-shell {
     min-height: 100vh;
     background: #f4efe4;

@@ -17,6 +17,8 @@ class PrayerTimeService
         string $method = 'MWL',
         string $asr = 'Standard',
         ?DateTimeImmutable $date = null,
+        string $highLatitude = 'None',
+        string $midnightMode = 'standard',
     ): array {
         $timezone ??= $this->guessTimezone($longitude);
         $tz = new DateTimeZone($timezone);
@@ -39,10 +41,24 @@ class PrayerTimeService
             $isha = $this->sunAngleTime($latitude, $decl, $eqt, $longitude, (float) $params['isha'], $dhuhrHours, false);
         }
 
+        [$fajr, $isha] = $this->applyHighLatitude(
+            $latitude,
+            $highLatitude,
+            $fajr,
+            $isha,
+            $sunrise,
+            $sunset,
+            fn (float $angle, bool $ccw) => $this->sunAngleTime($latitude, $decl, $eqt, $longitude, $angle, $dhuhrHours, $ccw),
+            (float) $params['fajr'],
+            (float) $params['isha'],
+        );
+
         $asrShadow = $asr === 'Hanafi' ? 2 : 1;
-        $asr = $this->asrTime($latitude, $decl, $eqt, $longitude, $asrShadow, $dhuhrHours);
+        $asrTime = $this->asrTime($latitude, $decl, $eqt, $longitude, $asrShadow, $dhuhrHours);
         $maghrib = $sunset;
-        $midnight = $this->normalizeHours($sunset + $this->timeDiff($sunset, $sunrise) / 2);
+        $midnight = $midnightMode === 'jafari'
+            ? $this->normalizeHours($sunset + ($fajr < $sunset ? (24 - $sunset) + $fajr : $fajr - $sunset) / 2)
+            : $this->normalizeHours($sunset + $this->timeDiff($sunset, $sunrise) / 2);
         $imsak = $fajr - 10 / 60;
 
         $offsetHours = $date->getOffset() / 3600;
@@ -52,7 +68,7 @@ class PrayerTimeService
             'fajr' => $fajr,
             'sunrise' => $sunrise,
             'dhuhr' => $dhuhrHours,
-            'asr' => $asr,
+            'asr' => $asrTime,
             'maghrib' => $maghrib,
             'isha' => $isha,
             'midnight' => $midnight,
@@ -70,6 +86,9 @@ class PrayerTimeService
             'hijri' => $this->hijri($date),
             'timezone' => $timezone,
             'method' => $method,
+            'asr' => $asr,
+            'high_latitude' => $highLatitude,
+            'midnight_mode' => $midnightMode,
             'times' => $formatted,
             'next' => $next,
         ];
@@ -83,6 +102,8 @@ class PrayerTimeService
         string $timezone = 'UTC',
         string $method = 'MWL',
         string $asr = 'Standard',
+        string $highLatitude = 'None',
+        string $midnightMode = 'standard',
     ): array {
         $tz = new DateTimeZone($timezone);
         $start = new DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month), $tz);
@@ -91,10 +112,67 @@ class PrayerTimeService
 
         for ($day = 1; $day <= $days; $day++) {
             $date = $start->setDate($year, $month, $day);
-            $rows[] = $this->times($latitude, $longitude, $timezone, $method, $asr, $date);
+            $rows[] = $this->times($latitude, $longitude, $timezone, $method, $asr, $date, $highLatitude, $midnightMode);
         }
 
         return $rows;
+    }
+
+    /**
+     * @param  callable(float, bool): float  $sunAngleTime
+     * @return array{0: float, 1: float}
+     */
+    protected function applyHighLatitude(
+        float $latitude,
+        string $mode,
+        float $fajr,
+        float $isha,
+        float $sunrise,
+        float $sunset,
+        callable $sunAngleTime,
+        float $fajrAngle,
+        float $ishaAngle,
+    ): array {
+        if ($mode === 'None' || abs($latitude) < 48) {
+            return [$fajr, $isha];
+        }
+
+        $night = $this->timeDiff($sunset, $sunrise);
+        if ($night <= 0) {
+            return [$fajr, $isha];
+        }
+
+        $portion = match ($mode) {
+            'OneSeventh' => $night / 7,
+            default => $night / 2,
+        };
+
+        return [
+            $this->normalizeHours($sunrise - $portion),
+            $this->normalizeHours($sunset + $portion),
+        ];
+    }
+
+    public function resolveTimezone(float $latitude, float $longitude): string
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(6)
+                ->get('https://timeapi.io/api/TimeZone/coordinate', [
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                ]);
+
+            if ($response->successful()) {
+                $zone = $response->json('timeZone');
+                if (is_string($zone) && $zone !== '') {
+                    return $zone;
+                }
+            }
+        } catch (\Throwable) {
+            // Fall back to longitude estimate.
+        }
+
+        return $this->guessTimezone($longitude);
     }
 
     protected function nextPrayer(array $times, DateTimeImmutable $dayStart): array
