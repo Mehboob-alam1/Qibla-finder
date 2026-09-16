@@ -47,6 +47,15 @@ function formatDisplayDate(date, timeZone) {
     }).format(date);
 }
 
+function prayerMarkerIcon(L) {
+    return L.divIcon({
+        className: 'prayer-map-pin',
+        html: '<span class="prayer-map-pin__head" aria-hidden="true"></span><span class="prayer-map-pin__shadow" aria-hidden="true"></span>',
+        iconSize: [36, 48],
+        iconAnchor: [18, 42],
+    });
+}
+
 class PrayerApp {
     constructor(root) {
         this.root = root;
@@ -97,6 +106,7 @@ class PrayerApp {
         this.map = null;
         this.marker = null;
         this.mapReady = false;
+        this.pendingMapCenter = null;
         this.monthRows = null;
         this.bind();
         this.loadSettings();
@@ -211,7 +221,11 @@ class PrayerApp {
                 maxZoom: 18,
                 attribution: '&copy; OpenStreetMap',
             }).addTo(this.map);
-            this.marker = L.marker([33.6844, 73.0479], { draggable: true }).addTo(this.map);
+            this.marker = L.marker([33.6844, 73.0479], {
+                draggable: true,
+                icon: prayerMarkerIcon(L),
+                title: 'Selected location',
+            }).addTo(this.map);
             this.marker.on('dragend', () => {
                 const { lat, lng } = this.marker.getLatLng();
                 this.setLocation(lat, lng, this.state.label, null, true);
@@ -222,7 +236,11 @@ class PrayerApp {
                 this._mapResizeBound = true;
                 window.addEventListener('resize', () => this.map?.invalidateSize(), { passive: true });
             }
-            if (this.state.lat != null) {
+            const pending = this.pendingMapCenter;
+            this.pendingMapCenter = null;
+            if (pending) {
+                this.updateMap(pending.lat, pending.lng, pending.zoom);
+            } else if (this.state.lat != null) {
                 this.updateMap(this.state.lat, this.state.lng, 11);
             }
         }).catch(() => {
@@ -232,11 +250,14 @@ class PrayerApp {
 
     updateMap(lat, lng, zoom = null) {
         if (! this.mapReady || ! this.marker) {
+            this.pendingMapCenter = { lat, lng, zoom };
+
             return;
         }
         this.marker.setLatLng([lat, lng]);
         const targetZoom = zoom ?? Math.max(this.map.getZoom(), 11);
         this.map.setView([lat, lng], targetZoom, { animate: true });
+        requestAnimationFrame(() => this.map?.invalidateSize());
     }
 
     restore() {
@@ -622,9 +643,6 @@ class PrayerApp {
                 ? `${this.state.label} · ${Number(this.state.lat).toFixed(5)}, ${Number(this.state.lng).toFixed(5)}`
                 : `${Number(this.state.lat).toFixed(5)}, ${Number(this.state.lng).toFixed(5)}`,
         );
-        if (! this.mapReady && this.state.lat != null) {
-            this.updateMap(this.state.lat, this.state.lng, 11);
-        }
     }
 
     tick() {

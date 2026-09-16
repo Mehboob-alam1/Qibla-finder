@@ -773,36 +773,46 @@ body.ar-live .camera-view video {
 }
 
 .prayer-map {
-    height: clamp(240px, 38vh, 420px);
-    min-height: 220px;
+    height: clamp(360px, 62vh, 640px);
+    min-height: 360px;
     width: 100%;
 }
 
 .prayer-map-shell {
-    contain: layout paint;
-    transform: translateZ(0);
+    isolation: isolate;
+    z-index: 0;
 }
 
 .prayer-map-shell .leaflet-container {
     height: 100%;
     width: 100%;
-    z-index: 0;
 }
 
-.prayer-map-shell .leaflet-pane,
-.prayer-map-shell .leaflet-map-pane,
-.prayer-map-shell .leaflet-tile-pane,
-.prayer-map-shell .leaflet-overlay-pane,
-.prayer-map-shell .leaflet-shadow-pane,
-.prayer-map-shell .leaflet-marker-pane,
-.prayer-map-shell .leaflet-tooltip-pane,
-.prayer-map-shell .leaflet-popup-pane {
-    z-index: auto !important;
+.prayer-map-pin {
+    background: transparent;
+    border: none;
 }
 
-.prayer-map-shell .leaflet-top,
-.prayer-map-shell .leaflet-bottom {
-    z-index: 5 !important;
+.prayer-map-pin__head {
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto;
+    background: var(--color-gold);
+    border: 3px solid #fff;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 6px 16px rgba(7, 20, 15, 0.35);
+}
+
+.prayer-map-pin__shadow {
+    display: block;
+    width: 14px;
+    height: 6px;
+    margin: 6px auto 0;
+    background: rgba(7, 20, 15, 0.25);
+    border-radius: 999px;
+    filter: blur(1px);
 }
 
 .site-footer {
