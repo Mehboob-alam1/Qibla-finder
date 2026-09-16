@@ -90,6 +90,28 @@ class PageUrlTest extends TestCase
             'show_in_footer' => true,
         ]);
 
+        Page::query()->create([
+            'title' => 'Duas Qibla AR',
+            'slug' => 'duas-qibla',
+            'url_style' => 'flat',
+            'locale' => 'ar',
+            'content' => '<p>Duas</p>',
+            'is_published' => true,
+            'show_in_header' => true,
+            'show_in_footer' => true,
+        ]);
+
+        Page::query()->create([
+            'title' => 'About AR',
+            'slug' => 'about',
+            'url_style' => 'prefixed',
+            'locale' => 'ar',
+            'content' => '<p>About</p>',
+            'is_published' => true,
+            'show_in_header' => false,
+            'show_in_footer' => true,
+        ]);
+
         $home = $this->get('/')->assertOk();
         $home->assertSee('href="/duas-qibla"', false);
         $home->assertSee('>Dua</a>', false);

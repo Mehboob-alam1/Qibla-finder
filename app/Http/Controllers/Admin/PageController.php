@@ -62,7 +62,15 @@ class PageController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:180'],
-            'slug' => ['nullable', 'string', 'max:180', 'alpha_dash', 'unique:pages,slug,'.($id ?: 'NULL')],
+            'slug' => [
+                'nullable',
+                'string',
+                'max:180',
+                'alpha_dash',
+                Rule::unique('pages', 'slug')
+                    ->where(fn ($query) => $query->where('locale', $request->input('locale')))
+                    ->ignore($id),
+            ],
             'url_style' => ['required', Rule::in(['flat', 'prefixed'])],
             'locale' => ['required', 'string', 'max:8'],
             'content' => ['required', 'string', 'max:200000'],

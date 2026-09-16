@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LocalizesContent;
+use App\Support\LocalizedPaths;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -12,11 +13,6 @@ use Illuminate\Support\Str;
 class Post extends Model
 {
     use LocalizesContent;
-
-    protected static function localeIdentityColumn(): ?string
-    {
-        return 'slug';
-    }
 
     protected function casts(): array
     {
@@ -44,5 +40,15 @@ class Post extends Model
             ->where(function (Builder $builder) {
                 $builder->whereNull('published_at')->orWhere('published_at', '<=', now());
             });
+    }
+
+    public function publicPath(): string
+    {
+        return '/guides/'.$this->slug;
+    }
+
+    public function publicUrl(): string
+    {
+        return LocalizedPaths::queryUrl($this->publicPath(), $this->locale);
     }
 }

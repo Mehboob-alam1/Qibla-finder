@@ -53,7 +53,7 @@ class Page extends Model
 
     public function publicUrl(): string
     {
-        return url($this->publicPath());
+        return LocalizedPaths::queryUrl($this->publicPath(), $this->locale);
     }
 
     public function isCurrent(): bool
@@ -70,11 +70,6 @@ class Page extends Model
             'terms' => __('ui.Terms of Service'),
             default => $this->title,
         };
-    }
-
-    protected static function localeIdentityColumn(): ?string
-    {
-        return 'slug';
     }
 
     protected function casts(): array

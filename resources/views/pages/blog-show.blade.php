@@ -15,7 +15,7 @@
     <h2 class="font-display text-4xl text-forest mb-6">{{ __('ui.Continue reading') }}</h2>
     <div class="grid md:grid-cols-3 gap-5">
         @foreach ($related as $item)
-            <a href="{{ route('blog.show', $item->slug) }}" class="stat-card rounded-3xl p-6 block">
+            <a href="{{ $item->publicUrl() }}" class="stat-card rounded-3xl p-6 block">
                 <h3 class="font-display text-2xl text-forest">{{ $item->title }}</h3>
                 <p class="mt-2 text-forest/70">{{ $item->excerpt }}</p>
             </a>

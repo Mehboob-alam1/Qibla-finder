@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Support\HtmlContent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -53,7 +54,14 @@ class PostController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:180'],
-            'slug' => ['nullable', 'string', 'max:180', 'unique:posts,slug,'.($id ?: 'NULL')],
+            'slug' => [
+                'nullable',
+                'string',
+                'max:180',
+                Rule::unique('posts', 'slug')
+                    ->where(fn ($query) => $query->where('locale', $request->input('locale')))
+                    ->ignore($id),
+            ],
             'locale' => ['required', 'string', 'max:8'],
             'excerpt' => ['nullable', 'string', 'max:300'],
             'content' => ['required', 'string', 'max:200000'],

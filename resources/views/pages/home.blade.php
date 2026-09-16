@@ -313,7 +313,7 @@
     </div>
     <div class="grid md:grid-cols-3 gap-5">
         @foreach ($posts as $post)
-            <a href="{{ route('blog.show', $post->slug) }}" class="stat-card rounded-3xl p-6 block hover:-translate-y-1 transition">
+            <a href="{{ $post->publicUrl() }}" class="stat-card rounded-3xl p-6 block hover:-translate-y-1 transition">
                 <p class="text-xs text-gold uppercase tracking-widest">{{ optional($post->published_at)->translatedFormat('M j, Y') }}</p>
                 <h3 class="font-display text-3xl mt-2 text-forest">{{ $post->title }}</h3>
                 <p class="mt-3 text-forest/70">{{ $post->excerpt }}</p>

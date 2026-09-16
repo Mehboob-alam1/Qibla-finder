@@ -15,6 +15,7 @@
                     <option value="{{ $code }}" @selected(old('locale', $post->locale) === $code)>{{ $code }}</option>
                 @endforeach
             </select>
+            <span class="mt-1 block text-xs text-forest/55">Visitors only see this article when that language is selected. English posts stay on English; add Urdu/Arabic posts with locale ur/ar.</span>
         </label>
     </div>
     <label class="block text-sm">Excerpt <input name="excerpt" value="{{ old('excerpt', $post->excerpt) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>

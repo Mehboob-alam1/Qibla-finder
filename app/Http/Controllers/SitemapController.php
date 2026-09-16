@@ -63,21 +63,33 @@ class SitemapController extends Controller
         }
 
         try {
-            Page::query()->published()->orderBy('updated_at')->get()->unique('slug')->each(function (Page $page) use (&$urls): void {
-                $path = $page->publicPath();
-                $urls[] = $this->entry($page->publicUrl(), $page->updated_at, 'monthly', '0.5', LocalizedPaths::alternates($path));
-            });
+            $pages = Page::query()->published()->orderBy('updated_at')->get();
+            $pagesBySlug = $pages->groupBy('slug');
 
-            Post::query()->published()->orderByDesc('published_at')->get()->unique('slug')->each(function (Post $post) use (&$urls): void {
-                $path = '/guides/'.$post->slug;
+            foreach ($pages as $page) {
+                $alternates = $this->localeUrlsForRows($pagesBySlug->get($page->slug, collect()));
                 $urls[] = $this->entry(
-                    route('blog.show', $post->slug),
+                    $page->publicUrl(),
+                    $page->updated_at,
+                    'monthly',
+                    '0.5',
+                    $alternates,
+                );
+            }
+
+            $posts = Post::query()->published()->orderByDesc('published_at')->get();
+            $postsBySlug = $posts->groupBy('slug');
+
+            foreach ($posts as $post) {
+                $alternates = $this->localeUrlsForRows($postsBySlug->get($post->slug, collect()));
+                $urls[] = $this->entry(
+                    $post->publicUrl(),
                     $post->updated_at ?? $post->published_at,
                     'weekly',
                     '0.7',
-                    LocalizedPaths::alternates($path),
+                    $alternates,
                 );
-            });
+            }
         } catch (Throwable) {
             // CMS tables are optional until migrations have been run.
         }
@@ -137,6 +149,21 @@ class SitemapController extends Controller
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Cache-Control' => 'public, max-age=3600',
         ]);
+    }
+
+    /**
+     * @param  iterable<int, Page|Post>  $rows
+     * @return array<string, string>
+     */
+    protected function localeUrlsForRows(iterable $rows): array
+    {
+        $urls = [];
+
+        foreach ($rows as $row) {
+            $urls[$row->locale] = $row->publicUrl();
+        }
+
+        return $urls;
     }
 
     /**

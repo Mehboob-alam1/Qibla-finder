@@ -16,11 +16,7 @@ class PageController extends Controller
             $page = Page::query()
                 ->published()
                 ->where('slug', $slug)
-                ->where(function ($query) {
-                    $query->where('locale', app()->getLocale())
-                        ->orWhere('locale', 'en');
-                })
-                ->orderByRaw('locale = ? desc', [app()->getLocale()])
+                ->where('locale', app()->getLocale())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw $e;

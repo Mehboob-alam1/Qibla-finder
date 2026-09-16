@@ -72,7 +72,7 @@ class CityPageTest extends TestCase
             ->assertSee('اتجاه القبلة في Istanbul', false);
     }
 
-    public function test_arabic_falls_back_to_english_faqs_and_translates_chrome(): void
+    public function test_arabic_faq_shows_only_arabic_entries_and_translated_chrome(): void
     {
         Faq::query()->create([
             'question' => 'Why does the compass need my location?',
@@ -83,9 +83,19 @@ class CityPageTest extends TestCase
             'is_published' => true,
         ]);
 
+        Faq::query()->create([
+            'question' => 'لماذا يحتاج البوصلة إلى موقعي؟',
+            'answer' => '<p>اتجاه القبلة يختلف في كل مدينة.</p>',
+            'category' => 'qibla',
+            'locale' => 'ar',
+            'sort_order' => 1,
+            'is_published' => true,
+        ]);
+
         $this->get('/faq?hl=ar')
             ->assertOk()
-            ->assertSee('Why does the compass need my location?', false)
+            ->assertSee('لماذا يحتاج البوصلة إلى موقعي؟', false)
+            ->assertDontSee('Why does the compass need my location?', false)
             ->assertSee('الأسئلة الشائعة', false)
             ->assertSee('كيف تستخدم دليل القبلة هذا', false);
     }
