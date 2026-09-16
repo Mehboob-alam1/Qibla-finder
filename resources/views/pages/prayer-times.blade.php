@@ -10,6 +10,16 @@
         'location_denied' => __('ui.location_denied'),
         'searching_places' => __('ui.searching_places'),
         'no_places' => __('ui.no_places'),
+        'month_export_kicker' => __('ui.month_export_kicker'),
+        'month_export_message' => __('ui.month_export_message'),
+        'month_export_site' => __('ui.month_export_site'),
+        'share_timetable' => __('ui.Share timetable'),
+        'copy_timetable' => __('ui.Copy timetable'),
+        'download_csv' => __('ui.Download CSV'),
+        'timetable_copied' => __('ui.Timetable copied'),
+        'month_share_title' => __('ui.month_share_title'),
+        'month_share_footer' => __('ui.month_share_footer'),
+        'month_loading' => __('ui.month_loading'),
     ];
     $prayerLabels = [
         'imsak' => __('ui.Imsak'),
@@ -39,6 +49,8 @@
      data-timezone-prefix="{{ __('ui.timezone_prefix') }}"
      data-device-tz-label="{{ __('ui.device_timezone') }}"
      data-location-tz-label="{{ __('ui.location_timezone') }}"
+     data-site-url="{{ url('/') }}"
+     data-site-name="{{ $siteName ?? config('app.name') }}"
      class="mx-auto max-w-7xl px-4 py-10 lg:py-12">
     <div class="text-center lg:text-start max-w-3xl mx-auto lg:mx-0">
         <p class="text-gold uppercase tracking-[0.25em] text-xs">{{ __('ui.Salah') }}</p>

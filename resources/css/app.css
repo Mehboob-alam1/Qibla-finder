@@ -723,6 +723,10 @@ body.ar-live .camera-view video {
     width: 100%;
 }
 
+.month-export-card {
+    box-shadow: 0 8px 24px rgba(184, 134, 11, 0.08);
+}
+
 .admin-shell {
     min-height: 100vh;
     background: #f4efe4;

@@ -78,6 +78,8 @@ class PrayerApp {
         this.deviceTzLabel = root.dataset.deviceTzLabel || 'Device timezone';
         this.locationTzLabel = root.dataset.locationTzLabel || 'Location timezone';
         this.i18n = JSON.parse(root.dataset.i18n || '{}');
+        this.siteUrl = root.dataset.siteUrl || window.location.origin;
+        this.siteName = root.dataset.siteName || 'Qibla Finder';
         this.placesUrl = root.dataset.placesUrl || '/places/search';
         this.timezoneEndpoint = root.dataset.timezoneEndpoint || '/prayer-times/timezone';
         this.csrf = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -94,6 +96,7 @@ class PrayerApp {
         this.map = null;
         this.marker = null;
         this.mapReady = false;
+        this.monthRows = null;
         this.bind();
         this.loadSettings();
         this.initMap();
@@ -312,6 +315,11 @@ class PrayerApp {
             'qf_last_location',
             JSON.stringify({ lat, lng, label, timezone: this.effectiveTimezone() }),
         );
+        this.monthRows = null;
+        const monthTable = this.root.querySelector('[data-month-table]');
+        if (monthTable) {
+            monthTable.innerHTML = '';
+        }
         this.refresh();
     }
 
@@ -343,9 +351,202 @@ class PrayerApp {
         this.render();
     }
 
+    monthColumns() {
+        return ['date', 'fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    }
+
+    locationLabel() {
+        if (this.state.label) {
+            return this.state.label;
+        }
+
+        return `${Number(this.state.lat).toFixed(4)}, ${Number(this.state.lng).toFixed(4)}`;
+    }
+
+    monthLabel() {
+        const locale = document.documentElement.lang || 'en';
+        const tz = this.effectiveTimezone();
+
+        return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric', timeZone: tz }).format(new Date());
+    }
+
+    monthMetaLines() {
+        const payload = this.state.payload;
+        const method = payload?.method ? this.methodLabel(payload.method) : this.methodLabel(this.method?.value || 'MWL');
+        const tz = payload?.timezone || this.effectiveTimezone();
+
+        return [
+            `${this.labels.date || 'Date'} · ${this.monthLabel()}`,
+            `${this.locationLabel()}`,
+            `${this.methodPrefix} ${method}`,
+            `${this.timezonePrefix} ${tz}`,
+        ];
+    }
+
+    buildMonthShareText() {
+        if (! this.monthRows?.length) {
+            return '';
+        }
+        const cols = this.monthColumns();
+        const header = cols.map((key) => this.labels[key] || key).join('\t');
+        const rows = this.monthRows
+            .map((row) => cols.map((key) => (key === 'date' ? row.date : format12(row.times[key]))).join('\t'))
+            .join('\n');
+        const title = (this.i18n.month_share_title || 'Monthly prayer times — :location').replace(
+            ':location',
+            this.locationLabel(),
+        );
+        const footer = (this.i18n.month_share_footer || 'Free prayer times at :url').replace(':url', this.siteUrl);
+        const siteLine = (this.i18n.month_export_site || ':name — :url')
+            .replace(':name', this.siteName)
+            .replace(':url', this.siteUrl);
+
+        return `${title}\n${this.monthMetaLines().join('\n')}\n\n${header}\n${rows}\n\n—\n${footer}\n${siteLine}`;
+    }
+
+    escapeCsv(value) {
+        const text = String(value ?? '');
+        if (/[",\n]/.test(text)) {
+            return `"${text.replace(/"/g, '""')}"`;
+        }
+
+        return text;
+    }
+
+    buildMonthCsv() {
+        if (! this.monthRows?.length) {
+            return '';
+        }
+        const cols = this.monthColumns();
+        const lines = [cols.map((key) => this.escapeCsv(this.labels[key] || key)).join(',')];
+        this.monthRows.forEach((row) => {
+            lines.push(
+                cols
+                    .map((key) => this.escapeCsv(key === 'date' ? row.date : format12(row.times[key])))
+                    .join(','),
+            );
+        });
+        const footer = (this.i18n.month_share_footer || '').replace(':url', this.siteUrl);
+        lines.push('');
+        lines.push(this.escapeCsv(footer));
+        lines.push(this.escapeCsv(`${this.siteName} — ${this.siteUrl}`));
+
+        return `\uFEFF${lines.join('\n')}`;
+    }
+
+    async copyMonthShareText(button) {
+        const text = this.buildMonthShareText();
+        if (! text) {
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(text);
+            if (button) {
+                const original = button.textContent;
+                button.textContent = this.i18n.timetable_copied || 'Copied to clipboard';
+                setTimeout(() => {
+                    button.textContent = original;
+                }, 2000);
+            }
+        } catch {
+            // Clipboard may fail without permission.
+        }
+    }
+
+    downloadMonthCsv() {
+        const csv = this.buildMonthCsv();
+        if (! csv) {
+            return;
+        }
+        const slug = this.locationLabel().replace(/[^\w]+/g, '-').replace(/^-|-$/g, '') || 'location';
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `prayer-times-${slug}-${this.monthLabel().replace(/\s+/g, '-')}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    async shareMonth() {
+        const text = this.buildMonthShareText();
+        if (! text) {
+            return;
+        }
+        const title = (this.i18n.month_share_title || 'Prayer times').replace(':location', this.locationLabel());
+        if (navigator.share) {
+            try {
+                await navigator.share({ title, text });
+                return;
+            } catch (error) {
+                if (error?.name === 'AbortError') {
+                    return;
+                }
+            }
+        }
+        const whatsapp = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(whatsapp, '_blank', 'noopener,noreferrer');
+    }
+
+    bindMonthPanel(panel) {
+        panel.querySelector('[data-month-share]')?.addEventListener('click', () => this.shareMonth());
+        panel.querySelector('[data-month-copy]')?.addEventListener('click', (event) => {
+            this.copyMonthShareText(event.currentTarget);
+        });
+        panel.querySelector('[data-month-csv]')?.addEventListener('click', () => this.downloadMonthCsv());
+    }
+
+    renderMonthPanel() {
+        const table = this.root.querySelector('[data-month-table]');
+        if (! table || ! this.monthRows?.length) {
+            return;
+        }
+        const siteLine = (this.i18n.month_export_site || ':name — :url')
+            .replace(':name', this.siteName)
+            .replace(':url', this.siteUrl);
+        const cols = this.monthColumns();
+        table.innerHTML = `
+            <div class="month-export-panel mt-3 space-y-3" data-month-panel>
+                <div class="month-export-card rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/10 via-transparent to-moss/5 p-4 text-center">
+                    <p class="text-[11px] uppercase tracking-[0.2em] text-gold font-semibold">${this.i18n.month_export_kicker || 'Sadaqah jariyah'}</p>
+                    <p class="mt-2 text-sm text-forest/85 leading-relaxed">${this.i18n.month_export_message || ''}</p>
+                    <p class="mt-3 text-xs text-forest/60 break-all">${siteLine}</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button data-month-share type="button" class="flex-1 min-w-[7rem] rounded-full bg-forest text-cream py-2 px-3 text-sm font-semibold">${this.i18n.share_timetable || 'Share'}</button>
+                    <button data-month-copy type="button" class="flex-1 min-w-[7rem] rounded-full border border-forest/20 py-2 px-3 text-sm">${this.i18n.copy_timetable || 'Copy text'}</button>
+                    <button data-month-csv type="button" class="flex-1 min-w-[7rem] rounded-full border border-gold/40 text-forest py-2 px-3 text-sm">${this.i18n.download_csv || 'Download CSV'}</button>
+                </div>
+                <div class="overflow-x-auto rounded-2xl border border-forest/10">
+                    <table class="w-full text-sm">
+                        <thead><tr class="text-forest/60 bg-sand/40">${cols.map((h) => `<th class="p-2 text-start whitespace-nowrap">${this.labels[h] || h}</th>`).join('')}</tr></thead>
+                        <tbody>
+                            ${this.monthRows
+                                .map(
+                                    (row) => `<tr class="border-t border-forest/10">
+                                    <td class="p-2 whitespace-nowrap">${row.date}</td>
+                                    <td class="p-2 tabular-nums">${format12(row.times.fajr)}</td>
+                                    <td class="p-2 tabular-nums">${format12(row.times.sunrise)}</td>
+                                    <td class="p-2 tabular-nums">${format12(row.times.dhuhr)}</td>
+                                    <td class="p-2 tabular-nums">${format12(row.times.asr)}</td>
+                                    <td class="p-2 tabular-nums">${format12(row.times.maghrib)}</td>
+                                    <td class="p-2 tabular-nums">${format12(row.times.isha)}</td>
+                                </tr>`,
+                                )
+                                .join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        this.bindMonthPanel(table.querySelector('[data-month-panel]'));
+    }
+
     async loadMonth() {
         if (this.state.lat == null) {
             return;
+        }
+        const table = this.root.querySelector('[data-month-table]');
+        if (table) {
+            table.innerHTML = `<p class="text-sm text-forest/50 mt-2">${this.i18n.month_loading || 'Loading…'}</p>`;
         }
         const res = await fetch(this.root.dataset.endpoint, {
             method: 'POST',
@@ -353,31 +554,15 @@ class PrayerApp {
             body: this.formBody({ month: '1' }),
         });
         const json = await res.json();
-        const table = this.root.querySelector('[data-month-table]');
         if (! table || ! json.month) {
+            if (table) {
+                table.innerHTML = '';
+            }
+
             return;
         }
-        table.innerHTML = `
-            <div class="overflow-x-auto mt-2">
-                <table class="w-full text-sm">
-                    <thead><tr class="text-forest/60">${['date', 'fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'].map((h) => `<th class="p-2 text-start">${this.labels[h] || h}</th>`).join('')}</tr></thead>
-                    <tbody>
-                        ${json.month
-                            .map(
-                                (row) => `<tr class="border-t border-forest/10">
-                                <td class="p-2">${row.date}</td>
-                                <td class="p-2">${format12(row.times.fajr)}</td>
-                                <td class="p-2">${format12(row.times.sunrise)}</td>
-                                <td class="p-2">${format12(row.times.dhuhr)}</td>
-                                <td class="p-2">${format12(row.times.asr)}</td>
-                                <td class="p-2">${format12(row.times.maghrib)}</td>
-                                <td class="p-2">${format12(row.times.isha)}</td>
-                            </tr>`,
-                            )
-                            .join('')}
-                    </tbody>
-                </table>
-            </div>`;
+        this.monthRows = json.month;
+        this.renderMonthPanel();
     }
 
     methodLabel(key) {
