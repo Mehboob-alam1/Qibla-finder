@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="mx-auto max-w-6xl px-4 py-14">
-    <p class="text-gold uppercase tracking-[0.25em] text-xs">{{ __('ui.guides_kicker') }}</p>
+    <p class="text-kicker">{{ __('ui.guides_kicker') }}</p>
     <h1 class="font-display text-6xl text-forest mt-2">{{ __('ui.Guides') }}</h1>
     <p class="mt-3 max-w-2xl text-forest/70">{{ __('ui.guides_intro') }}</p>
 
@@ -14,7 +14,7 @@
     <div class="grid md:grid-cols-3 gap-5 mt-10">
         @forelse ($posts as $post)
             <a href="{{ $post->publicUrl() }}" class="stat-card rounded-3xl p-6 block hover:-translate-y-1 transition">
-                <p class="text-xs text-gold uppercase tracking-widest">{{ optional($post->published_at)->translatedFormat('M j, Y') }}</p>
+                <p class="text-kicker">{{ optional($post->published_at)->translatedFormat('M j, Y') }}</p>
                 <h2 class="font-display text-3xl mt-2 text-forest">{{ $post->title }}</h2>
                 <p class="mt-3 text-forest/70">{{ $post->excerpt }}</p>
             </a>

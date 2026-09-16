@@ -1,4 +1,5 @@
 import { bindPlaceSearch, timezoneFromLng } from './places';
+import { loadLeaflet } from './leaflet-loader';
 
 const NAMES = ['imsak', 'fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha', 'midnight'];
 
@@ -106,7 +107,6 @@ class PrayerApp {
         if (this.state.lat == null) {
             this.setLocation(33.690277, 73.073802, 'Islamabad', 'Asia/Karachi', true);
         }
-        this.locate();
     }
 
     bind() {
@@ -199,20 +199,35 @@ class PrayerApp {
     }
 
     initMap() {
-        if (! this.mapEl || typeof window.L === 'undefined') {
+        if (! this.mapEl) {
             return;
         }
-        this.map = window.L.map(this.mapEl, { zoomControl: true }).setView([33.6844, 73.0479], 11);
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; OpenStreetMap',
-        }).addTo(this.map);
-        this.marker = window.L.marker([33.6844, 73.0479], { draggable: true }).addTo(this.map);
-        this.marker.on('dragend', () => {
-            const { lat, lng } = this.marker.getLatLng();
-            this.setLocation(lat, lng, this.state.label, null, true);
+        loadLeaflet().then((L) => {
+            if (! this.mapEl || this.mapReady) {
+                return;
+            }
+            this.map = L.map(this.mapEl, { zoomControl: true }).setView([33.6844, 73.0479], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; OpenStreetMap',
+            }).addTo(this.map);
+            this.marker = L.marker([33.6844, 73.0479], { draggable: true }).addTo(this.map);
+            this.marker.on('dragend', () => {
+                const { lat, lng } = this.marker.getLatLng();
+                this.setLocation(lat, lng, this.state.label, null, true);
+            });
+            this.mapReady = true;
+            requestAnimationFrame(() => this.map?.invalidateSize());
+            if (! this._mapResizeBound) {
+                this._mapResizeBound = true;
+                window.addEventListener('resize', () => this.map?.invalidateSize(), { passive: true });
+            }
+            if (this.state.lat != null) {
+                this.updateMap(this.state.lat, this.state.lng, 11);
+            }
+        }).catch(() => {
+            // Map tiles are optional when CDN is blocked.
         });
-        this.mapReady = true;
     }
 
     updateMap(lat, lng, zoom = null) {

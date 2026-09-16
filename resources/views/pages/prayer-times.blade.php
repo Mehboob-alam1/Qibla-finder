@@ -51,15 +51,15 @@
      data-location-tz-label="{{ __('ui.location_timezone') }}"
      data-site-url="{{ url('/') }}"
      data-site-name="{{ $siteName ?? config('app.name') }}"
-     class="mx-auto max-w-7xl px-4 py-10 lg:py-12">
+     class="mx-auto max-w-7xl px-4 py-10 lg:py-12 min-w-0 overflow-x-clip">
     <div class="text-center lg:text-start max-w-3xl mx-auto lg:mx-0">
-        <p class="text-gold uppercase tracking-[0.25em] text-xs">{{ __('ui.Salah') }}</p>
+        <p class="text-kicker">{{ __('ui.Salah') }}</p>
         <h1 class="font-display text-5xl lg:text-6xl text-forest mt-2">{{ __('ui.prayer_times_title') }}</h1>
         <p class="mt-3 text-forest/70">{{ __('ui.prayer_times_lead') }}</p>
     </div>
 
-    <div class="mt-8 grid lg:grid-cols-[minmax(300px,380px)_1fr] gap-6 items-start">
-        <aside class="stat-card rounded-3xl p-5 lg:p-6 lg:sticky lg:top-24 space-y-4 order-2 lg:order-1">
+    <div class="mt-8 grid lg:grid-cols-[minmax(280px,380px)_minmax(0,1fr)] gap-6 lg:gap-8 items-start min-w-0">
+        <aside class="stat-card rounded-3xl p-5 lg:p-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto space-y-4 order-2 lg:order-1 min-w-0">
             <div class="flex items-start justify-between gap-3">
                 <div>
                     <p class="font-display text-3xl text-forest">{{ __('ui.Prayer Times') }}</p>
@@ -79,7 +79,7 @@
             <div data-month-table class="text-sm"></div>
         </aside>
 
-        <div class="space-y-4 order-1 lg:order-2">
+        <div class="space-y-4 order-1 lg:order-2 min-w-0 w-full">
             <div class="stat-card rounded-3xl p-5 space-y-4">
                 <h2 class="font-display text-2xl text-forest">{{ __('ui.prayer_location_settings') }}</h2>
                 <label class="block text-sm">{{ __('ui.location_address') }}
@@ -100,9 +100,11 @@
                 </div>
                 <button data-apply-coords type="button" class="w-full border border-forest/20 rounded-full py-2.5 text-sm">{{ __('ui.apply_coordinates') }}</button>
                 <p data-meta class="text-sm text-forest/60">{{ __('ui.enable_location_hint') }}</p>
-                <p class="text-xs text-forest/50">{{ __('ui.drag_marker_hint') }}</p>
+                <p class="text-xs text-label">{{ __('ui.drag_marker_hint') }}</p>
             </div>
-            <div id="prayer-map" class="prayer-map gold-border rounded-3xl overflow-hidden" aria-label="{{ __('ui.Prayer Times') }}"></div>
+            <div class="prayer-map-shell relative z-0 isolate w-full min-w-0 overflow-hidden rounded-3xl gold-border">
+                <div id="prayer-map" class="prayer-map w-full" aria-label="{{ __('ui.Prayer Times') }}"></div>
+            </div>
         </div>
     </div>
 
@@ -149,7 +151,7 @@
         </div>
     </div>
 
-    <article class="mt-16 prose-content max-w-3xl">
+    <article class="mt-16 prose-content max-w-3xl relative z-10">
         <h2>{{ __('ui.prayer_explained_title') }}</h2>
         <p>{{ __('ui.prayer_explained_p1') }}</p>
         <p>{{ __('ui.prayer_explained_p2') }}</p>

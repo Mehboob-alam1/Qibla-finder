@@ -39,7 +39,8 @@ class CityPageTest extends TestCase
             ->assertOk()
             ->assertSee('/cities', false)
             ->assertSee('/qibla/london', false)
-            ->assertSee('/prayer-times/london', false);
+            ->assertSee('/prayer-times/london', false)
+            ->assertSee('/qibla/london?hl=ar', false);
     }
 
     public function test_unknown_city_is_not_found(): void

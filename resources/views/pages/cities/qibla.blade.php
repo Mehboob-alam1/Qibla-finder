@@ -5,23 +5,23 @@
 
 @section('content')
 <section class="mx-auto max-w-6xl px-4 py-14">
-    <p class="text-gold uppercase tracking-[0.25em] text-xs">{{ $city['country'] }}</p>
+    <p class="text-kicker">{{ $city['country'] }}</p>
     <h1 class="font-display text-5xl md:text-6xl text-forest mt-2">{{ __('ui.city_qibla_title', ['city' => $city['name'], 'country' => $city['country']]) }}</h1>
     <p class="mt-4 max-w-2xl text-forest/70 text-lg">{{ __('ui.city_qibla_lead', ['city' => $city['name']]) }}</p>
 
     <div class="mt-8 grid md:grid-cols-3 gap-4">
         <article class="stat-card rounded-3xl p-6">
-            <p class="text-xs uppercase tracking-widest text-forest/50">{{ __('ui.Qibla Direction') }}</p>
+            <p class="text-xs uppercase tracking-widest text-label">{{ __('ui.Qibla Direction') }}</p>
             <p class="font-display text-5xl mt-2">{{ number_format($snapshot['qibla_bearing'], 1) }}°</p>
             <p class="text-forest/60 mt-1">{{ $snapshot['qibla_cardinal'] }}</p>
         </article>
         <article class="stat-card rounded-3xl p-6">
-            <p class="text-xs uppercase tracking-widest text-forest/50">{{ __('ui.Distance to Kaaba') }}</p>
+            <p class="text-xs uppercase tracking-widest text-label">{{ __('ui.Distance to Kaaba') }}</p>
             <p class="font-display text-4xl mt-2">{{ number_format($snapshot['distance_km'], 0) }} km</p>
             <p class="text-forest/60 mt-1">{{ number_format($snapshot['distance_mi'], 0) }} mi</p>
         </article>
         <article class="stat-card rounded-3xl p-6">
-            <p class="text-xs uppercase tracking-widest text-forest/50">{{ __('ui.Your Location') }}</p>
+            <p class="text-xs uppercase tracking-widest text-label">{{ __('ui.Your Location') }}</p>
             <p class="font-display text-2xl mt-2">{{ $city['name'] }}</p>
             <p class="text-forest/60 mt-1 font-mono text-sm">{{ number_format($city['lat'], 4) }}, {{ number_format($city['lng'], 4) }}</p>
         </article>
@@ -54,24 +54,27 @@
         </div>
     @endif
 
-    <p class="mt-10"><a class="text-gold" href="{{ route('cities.index') }}">{{ __('ui.cities_all') }}</a></p>
+    <p class="mt-10"><a class="link-gold" href="{{ route('cities.index') }}">{{ __('ui.cities_all') }}</a></p>
 </section>
 @endsection
 
 @push('scripts')
 <script>
-    (() => {
+    (async () => {
         const el = document.querySelector('[data-city-map]');
-        if (! el || typeof window.L === 'undefined') return;
+        if (! el || typeof window.qfLoadLeaflet !== 'function') {
+            return;
+        }
+        const L = await window.qfLoadLeaflet();
         const lat = Number(el.dataset.lat);
         const lng = Number(el.dataset.lng);
         const kLat = Number(el.dataset.kaabaLat);
         const kLng = Number(el.dataset.kaabaLng);
-        const map = window.L.map(el).setView([lat, lng], 3);
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap' }).addTo(map);
-        window.L.marker([lat, lng]).addTo(map);
-        window.L.circleMarker([kLat, kLng], { radius: 8, color: '#c9a227', fillColor: '#c9a227', fillOpacity: 1 }).addTo(map);
-        window.L.polyline([[lat, lng], [kLat, kLng]], { color: '#0d3b2e', weight: 2, dashArray: '6 8' }).addTo(map);
+        const map = L.map(el).setView([lat, lng], 3);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap' }).addTo(map);
+        L.marker([lat, lng]).addTo(map);
+        L.circleMarker([kLat, kLng], { radius: 8, color: '#c9a227', fillColor: '#c9a227', fillOpacity: 1 }).addTo(map);
+        L.polyline([[lat, lng], [kLat, kLng]], { color: '#0d3b2e', weight: 2, dashArray: '6 8' }).addTo(map);
         map.fitBounds([[lat, lng], [kLat, kLng]], { padding: [40, 40] });
     })();
 </script>

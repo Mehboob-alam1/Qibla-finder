@@ -1,4 +1,5 @@
 import { bindPlaceSearch, timezoneFromLng } from './places';
+import { loadLeaflet } from './leaflet-loader';
 
 const KAABA = { lat: 21.422487, lng: 39.826206 };
 
@@ -205,7 +206,6 @@ class QiblaApp {
         this.cameraFrame = null;
         this.bind();
         this.restore();
-        this.askLocation();
         this.startCompass();
     }
 
@@ -899,29 +899,42 @@ class QiblaApp {
     }
 
     drawMap() {
-        if (!this.mapEl || typeof window.L === 'undefined' || this.state.lat == null) {
+        if (! this.mapEl || this.state.lat == null) {
             return;
         }
-        if (!this.map) {
-            this.map = window.L.map(this.mapEl, { zoomControl: true, attributionControl: true }).setView(
-                [this.state.lat, this.state.lng],
-                3,
-            );
-            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                attribution: '&copy; OpenStreetMap',
-            }).addTo(this.map);
-        }
-        const user = [this.state.lat, this.state.lng];
-        const kaaba = [KAABA.lat, KAABA.lng];
-        if (this.userMarker) this.map.removeLayer(this.userMarker);
-        if (this.line) this.map.removeLayer(this.line);
-        this.userMarker = window.L.marker(user).addTo(this.map).bindPopup(this.i18n.you || 'You');
-        window.L.circleMarker(kaaba, { radius: 8, color: '#c9a227', fillColor: '#c9a227', fillOpacity: 1 })
-            .addTo(this.map)
-            .bindPopup(this.i18n.kaaba || 'Kaaba');
-        this.line = window.L.polyline([user, kaaba], { color: '#0d3b2e', weight: 2, dashArray: '6 8' }).addTo(this.map);
-        this.map.fitBounds([user, kaaba], { padding: [40, 40] });
+        loadLeaflet()
+            .then((L) => {
+                if (! this.mapEl || this.state.lat == null) {
+                    return;
+                }
+                if (! this.map) {
+                    this.map = L.map(this.mapEl, { zoomControl: true, attributionControl: true }).setView(
+                        [this.state.lat, this.state.lng],
+                        3,
+                    );
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '&copy; OpenStreetMap',
+                    }).addTo(this.map);
+                }
+                const user = [this.state.lat, this.state.lng];
+                const kaaba = [KAABA.lat, KAABA.lng];
+                if (this.userMarker) {
+                    this.map.removeLayer(this.userMarker);
+                }
+                if (this.line) {
+                    this.map.removeLayer(this.line);
+                }
+                this.userMarker = L.marker(user).addTo(this.map).bindPopup(this.i18n.you || 'You');
+                L.circleMarker(kaaba, { radius: 8, color: '#c9a227', fillColor: '#c9a227', fillOpacity: 1 })
+                    .addTo(this.map)
+                    .bindPopup(this.i18n.kaaba || 'Kaaba');
+                this.line = L.polyline([user, kaaba], { color: '#0d3b2e', weight: 2, dashArray: '6 8' }).addTo(this.map);
+                this.map.fitBounds([user, kaaba], { padding: [40, 40] });
+            })
+            .catch(() => {
+                // Map tiles are optional when CDN is blocked.
+            });
     }
 }
 

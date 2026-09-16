@@ -25,7 +25,6 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{{ asset('icon-192.png') }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script>
         (function () {
             try {
@@ -175,7 +174,6 @@
             © {{ date('Y') }} {{ $siteName }}. {{ __('ui.copyright') }}
         </div>
     </footer>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     @stack('scripts')
     @if (\App\Support\SiteSettings::adsenseVisible() && (\App\Support\SiteSettings::adsensePreview() || \App\Support\SiteSettings::adsenseSlot('banner') !== '') && ! request()->routeIs('home'))
         <div class="ad-interstitial is-hidden" data-ad-interstitial data-hours="12" @if (\App\Support\SiteSettings::adsensePreview()) data-preview="1" @endif hidden>

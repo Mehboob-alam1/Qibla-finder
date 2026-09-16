@@ -1,5 +1,5 @@
 <section id="setup" class="mx-auto max-w-6xl px-4 {{ $helpClass ?? 'mt-20' }}">
-    <p class="text-gold uppercase tracking-[0.2em] text-xs">{{ __('ui.help_kicker') }}</p>
+    <p class="text-kicker">{{ __('ui.help_kicker') }}</p>
     <h2 class="font-display text-5xl mt-2 text-forest">{{ __('ui.help_title') }}</h2>
     <p class="mt-4 text-forest/75 max-w-3xl">{{ __('ui.help_intro') }}</p>
 
@@ -12,7 +12,7 @@
             ['05', __('ui.help_step_5')],
         ] as [$n, $text])
             <li class="stat-card rounded-3xl p-5 flex gap-4">
-                <span class="font-display text-3xl text-gold">{{ $n }}</span>
+                <span class="font-display text-3xl text-step">{{ $n }}</span>
                 <p class="text-forest/80">{{ $text }}</p>
             </li>
         @endforeach

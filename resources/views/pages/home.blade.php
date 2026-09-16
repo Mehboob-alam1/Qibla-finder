@@ -230,16 +230,16 @@
 
 <section class="mx-auto max-w-6xl px-4 -mt-8 relative z-10 grid md:grid-cols-3 gap-4">
     <article class="stat-card rounded-3xl p-6">
-        <p class="text-xs uppercase tracking-widest text-forest/50">{{ __('ui.Qibla Direction') }}</p>
+        <p class="text-xs uppercase tracking-widest text-label">{{ __('ui.Qibla Direction') }}</p>
         <p data-bearing class="font-display text-4xl mt-2">—</p>
-        <p data-heading class="text-sm text-forest/50 mt-1">{{ __('ui.Device heading') }}</p>
+        <p data-heading class="text-sm text-label mt-1">{{ __('ui.Device heading') }}</p>
     </article>
     <article class="stat-card rounded-3xl p-6">
-        <p class="text-xs uppercase tracking-widest text-forest/50">{{ __('ui.Your Location') }}</p>
+        <p class="text-xs uppercase tracking-widest text-label">{{ __('ui.Your Location') }}</p>
         <p data-location class="font-display text-2xl mt-2 leading-snug">—</p>
     </article>
     <article class="stat-card rounded-3xl p-6">
-        <p class="text-xs uppercase tracking-widest text-forest/50">{{ __('ui.Distance to Kaaba') }}</p>
+        <p class="text-xs uppercase tracking-widest text-label">{{ __('ui.Distance to Kaaba') }}</p>
         <p data-distance class="font-display text-4xl mt-2">—</p>
     </article>
 </section>
@@ -250,7 +250,7 @@
 
 <section class="mx-auto max-w-6xl px-4 mt-20 grid lg:grid-cols-2 gap-12 items-start">
     <div>
-        <p class="text-gold uppercase tracking-[0.2em] text-xs">{{ __('ui.How it works') }}</p>
+        <p class="text-kicker">{{ __('ui.How it works') }}</p>
         <h2 class="font-display text-5xl mt-2 text-forest">{{ __('ui.how_title') }}</h2>
         <div class="mt-6 space-y-4 text-forest/75 leading-relaxed">
             <p>{{ __('ui.how_p1') }}</p>
@@ -264,7 +264,7 @@
             ['03', __('ui.step_3')],
         ] as [$n, $text])
             <div class="stat-card rounded-3xl p-5 flex gap-4">
-                <span class="font-display text-3xl text-gold">{{ $n }}</span>
+                <span class="font-display text-3xl text-step">{{ $n }}</span>
                 <p class="text-forest/80">{{ $text }}</p>
             </div>
         @endforeach
@@ -290,7 +290,7 @@
 <section class="mx-auto max-w-6xl px-4 mt-20">
     <div class="flex items-end justify-between mb-6">
         <h2 class="font-display text-5xl text-forest">{{ __('ui.FAQ') }}</h2>
-        <a href="{{ route('faq') }}" class="text-gold">{{ __('ui.View all') }}</a>
+        <a href="{{ route('faq') }}" class="link-gold">{{ __('ui.View all') }}</a>
     </div>
     <div class="grid md:grid-cols-2 gap-4">
         @foreach ($faqs as $faq)
@@ -309,12 +309,12 @@
 <section class="mx-auto max-w-6xl px-4 mt-20 mb-8">
     <div class="flex items-end justify-between mb-6">
         <h2 class="font-display text-5xl text-forest">{{ __('ui.Guides') }}</h2>
-        <a href="{{ route('blog.index') }}" class="text-gold">{{ __('ui.All guides') }}</a>
+        <a href="{{ route('blog.index') }}" class="link-gold">{{ __('ui.All guides') }}</a>
     </div>
     <div class="grid md:grid-cols-3 gap-5">
         @foreach ($posts as $post)
             <a href="{{ $post->publicUrl() }}" class="stat-card rounded-3xl p-6 block hover:-translate-y-1 transition">
-                <p class="text-xs text-gold uppercase tracking-widest">{{ optional($post->published_at)->translatedFormat('M j, Y') }}</p>
+                <p class="text-kicker">{{ optional($post->published_at)->translatedFormat('M j, Y') }}</p>
                 <h3 class="font-display text-3xl mt-2 text-forest">{{ $post->title }}</h3>
                 <p class="mt-3 text-forest/70">{{ $post->excerpt }}</p>
             </a>

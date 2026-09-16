@@ -108,22 +108,35 @@ class SeoLandingTest extends TestCase
             '/jadwal-sholat',
             '/waktu-solat',
             '/prayer-times',
+            '/?hl=ar',
+            '/?hl=ur',
+            '/prayer-times?hl=fr',
             '/faq',
             '/faq?hl=id',
             '/faq?hl=ar',
             '/guides',
             '/guides?hl=ms',
             '/contact',
+            '/contact?hl=de',
             '/cities',
             '/cities?hl=id',
             '/qibla/jakarta',
+            '/qibla/jakarta?hl=ar',
             '/prayer-times/kuala-lumpur',
+            '/prayer-times/kuala-lumpur?hl=ms',
             '/qibla/london',
+            '/qibla/london?hl=tr',
+            '/prayer-times/dubai?hl=fa',
         ] as $path) {
             $this->assertStringContainsString($path, $xml, "Sitemap is missing [{$path}].");
         }
 
+        $localeCount = count(config('qibla.locales'));
+        $cityCount = \App\Support\Cities::all()->count();
+        $expectedMinimum = ($cityCount * 2 * $localeCount) + (count(\App\Support\LocalizedPaths::dedicated()) * $localeCount) + (4 * $localeCount);
+
         $this->assertSame(preg_match_all('#<loc>#', $xml), substr_count($xml, '<loc>'));
+        $this->assertGreaterThanOrEqual($expectedMinimum, substr_count($xml, '<loc>'));
         $this->assertGreaterThan(250, substr_count($xml, '<loc>'));
     }
 }

@@ -17,6 +17,8 @@
     --color-moss: #1a6b4a;
     --color-gold: #c9a227;
     --color-gold-soft: #e8d48b;
+    --color-gold-text: #6b4f0a;
+    --color-label: #355048;
     --color-cream: #f6f1e7;
     --color-sand: #efe6d4;
     --color-card: #fffcf7;
@@ -148,6 +150,59 @@ html.dark .leaflet-bar a {
 
 .font-display {
     font-family: var(--font-display);
+}
+
+.text-label {
+    color: var(--color-label);
+}
+
+.text-kicker {
+    color: var(--color-gold-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.text-step {
+    color: var(--color-gold-text);
+    font-family: var(--font-display);
+}
+
+.link-gold {
+    color: var(--color-gold-text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+}
+
+.link-gold:hover {
+    color: #523c06;
+}
+
+html.dark .text-label {
+    color: rgba(215, 238, 227, 0.78);
+}
+
+html.dark .text-kicker,
+html.dark .text-step,
+html.dark .link-gold {
+    color: var(--color-gold-soft);
+}
+
+html.dark .link-gold:hover {
+    color: #fff;
+}
+
+.pattern-bg .text-kicker,
+.pattern-bg .link-gold,
+.pattern-bg .text-step {
+    color: var(--color-gold-soft);
+}
+
+.pattern-bg .link-gold:hover {
+    color: #fff;
 }
 
 [dir='rtl'] body,
@@ -718,9 +773,42 @@ body.ar-live .camera-view video {
 }
 
 .prayer-map {
-    height: min(52vh, 480px);
-    min-height: 280px;
+    height: clamp(240px, 38vh, 420px);
+    min-height: 220px;
     width: 100%;
+}
+
+.prayer-map-shell {
+    contain: layout paint;
+    transform: translateZ(0);
+}
+
+.prayer-map-shell .leaflet-container {
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+}
+
+.prayer-map-shell .leaflet-pane,
+.prayer-map-shell .leaflet-map-pane,
+.prayer-map-shell .leaflet-tile-pane,
+.prayer-map-shell .leaflet-overlay-pane,
+.prayer-map-shell .leaflet-shadow-pane,
+.prayer-map-shell .leaflet-marker-pane,
+.prayer-map-shell .leaflet-tooltip-pane,
+.prayer-map-shell .leaflet-popup-pane {
+    z-index: auto !important;
+}
+
+.prayer-map-shell .leaflet-top,
+.prayer-map-shell .leaflet-bottom {
+    z-index: 5 !important;
+}
+
+.site-footer {
+    position: relative;
+    z-index: 30;
+    isolation: isolate;
 }
 
 .month-export-card {

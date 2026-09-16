@@ -1,3 +1,7 @@
+import { loadLeaflet } from './leaflet-loader';
+
+window.qfLoadLeaflet = loadLeaflet;
+
 import './qibla';
 import './prayer';
 import './ads';

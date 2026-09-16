@@ -21,44 +21,30 @@ class SitemapController extends Controller
 
         foreach (LocalizedPaths::dedicated() as $page => $paths) {
             $priority = $page === 'home' ? '1.0' : '0.9';
-            foreach ($paths as $path) {
-                $urls[] = $this->entry(url($path), now(), 'daily', $priority, LocalizedPaths::alternates($path));
-            }
-
-            foreach (array_keys(config('qibla.locales', [])) as $locale) {
-                if (isset($paths[$locale])) {
-                    continue;
-                }
-
-                $urls[] = $this->entry(
-                    LocalizedPaths::url($page, $locale),
-                    now(),
-                    'daily',
-                    $page === 'home' ? '0.8' : '0.75',
-                    LocalizedPaths::alternates($paths['en'] ?? '/'),
-                );
-            }
+            $this->addLocalizedEntries(
+                $urls,
+                $paths['en'] ?? '/',
+                'daily',
+                $priority,
+                $page,
+                now(),
+            );
         }
 
         foreach ($this->sectionPaths() as $path => $meta) {
-            foreach (array_keys(config('qibla.locales', [])) as $locale) {
-                $urls[] = $this->entry(
-                    LocalizedPaths::queryUrl($path, $locale),
-                    now(),
-                    $meta['changefreq'],
-                    $meta['priority'],
-                    LocalizedPaths::alternates($path),
-                );
-            }
+            $this->addLocalizedEntries(
+                $urls,
+                $path,
+                $meta['changefreq'],
+                $meta['priority'],
+                null,
+                now(),
+            );
         }
 
         foreach (Cities::all() as $city) {
-            foreach ([
-                route('cities.qibla', $city['slug']),
-                route('cities.prayer', $city['slug']),
-            ] as $loc) {
-                $path = (string) parse_url($loc, PHP_URL_PATH);
-                $urls[] = $this->entry($loc, now(), 'weekly', '0.7', LocalizedPaths::alternates($path));
+            foreach (['/qibla/'.$city['slug'], '/prayer-times/'.$city['slug']] as $path) {
+                $this->addLocalizedEntries($urls, $path, 'weekly', '0.7', null, now());
             }
         }
 
@@ -94,15 +80,7 @@ class SitemapController extends Controller
             // CMS tables are optional until migrations have been run.
         }
 
-        $seen = [];
-        $unique = [];
-        foreach ($urls as $url) {
-            if (isset($seen[$url['loc']])) {
-                continue;
-            }
-            $seen[$url['loc']] = true;
-            $unique[] = $url;
-        }
+        $unique = $this->uniqueUrls($urls);
 
         $body = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $body .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'."\n";
@@ -149,6 +127,49 @@ class SitemapController extends Controller
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Cache-Control' => 'public, max-age=3600',
         ]);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $urls
+     */
+    protected function addLocalizedEntries(
+        array &$urls,
+        string $path,
+        string $changefreq,
+        string $priority,
+        ?string $localizedPage = null,
+        mixed $lastmod = null,
+    ): void {
+        $path = LocalizedPaths::normalize($path);
+        $alternates = LocalizedPaths::alternates($path);
+
+        foreach (array_keys(config('qibla.locales', [])) as $locale) {
+            $loc = $localizedPage !== null
+                ? LocalizedPaths::url($localizedPage, $locale)
+                : LocalizedPaths::queryUrl($path, $locale);
+
+            $urls[] = $this->entry($loc, $lastmod ?? now(), $changefreq, $priority, $alternates);
+        }
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $urls
+     * @return array<int, array<string, mixed>>
+     */
+    protected function uniqueUrls(array $urls): array
+    {
+        $seen = [];
+        $unique = [];
+
+        foreach ($urls as $url) {
+            if (isset($seen[$url['loc']])) {
+                continue;
+            }
+            $seen[$url['loc']] = true;
+            $unique[] = $url;
+        }
+
+        return $unique;
     }
 
     /**
