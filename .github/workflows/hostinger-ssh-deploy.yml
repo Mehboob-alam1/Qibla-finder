@@ -1,0 +1,27 @@
+name: Deploy to Hostinger (SSH)
+
+# Optional: git pull on server — no Hostinger Composer build step.
+# Secrets: HOSTINGER_SSH_HOST, HOSTINGER_SSH_USER, HOSTINGER_SSH_PASSWORD (or key), HOSTINGER_SSH_PATH
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.HOSTINGER_SSH_HOST != '' }}
+    steps:
+      - name: Pull latest on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
+          script: |
+            set -e
+            cd "${{ secrets.HOSTINGER_SSH_PATH }}"
+            git fetch origin main
+            git reset --hard origin/main
+            bash scripts/hostinger-post-deploy.sh

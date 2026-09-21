@@ -1,13 +1,21 @@
-name: Deploy to Hostinger
+name: Deploy to Hostinger (FTP)
+
+# Bypasses Hostinger Git "composer install" build (proc_open). Requires FTP secrets.
+# Disable Hostinger Git auto-deploy in hPanel after this works.
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: hostinger-ftp
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ secrets.HOSTINGER_FTP_HOST != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -21,11 +29,15 @@ jobs:
           node-version: '22'
           cache: npm
 
-      - run: composer install --no-dev --optimize-autoloader --no-interaction
-      - run: npm ci
-      - run: npm run build
+      - name: Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      - name: Upload to Hostinger FTP
+      - name: Build frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload to Hostinger (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.HOSTINGER_FTP_HOST }}
@@ -37,5 +49,20 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/.env
+            **/.env.*
             **/tests/**
             **/.github/**
+            **/qibla_finder_app/**
+            **/.cursor/**
+            **/storage/logs/**
+            **/storage/framework/cache/data/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+
+  secrets-missing:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.HOSTINGER_FTP_HOST == '' }}
+    steps:
+      - name: FTP secrets not configured
+        run: |
+          echo "::warning::Hostinger Git deploy fails without proc_open. Add GitHub secrets HOSTINGER_FTP_* and disable Git auto-deploy. See docs/HOSTINGER-DEPLOY.md"

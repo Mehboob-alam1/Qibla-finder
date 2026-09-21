@@ -1,56 +1,87 @@
-# Hostinger deploy: `proc_open` / Composer failed
+# Hostinger: fix `proc_open` / Composer deploy failure
 
-If the deploy log shows:
+Hostinger **Git** deploy always runs `composer install` in a **build container** where `proc_open` is often **disabled**. Changing website PHP in hPanel does **not** always change that build PHP.
 
-```text
-The Process class relies on proc_open, which is not available on your PHP installation.
-```
+**Vendored `vendor/` in Git does not skip that step** on the default Git pipeline.
 
-Hostinger Git deploy runs **`composer install`** in a build step. Composer **requires** `proc_open`. On **new Hostinger accounts**, `proc_open` is in **`disableFunctions` by default**.
+---
 
-**Vendored `vendor/` does not disable that step.** Until `proc_open` is enabled (or you change/disable the Git build), every deploy will fail at step “Installing Composer dependencies”.
+## Solution 1 — Enable `proc_open` (keep Hostinger Git)
 
-This repository includes a production **`vendor/`** folder so the live site does not need Composer **after** files are on the server.
+1. hPanel → **Websites** → **Dashboard** → **Advanced** → **PHP Configuration**
+2. **PHP options** → **`disableFunctions`**
+3. Remove **`proc_open`** → **Save**
+4. Set **PHP 8.3+**
+5. **Git** → **Redeploy**
 
-## Fix A (recommended): enable `proc_open`
+If it **still** fails, the Git **build** environment is separate — open Hostinger live chat and ask: *“Enable proc_open for Git deployment / Composer build for my account.”*
 
-1. [hPanel](https://hpanel.hostinger.com) → **Websites** → your site → **Dashboard**
-2. **Advanced** → **PHP Configuration**
-3. Open the **PHP options** tab
-4. Find **`disableFunctions`**
-5. Remove **`proc_open`** from the list (leave other entries as Hostinger recommends)
-6. **Save**
-7. **Git** → **Redeploy** (deploy must show a **new** commit, not `66f2d69`)
+---
 
-Also set **PHP 8.3+** for the website and for Git/CLI if hPanel offers a separate version dropdown.
+## Solution 2 — GitHub FTP deploy (recommended if Git build keeps failing)
 
-Official note: [How to enable disabled PHP functions](https://www.hostinger.com/support/3212034-how-to-enable-disabled-php-functions-in-hostinger/)
+This repo ships **`.github/workflows/deploy-hostinger.yml`**. It builds on GitHub (proc_open works) and uploads **including `vendor/`** via FTP — **no Composer on Hostinger**.
 
-## Fix B: custom build command (skip Composer on Hostinger)
+### A. Add GitHub secrets
 
-If hPanel **Git** lets you set a **custom build command**, use:
+Repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**:
+
+| Secret | Example |
+|--------|---------|
+| `HOSTINGER_FTP_HOST` | `ftp.qiblafinders.io` or Hostinger FTP hostname from hPanel |
+| `HOSTINGER_FTP_USER` | FTP username |
+| `HOSTINGER_FTP_PASSWORD` | FTP password |
+| `HOSTINGER_FTP_PATH` | `/domains/qiblafinders.io/public_html/` or `/public_html/` |
+
+(FTP path: hPanel → **Files** → note path to `public_html` where `.htaccess` and `artisan` live.)
+
+### B. Turn off Hostinger Git auto-deploy
+
+hPanel → **Advanced** → **Git** → disable **Auto deployment** (or remove the push webhook).
+
+Otherwise every push runs **two** deploys: one fails (Composer), one may succeed (FTP).
+
+### C. Push to `main`
+
+Actions tab → **Deploy to Hostinger (FTP)** should succeed. Then once on SSH:
 
 ```bash
-bash .hostinger/build.sh
+cd ~/domains/qiblafinders.io/public_html
+bash scripts/hostinger-post-deploy.sh
 ```
 
-Then redeploy. The script exits successfully when `vendor/autoload.php` is present in the repo.
+---
 
-## After a successful deploy
+## Solution 3 — SSH manual pull (no FTP secrets)
 
-SSH once (if needed):
+If the server already has a git clone and SSH access:
 
 ```bash
 cd ~/domains/YOUR-DOMAIN/public_html
-bash scripts/hostinger-setup.sh
+git fetch origin main && git reset --hard origin/main
+bash scripts/hostinger-post-deploy.sh
 ```
 
-That runs migrations and caches **without** wiping CMS data when `storage/framework/installed` exists.
+Or run workflow **Deploy to Hostinger (SSH)** manually (needs `HOSTINGER_SSH_*` secrets).
 
-## Fix C: GitHub Actions → FTP
+---
 
-This repo includes `.github/workflows/deploy-hostinger.yml`. It runs `composer install` and `npm run build` on GitHub, then uploads via FTP **including `vendor/`**.
+## Solution 4 — Custom Git build command (if hPanel offers it)
 
-1. Add GitHub repository secrets: `HOSTINGER_FTP_HOST`, `HOSTINGER_FTP_USER`, `HOSTINGER_FTP_PASSWORD`, `HOSTINGER_FTP_PATH`
-2. Push to `main` or run the workflow manually
-3. Turn off Hostinger **Git auto-deploy** if you use FTP only, to avoid a failed Composer step on every push
+Set build command to:
+
+```bash
+bash build.sh
+```
+
+(not `composer install`). Then redeploy. Requires `vendor/` in the repo (already committed).
+
+---
+
+## After any successful deploy
+
+```bash
+bash scripts/hostinger-post-deploy.sh
+```
+
+Runs migrations and caches; **does not** wipe CMS when `storage/framework/installed` exists.

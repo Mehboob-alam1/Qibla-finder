@@ -2,8 +2,9 @@
   "framework": "laravel",
   "php": "8.3",
   "build": {
-    "commands": [
-      "bash .hostinger/build.sh"
-    ]
+    "composer": false,
+    "composer_install": false,
+    "skip_composer": true,
+    "commands": ["bash build.sh"]
   }
 }
