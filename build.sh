@@ -10,4 +10,8 @@ if [[ ! -f vendor/autoload.php ]]; then
     exit 1
 fi
 
+if [[ ! -f composer.json && -f composer.json.dist ]]; then
+    cp composer.json.dist composer.json
+fi
+
 echo "Build OK — using vendored dependencies (no composer install)."

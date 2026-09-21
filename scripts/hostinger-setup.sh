@@ -32,13 +32,25 @@ if [[ ! -f .env ]]; then
     exit 1
 fi
 
-if [[ ! -f "$ROOT/composer.phar" ]]; then
-    "$PHP_BIN" -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    "$PHP_BIN" composer-setup.php --install-dir="$ROOT" --filename=composer.phar --quiet
-    rm -f composer-setup.php
+if [[ ! -f composer.json && -f composer.json.dist ]]; then
+    cp composer.json.dist composer.json
+    cp composer.lock.dist composer.lock
 fi
 
-"$PHP_BIN" "$ROOT/composer.phar" install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+if [[ -f vendor/autoload.php ]]; then
+    echo "Using committed vendor/ — skipping composer install (avoids proc_open on Hostinger)."
+elif [[ -f composer.json ]]; then
+    if [[ ! -f "$ROOT/composer.phar" ]]; then
+        "$PHP_BIN" -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        "$PHP_BIN" composer-setup.php --install-dir="$ROOT" --filename=composer.phar --quiet
+        rm -f composer-setup.php
+    fi
+
+    "$PHP_BIN" "$ROOT/composer.phar" install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+else
+    echo "Missing vendor/ and composer.json.dist — cannot install PHP dependencies." >&2
+    exit 1
+fi
 
 if ! grep -qE '^APP_KEY=base64:' .env; then
     "$PHP_BIN" artisan key:generate --force

@@ -7,6 +7,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 if [[ -f vendor/autoload.php ]]; then
+    if [[ ! -f composer.json && -f composer.json.dist ]]; then
+        cp composer.json.dist composer.json
+    fi
     echo "vendor/autoload.php present — skipping composer install."
     exit 0
 fi

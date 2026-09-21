@@ -27,6 +27,8 @@ Laravel 13 · PHP 8.3+ · SQLite (or MySQL/PostgreSQL) · Tailwind CSS 4 · Vite
 Requirements: PHP 8.3+, Composer, Node.js 20+.
 
 ```bash
+cp composer.json.dist composer.json
+cp composer.lock.dist composer.lock
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -73,11 +75,9 @@ Laravel 13 needs **PHP 8.3 or newer**. Hostinger Git often runs `composer` with 
 
 ### Deploy failed: `proc_open` / Composer
 
-Hostinger Git runs **`composer install`** during deploy. Composer needs **`proc_open`**, which is **disabled by default** on new Hostinger accounts.
+Hostinger Git runs **`composer install`** during deploy when **`composer.json`** exists in the repo. Composer needs **`proc_open`**, which is **disabled by default** on new Hostinger accounts.
 
-**Fix:** hPanel → **PHP Configuration** → **PHP options** → **`disableFunctions`** → remove **`proc_open`** → Save → **Redeploy**.
-
-Full steps and alternatives (FTP deploy, SSH): **[docs/HOSTINGER-DEPLOY.md](docs/HOSTINGER-DEPLOY.md)**
+**This repo omits `composer.json` from Git** (use `composer.json.dist` locally) so Git deploy should skip Composer. **`vendor/` is committed.** If deploy still runs Composer, use **[docs/HOSTINGER-DEPLOY.md](docs/HOSTINGER-DEPLOY.md)** (FTP workflow or enable `proc_open`).
 
 ### 0. Set PHP 8.3+ first (required)
 

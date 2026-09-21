@@ -29,6 +29,10 @@ if [[ ! -f vendor/autoload.php ]]; then
     exit 1
 fi
 
+if [[ ! -f composer.json && -f composer.json.dist ]]; then
+    cp composer.json.dist composer.json
+fi
+
 if [[ ! -f .env ]]; then
     echo "Missing .env — copy .env.hostinger.example to .env first." >&2
     exit 1

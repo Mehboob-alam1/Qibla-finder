@@ -4,6 +4,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 if [[ -f vendor/autoload.php ]]; then
+    if [[ ! -f composer.json && -f composer.json.dist ]]; then
+        cp composer.json.dist composer.json
+    fi
     echo "Using vendored dependencies from the repository."
     exit 0
 fi
