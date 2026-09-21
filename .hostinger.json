@@ -1,0 +1,9 @@
+{
+  "framework": "laravel",
+  "php": "8.3",
+  "build": {
+    "commands": [
+      "bash .hostinger/build.sh"
+    ]
+  }
+}

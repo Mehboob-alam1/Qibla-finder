@@ -8,7 +8,9 @@ The Process class relies on proc_open, which is not available on your PHP instal
 
 Hostinger Git deploy runs **`composer install`** in a build step. Composer **requires** `proc_open`. On **new Hostinger accounts**, `proc_open` is in **`disableFunctions` by default**.
 
-This repository now includes a production **`vendor/`** folder so the live site does not depend on Composer on the server — but Hostinger still runs Composer during build **unless** you change the build command or enable `proc_open`.
+**Vendored `vendor/` does not disable that step.** Until `proc_open` is enabled (or you change/disable the Git build), every deploy will fail at step “Installing Composer dependencies”.
+
+This repository includes a production **`vendor/`** folder so the live site does not need Composer **after** files are on the server.
 
 ## Fix A (recommended): enable `proc_open`
 
