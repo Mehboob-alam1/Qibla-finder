@@ -71,6 +71,14 @@ Laravel 13 needs **PHP 8.3 or newer**. Hostinger Git often runs `composer` with 
 
 `Your lock file does not contain a compatible set of packages`
 
+### Deploy failed: `proc_open` / Composer
+
+Hostinger Git runs **`composer install`** during deploy. Composer needs **`proc_open`**, which is **disabled by default** on new Hostinger accounts.
+
+**Fix:** hPanel → **PHP Configuration** → **PHP options** → **`disableFunctions`** → remove **`proc_open`** → Save → **Redeploy**.
+
+Full steps and alternatives (FTP deploy, SSH): **[docs/HOSTINGER-DEPLOY.md](docs/HOSTINGER-DEPLOY.md)**
+
 ### 0. Set PHP 8.3+ first (required)
 
 In hPanel, before deploying:
