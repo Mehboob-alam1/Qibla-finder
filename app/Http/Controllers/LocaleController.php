@@ -19,6 +19,14 @@ class LocaleController extends Controller
         $request->session()->put('locale', $locale);
 
         $previous = url()->previous();
+        $previousPath = $previous ? parse_url($previous, PHP_URL_PATH) : null;
+
+        if ($previousPath && LocalizedPaths::isBlogPath($previousPath)) {
+            return redirect()
+                ->to(LocalizedPaths::url('home', $locale))
+                ->withCookie(cookie()->forever('locale', $locale));
+        }
+
         if (! $previous || $previous === $request->fullUrl() || str_contains($previous, '/locale/')) {
             return redirect()
                 ->to(LocalizedPaths::url('home', $locale))

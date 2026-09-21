@@ -74,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
                 'homeUrl' => LocalizedPaths::url('home', $locale),
                 'prayerUrl' => LocalizedPaths::url('prayer-times', $locale),
                 'hreflangUrls' => LocalizedPaths::alternates(),
+                'canSwitchLocale' => LocalizedPaths::is('home'),
             ]);
         });
     }

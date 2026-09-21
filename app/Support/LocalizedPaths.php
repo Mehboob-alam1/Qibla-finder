@@ -129,6 +129,13 @@ class LocalizedPaths
         return static::pageForPath(request()->path()) === $page;
     }
 
+    public static function isBlogPath(?string $path = null): bool
+    {
+        $path = static::normalize($path ?? request()->path());
+
+        return $path === '/guides' || str_starts_with($path, '/guides/');
+    }
+
     /**
      * @return array<string, string>
      */

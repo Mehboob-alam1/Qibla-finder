@@ -98,6 +98,7 @@
                     <span class="hidden dark:inline" aria-hidden="true">☀</span>
                     <span class="inline dark:hidden" aria-hidden="true">☾</span>
                 </button>
+                @if ($canSwitchLocale ?? false)
                 <details class="relative">
                     <summary class="list-none cursor-pointer h-10 px-3 rounded-full border border-forest/15 bg-card text-sm text-forest flex items-center gap-2">
                         <span>{{ $locales[$currentLocale]['native'] ?? 'EN' }}</span>
@@ -112,6 +113,7 @@
                         @endforeach
                     </div>
                 </details>
+                @endif
                 <button data-mobile-toggle class="lg:hidden h-10 w-10 rounded-xl bg-forest text-cream" aria-label="{{ __('ui.Menu') }}">☰</button>
             </div>
         </div>

@@ -88,4 +88,36 @@ class LocaleContentTest extends TestCase
             ->assertSee('Calibrate UR', false)
             ->assertDontSee('Calibrate EN', false);
     }
+
+    public function test_language_switcher_only_on_home(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('/locale/ar', false);
+
+        $this->get('/guides')
+            ->assertOk()
+            ->assertDontSee('/locale/ar', false);
+
+        Post::query()->create([
+            'title' => 'Sample guide',
+            'slug' => 'sample-guide',
+            'locale' => 'en',
+            'excerpt' => 'x',
+            'content' => '<p>x</p>',
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        $this->get('/guides/sample-guide')
+            ->assertOk()
+            ->assertDontSee('/locale/ar', false);
+    }
+
+    public function test_changing_locale_from_guides_redirects_to_home(): void
+    {
+        $this->from('/guides')
+            ->get('/locale/ur')
+            ->assertRedirect('/?hl=ur');
+    }
 }
