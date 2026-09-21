@@ -19,7 +19,6 @@
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
 /composer.phar
 composer-setup.php
 _ide_helper.php
