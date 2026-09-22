@@ -2,17 +2,15 @@
 
 Hostinger **Git** deploy always runs `composer install` in a **build container** where `proc_open` is often **disabled**. Changing website PHP in hPanel does **not** always change that build PHP.
 
-**Vendored `vendor/` in Git does not skip that step** on the default Git pipeline — Hostinger looks for **`composer.json`** in the repo root and runs Composer even when `vendor/` is present.
+**Root cause:** Hostinger Git runs **`composer install` whenever `composer.json` is in the repository.** `.hostinger.json` and vendored `vendor/` do **not** disable that step. **`proc_open` is disabled** on the build PHP, so Composer always fails.
 
-This repo keeps **`composer.json.dist`** / **`composer.lock.dist`** for local development and copies them on the server **without** running Composer. Root **`composer.json`** and **`composer.lock`** are **not** in Git so the Hostinger Git build should **skip** “Installing Composer dependencies”.
+**This repo must not commit `composer.json` / `composer.lock`** (use `composer.json.dist` locally). After deploy, the server copies `.dist` → `composer.json` without running Composer.
 
-After deploy, `build.sh` (or `scripts/hostinger-post-deploy.sh`) copies `composer.json.dist` → `composer.json` for Laravel only.
-
-If Git deploy **still** runs Composer, use **Solution 2** (FTP) or ask Hostinger to disable the Composer build step.
+If the log **still** shows “Installing Composer dependencies”, disable Git auto-deploy and use **GitHub FTP** (below) or SSH `git pull` + `hostinger-post-deploy.sh`.
 
 ---
 
-## Solution 1 — Enable `proc_open` (keep Hostinger Git)
+## Solution 1 — Enable `proc_open` (keep Hostinger Git + composer.json in repo)
 
 1. hPanel → **Websites** → **Dashboard** → **Advanced** → **PHP Configuration**
 2. **PHP options** → **`disableFunctions`**
