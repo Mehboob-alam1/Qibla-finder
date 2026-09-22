@@ -38,6 +38,19 @@ class EnsureDatabase
                 SiteSettings::put(['bing_site_verification' => '167843586563944F086753F2A9641BFE']);
             }
 
+            if (Schema::hasTable('settings')) {
+                $socialDefaults = [];
+                if (blank(SiteSettings::get('social_show_header'))) {
+                    $socialDefaults['social_show_header'] = '1';
+                }
+                if (blank(SiteSettings::get('social_show_footer'))) {
+                    $socialDefaults['social_show_footer'] = '1';
+                }
+                if ($socialDefaults !== []) {
+                    SiteSettings::put($socialDefaults);
+                }
+            }
+
             @touch(storage_path('framework/installed'));
         } catch (Throwable $e) {
             report($e);

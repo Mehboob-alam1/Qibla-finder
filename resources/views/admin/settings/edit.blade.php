@@ -6,6 +6,7 @@
 <form method="POST" action="{{ route('admin.settings.update') }}" class="stat-card rounded-3xl p-6 grid md:grid-cols-2 gap-4 max-w-5xl">
     @csrf
     @method('PUT')
+    @include('admin.settings._social')
     @foreach ([
         'site_name' => 'Site name',
         'tagline' => 'Tagline',
@@ -22,27 +23,6 @@
             <input name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
         </label>
     @endforeach
-    <fieldset class="md:col-span-2 rounded-3xl border border-forest/10 p-5 space-y-4">
-        <legend class="font-display text-2xl text-forest px-2">Social profiles</legend>
-        <p class="text-sm text-forest/60">Paste the full profile URL for each network you use. Leave blank to hide that button. Choose where filled links appear on the public site.</p>
-        <div class="flex flex-wrap gap-x-6 gap-y-2">
-            <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="social_show_header" value="1" @checked(old('social_show_header', $settings['social_show_header'] ?? '1') == '1')>
-                Show in header (top bar + mobile menu)
-            </label>
-            <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="social_show_footer" value="1" @checked(old('social_show_footer', $settings['social_show_footer'] ?? '1') == '1')>
-                Show in footer (and Contact page)
-            </label>
-        </div>
-        <div class="grid sm:grid-cols-2 gap-4">
-            @foreach ($socialNetworks as $key => $label)
-                <label class="text-sm">{{ $label }}
-                    <input type="url" name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}" placeholder="https://…" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
-                </label>
-            @endforeach
-        </div>
-    </fieldset>
     <label class="text-sm">Default prayer method
         <select name="default_calculation_method" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
             @foreach ($methods as $key => $method)
@@ -54,11 +34,11 @@
         <legend class="font-display text-2xl text-forest px-2">AdSense</legend>
         <p class="text-sm text-forest/60">Ads stay light: one banner, one native in-article unit, and a full-screen ad at most once every 12 hours — never over the compass. Create units in AdSense, then paste the IDs here.</p>
         <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="adsense_enabled" value="1" @checked(old('adsense_enabled', $settings['adsense_enabled'] ?? '') == '1')>
+            <input type="checkbox" class="admin-checkbox" name="adsense_enabled" value="1" @checked(old('adsense_enabled', $settings['adsense_enabled'] ?? '') == '1')>
             Enable ads on the public site
         </label>
         <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="adsense_preview" value="1" @checked(old('adsense_preview', $settings['adsense_preview'] ?? '') == '1')>
+            <input type="checkbox" class="admin-checkbox" name="adsense_preview" value="1" @checked(old('adsense_preview', $settings['adsense_preview'] ?? '') == '1')>
             Preview placements with fake ads (no Google ads, good for testing)
         </label>
         <label class="text-sm block">Publisher ID (ca-pub-…)
@@ -99,11 +79,11 @@
         <legend class="font-display text-2xl text-forest px-2">Compass defaults</legend>
         <p class="text-sm text-forest/60">These are the starting options for new visitors. Anyone can still change them in the on-page compass Settings. Location refresh uses the update interval instead of a constant GPS watch, which is gentler on battery.</p>
         <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="qibla_vibration" value="1" @checked(old('qibla_vibration', $settings['qibla_vibration'] ?? '1') == '1')>
+            <input type="checkbox" class="admin-checkbox" name="qibla_vibration" value="1" @checked(old('qibla_vibration', $settings['qibla_vibration'] ?? '1') == '1')>
             Enable Vibration
         </label>
         <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="qibla_audio" value="1" @checked(old('qibla_audio', $settings['qibla_audio'] ?? '0') == '1')>
+            <input type="checkbox" class="admin-checkbox" name="qibla_audio" value="1" @checked(old('qibla_audio', $settings['qibla_audio'] ?? '0') == '1')>
             Enable Audio Feedback
         </label>
         <label class="text-sm block">Update Interval (seconds)

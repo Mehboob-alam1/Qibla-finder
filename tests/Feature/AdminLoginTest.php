@@ -28,4 +28,17 @@ class AdminLoginTest extends TestCase
 
         $this->get('/admin')->assertOk();
     }
+
+    public function test_settings_page_shows_social_placement_checkboxes(): void
+    {
+        $this->seed();
+        $admin = User::query()->where('email', 'admin@qiblafinder.test')->first();
+
+        $this->actingAs($admin)
+            ->get(route('admin.settings.edit'))
+            ->assertOk()
+            ->assertSee('Where to show social buttons', false)
+            ->assertSee('name="social_show_header"', false)
+            ->assertSee('name="social_show_footer"', false);
+    }
 }
