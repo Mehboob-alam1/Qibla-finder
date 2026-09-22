@@ -73,6 +73,14 @@ Laravel 13 needs **PHP 8.3 or newer**. Hostinger Git often runs `composer` with 
 
 `Your lock file does not contain a compatible set of packages`
 
+### Deploy failed: `npm run build` / fonts / Node
+
+Hostinger Git often runs **`npm run build`**. This project **commits `public/build/`** so deploy can skip Vite (no Node or Bunny fonts CDN required on the server).
+
+The npm **`build`** script exits successfully when `public/build/manifest.json` exists. After you change CSS/JS locally, run **`npm run build:force`**, commit `public/build`, then push.
+
+If deploy still runs **Composer** and fails with **`proc_open`**, see below.
+
 ### Deploy failed: `proc_open` / Composer
 
 Hostinger Git runs **`composer install`** during deploy when **`composer.json`** exists in the repo. Composer needs **`proc_open`**, which is **disabled by default** on new Hostinger accounts.

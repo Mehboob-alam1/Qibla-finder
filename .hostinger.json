@@ -5,6 +5,8 @@
     "composer": false,
     "composer_install": false,
     "skip_composer": true,
+    "npm": false,
+    "node": false,
     "commands": ["bash build.sh"]
   }
 }

@@ -3,7 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "bash scripts/vite-build-or-skip.sh",
+        "build:force": "FORCE_VITE_BUILD=1 vite build",
         "dev": "vite"
     },
     "devDependencies": {

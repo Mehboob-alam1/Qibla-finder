@@ -13,8 +13,6 @@
 /.vscode
 /.zed
 /auth.json
-/composer.json
-/composer.lock
 /node_modules
 /public/hot
 /public/fonts-manifest.dev.json
