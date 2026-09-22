@@ -126,4 +126,44 @@ class SiteSettings
 
         return $token !== '' ? $token : '167843586563944F086753F2A9641BFE';
     }
+
+    /**
+     * @return array<string, string> setting key => admin label
+     */
+    public static function socialNetworkKeys(): array
+    {
+        return [
+            'twitter' => 'X (Twitter)',
+            'facebook' => 'Facebook',
+            'instagram' => 'Instagram',
+            'youtube' => 'YouTube',
+            'reddit' => 'Reddit',
+            'pinterest' => 'Pinterest',
+            'quora' => 'Quora',
+            'linkedin' => 'LinkedIn',
+            'tiktok' => 'TikTok',
+        ];
+    }
+
+    /**
+     * @return list<array{key: string, label: string, url: string}>
+     */
+    public static function socialLinks(): array
+    {
+        $links = [];
+
+        foreach (static::socialNetworkKeys() as $key => $label) {
+            $url = trim((string) static::get($key, ''));
+
+            if ($url !== '' && filter_var($url, FILTER_VALIDATE_URL)) {
+                $links[] = [
+                    'key' => $key,
+                    'label' => $label,
+                    'url' => $url,
+                ];
+            }
+        }
+
+        return $links;
+    }
 }

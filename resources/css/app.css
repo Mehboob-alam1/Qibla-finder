@@ -1023,3 +1023,61 @@ body.ad-interstitial-open {
 .ad-preview-box--interstitial {
     min-height: 220px;
 }
+
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.social-links__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.social-links__chip:hover {
+    transform: translateY(-1px);
+}
+
+.social-links__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.social-links--footer .social-links__chip {
+    border: 1px solid color-mix(in srgb, var(--color-gold) 55%, transparent);
+    color: var(--color-gold);
+    background: color-mix(in srgb, white 6%, transparent);
+}
+
+.social-links--footer .social-links__chip:hover {
+    background: var(--color-gold);
+    color: var(--color-ink);
+    border-color: var(--color-gold);
+}
+
+.social-links--header .social-links__chip,
+.social-links--inline .social-links__chip {
+    border: 1px solid color-mix(in srgb, var(--color-forest) 18%, transparent);
+    color: var(--color-forest);
+    background: var(--color-card);
+}
+
+.social-links--header .social-links__chip:hover,
+.social-links--inline .social-links__chip:hover {
+    border-color: var(--color-gold);
+    color: var(--color-forest);
+    background: color-mix(in srgb, var(--color-gold) 18%, var(--color-card));
+}
+
+.social-links--inline {
+    margin-top: 0.75rem;
+}

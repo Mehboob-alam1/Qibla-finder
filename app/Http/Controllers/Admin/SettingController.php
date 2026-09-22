@@ -16,6 +16,7 @@ class SettingController extends Controller
         return view('admin.settings.edit', [
             'settings' => SiteSettings::all(),
             'methods' => config('qibla.calculation_methods'),
+            'socialNetworks' => SiteSettings::socialNetworkKeys(),
         ]);
     }
 
@@ -34,6 +35,11 @@ class SettingController extends Controller
             'instagram' => ['nullable', 'url', 'max:255'],
             'twitter' => ['nullable', 'url', 'max:255'],
             'youtube' => ['nullable', 'url', 'max:255'],
+            'reddit' => ['nullable', 'url', 'max:255'],
+            'pinterest' => ['nullable', 'url', 'max:255'],
+            'quora' => ['nullable', 'url', 'max:255'],
+            'linkedin' => ['nullable', 'url', 'max:255'],
+            'tiktok' => ['nullable', 'url', 'max:255'],
             'ga_id' => ['nullable', 'string', 'max:40'],
             'adsense_enabled' => ['sometimes', 'boolean'],
             'adsense_preview' => ['sometimes', 'boolean'],

@@ -8,6 +8,13 @@
     <h1 class="font-display text-6xl text-forest">{{ __('ui.Contact') }}</h1>
     <p class="mt-3 text-forest/70">{{ __('ui.contact_intro', ['email' => $email]) }}</p>
 
+    @if (! empty($socialLinks))
+        <div class="mt-8">
+            <p class="text-sm font-semibold text-forest">{{ __('ui.Follow us') }}</p>
+            @include('partials.social-links', ['variant' => 'inline'])
+        </div>
+    @endif
+
     @if (session('status'))
         <div class="mt-6 rounded-2xl bg-moss/10 text-forest px-4 py-3">{{ session('status') }}</div>
     @endif

@@ -168,6 +168,7 @@ return [
     'Telegram' => 'Telegram',
     'Facebook' => 'Facebook',
     'X' => 'X',
+    'Follow us' => 'Follow us on social media',
     'Link copied' => 'Link copied',
     'help_kicker' => 'Setup & troubleshooting',
     'help_title' => 'How to use this Qibla Finder',

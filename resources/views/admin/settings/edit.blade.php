@@ -15,10 +15,6 @@
         'footer_text' => 'Footer text',
         'meta_title' => 'Default SEO title',
         'meta_description' => 'Default SEO description',
-        'facebook' => 'Facebook URL',
-        'instagram' => 'Instagram URL',
-        'twitter' => 'X / Twitter URL',
-        'youtube' => 'YouTube URL',
         'ga_id' => 'Google Analytics ID',
         'announcement' => 'Announcement bar',
     ] as $key => $label)
@@ -26,6 +22,17 @@
             <input name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
         </label>
     @endforeach
+    <fieldset class="md:col-span-2 rounded-3xl border border-forest/10 p-5 space-y-4">
+        <legend class="font-display text-2xl text-forest px-2">Social profiles</legend>
+        <p class="text-sm text-forest/60">Paste the full profile URL for each network you use. Leave blank to hide that button on the public site. Links appear in the site footer and on the Contact page.</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+            @foreach ($socialNetworks as $key => $label)
+                <label class="text-sm">{{ $label }}
+                    <input type="url" name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}" placeholder="https://…" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
+                </label>
+            @endforeach
+        </div>
+    </fieldset>
     <label class="text-sm">Default prayer method
         <select name="default_calculation_method" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5">
             @foreach ($methods as $key => $method)

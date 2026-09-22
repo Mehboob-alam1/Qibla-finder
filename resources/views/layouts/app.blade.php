@@ -127,6 +127,12 @@
                 <a class="block" href="{{ $page->publicPath() }}">{{ $page->navLabel() }}</a>
             @endforeach
             <a class="block" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
+            @if (! empty($socialLinks))
+                <div class="pt-3 border-t border-forest/10">
+                    <p class="text-[11px] uppercase tracking-widest text-forest/50 mb-2">{{ __('ui.Follow us') }}</p>
+                    @include('partials.social-links', ['variant' => 'header'])
+                </div>
+            @endif
             <div>
                 @include('partials.share', [
                     'shareUrl' => url('/'),
@@ -150,6 +156,12 @@
                         'shareMenuClass' => 'start-0 bottom-full mb-2',
                     ])
                 </div>
+                @if (! empty($socialLinks))
+                    <div class="mt-8">
+                        <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Follow us') }}</p>
+                        @include('partials.social-links', ['variant' => 'footer'])
+                    </div>
+                @endif
             </div>
             <div>
                 <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Explore') }}</p>
