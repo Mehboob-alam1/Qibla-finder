@@ -39,7 +39,10 @@ class SettingController extends Controller
             'pinterest' => ['nullable', 'url', 'max:255'],
             'quora' => ['nullable', 'url', 'max:255'],
             'linkedin' => ['nullable', 'url', 'max:255'],
+            'medium' => ['nullable', 'url', 'max:255'],
             'tiktok' => ['nullable', 'url', 'max:255'],
+            'social_show_header' => ['sometimes', 'boolean'],
+            'social_show_footer' => ['sometimes', 'boolean'],
             'ga_id' => ['nullable', 'string', 'max:40'],
             'adsense_enabled' => ['sometimes', 'boolean'],
             'adsense_preview' => ['sometimes', 'boolean'],
@@ -75,6 +78,8 @@ class SettingController extends Controller
         $data['qibla_audio'] = $request->boolean('qibla_audio') ? '1' : '0';
         $data['qibla_update_interval'] = (string) max(5, min(3600, (int) $request->input('qibla_update_interval', 300)));
         $data['qibla_display_mode'] = QiblaDisplay::mode($request->input('qibla_display_mode'));
+        $data['social_show_header'] = $request->boolean('social_show_header') ? '1' : '0';
+        $data['social_show_footer'] = $request->boolean('social_show_footer') ? '1' : '0';
 
         SiteSettings::put($data);
 

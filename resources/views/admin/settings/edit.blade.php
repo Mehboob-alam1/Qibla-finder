@@ -24,7 +24,17 @@
     @endforeach
     <fieldset class="md:col-span-2 rounded-3xl border border-forest/10 p-5 space-y-4">
         <legend class="font-display text-2xl text-forest px-2">Social profiles</legend>
-        <p class="text-sm text-forest/60">Paste the full profile URL for each network you use. Leave blank to hide that button on the public site. Links appear in the site footer and on the Contact page.</p>
+        <p class="text-sm text-forest/60">Paste the full profile URL for each network you use. Leave blank to hide that button. Choose where filled links appear on the public site.</p>
+        <div class="flex flex-wrap gap-x-6 gap-y-2">
+            <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="social_show_header" value="1" @checked(old('social_show_header', $settings['social_show_header'] ?? '1') == '1')>
+                Show in header (top bar + mobile menu)
+            </label>
+            <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="social_show_footer" value="1" @checked(old('social_show_footer', $settings['social_show_footer'] ?? '1') == '1')>
+                Show in footer (and Contact page)
+            </label>
+        </div>
         <div class="grid sm:grid-cols-2 gap-4">
             @foreach ($socialNetworks as $key => $label)
                 <label class="text-sm">{{ $label }}

@@ -42,4 +42,16 @@ class SocialLinksTest extends TestCase
 
         $this->assertSame('https://reddit.com/r/qiblafinder', Setting::query()->where('key', 'reddit')->value('value'));
     }
+
+    public function test_footer_social_hidden_when_setting_off(): void
+    {
+        Setting::setValue('facebook', 'https://facebook.com/qiblafinder');
+        Setting::setValue('social_show_footer', '0');
+        Setting::setValue('social_show_header', '1');
+        Cache::forget('site_settings');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertDontSee('social-links--footer', false);
+    }
 }

@@ -141,6 +141,7 @@ class SiteSettings
             'pinterest' => 'Pinterest',
             'quora' => 'Quora',
             'linkedin' => 'LinkedIn',
+            'medium' => 'Medium',
             'tiktok' => 'TikTok',
         ];
     }
@@ -165,5 +166,15 @@ class SiteSettings
         }
 
         return $links;
+    }
+
+    public static function socialShowHeader(): bool
+    {
+        return filter_var(static::get('social_show_header', '1'), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public static function socialShowFooter(): bool
+    {
+        return filter_var(static::get('social_show_footer', '1'), FILTER_VALIDATE_BOOLEAN);
     }
 }

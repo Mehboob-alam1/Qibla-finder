@@ -76,6 +76,8 @@ class AppServiceProvider extends ServiceProvider
                 'hreflangUrls' => LocalizedPaths::alternates(),
                 'canSwitchLocale' => LocalizedPaths::is('home'),
                 'socialLinks' => SiteSettings::socialLinks(),
+                'socialShowHeader' => SiteSettings::socialShowHeader(),
+                'socialShowFooter' => SiteSettings::socialShowFooter(),
             ]);
         });
     }

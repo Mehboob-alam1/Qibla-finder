@@ -88,7 +88,7 @@
             </nav>
 
             <div class="flex items-center gap-2 shrink-0">
-                @if (! empty($socialLinks))
+                @if (! empty($socialLinks) && ($socialShowHeader ?? true))
                     <div class="hidden md:flex items-center max-w-[10.5rem] lg:max-w-none overflow-x-auto overscroll-x-contain">
                         @include('partials.social-links', ['variant' => 'header-icons', 'compact' => true])
                     </div>
@@ -132,7 +132,7 @@
                 <a class="block" href="{{ $page->publicPath() }}">{{ $page->navLabel() }}</a>
             @endforeach
             <a class="block" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
-            @if (! empty($socialLinks))
+            @if (! empty($socialLinks) && ($socialShowHeader ?? true))
                 <div class="pt-3 border-t border-forest/10">
                     @include('partials.social-links', ['variant' => 'header-icons', 'compact' => true])
                 </div>
@@ -160,7 +160,7 @@
                         'shareMenuClass' => 'start-0 bottom-full mb-2',
                     ])
                 </div>
-                @if (! empty($socialLinks))
+                @if (! empty($socialLinks) && ($socialShowFooter ?? true))
                     <div class="mt-8">
                         <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Follow us') }}</p>
                         @include('partials.social-links', ['variant' => 'footer'])
