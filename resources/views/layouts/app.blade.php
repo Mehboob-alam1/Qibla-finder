@@ -87,7 +87,12 @@
                 <a class="nav-link {{ request()->routeIs('contact') ? 'is-active' : '' }}" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
             </nav>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                @if (! empty($socialLinks))
+                    <div class="hidden md:flex items-center max-w-[10.5rem] lg:max-w-none overflow-x-auto overscroll-x-contain">
+                        @include('partials.social-links', ['variant' => 'header-icons', 'compact' => true])
+                    </div>
+                @endif
                 <div class="hidden md:block">
                     @include('partials.share', [
                         'shareUrl' => url('/'),
@@ -129,8 +134,7 @@
             <a class="block" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
             @if (! empty($socialLinks))
                 <div class="pt-3 border-t border-forest/10">
-                    <p class="text-[11px] uppercase tracking-widest text-forest/50 mb-2">{{ __('ui.Follow us') }}</p>
-                    @include('partials.social-links', ['variant' => 'header'])
+                    @include('partials.social-links', ['variant' => 'header-icons', 'compact' => true])
                 </div>
             @endif
             <div>

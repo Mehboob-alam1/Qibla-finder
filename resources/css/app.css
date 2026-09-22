@@ -1071,6 +1071,33 @@ body.ad-interstitial-open {
     background: var(--color-card);
 }
 
+.social-links--header-icons {
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+}
+
+.social-links--header-icons .social-links__chip--icon-only {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-forest) 15%, transparent);
+    color: color-mix(in srgb, var(--color-forest) 85%, black);
+    background: var(--color-card);
+}
+
+.social-links--header-icons .social-links__chip--icon-only:hover {
+    border-color: var(--color-gold);
+    color: var(--color-forest);
+    background: color-mix(in srgb, var(--color-gold) 22%, var(--color-card));
+}
+
+.social-links--header-icons .social-links__icon svg {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
 .social-links--header .social-links__chip:hover,
 .social-links--inline .social-links__chip:hover {
     border-color: var(--color-gold);

@@ -1,16 +1,18 @@
 @php
     $links = $socialLinks ?? [];
     $variant = $variant ?? 'footer';
+    $compact = $compact ?? ($variant === 'header-icons');
 @endphp
 @if (count($links) > 0)
     <nav class="social-links social-links--{{ $variant }}" aria-label="{{ __('ui.Follow us') }}">
         @foreach ($links as $link)
             <a
-                class="social-links__chip"
+                class="social-links__chip @if ($compact) social-links__chip--icon-only @endif"
                 href="{{ $link['url'] }}"
                 target="_blank"
                 rel="noopener noreferrer me"
                 title="{{ $link['label'] }}"
+                aria-label="{{ $link['label'] }}"
             >
                 <span class="social-links__icon" aria-hidden="true">
                     @switch($link['key'])
@@ -43,7 +45,9 @@
                             @break
                     @endswitch
                 </span>
-                <span class="social-links__label">{{ $link['label'] }}</span>
+                @unless ($compact)
+                    <span class="social-links__label">{{ $link['label'] }}</span>
+                @endunless
             </a>
         @endforeach
     </nav>
