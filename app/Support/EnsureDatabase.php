@@ -65,8 +65,12 @@ class EnsureDatabase
             DB::connection()->getPdo();
 
             return;
-        } catch (Throwable) {
-            // Use a local SQLite file until MySQL is configured.
+        } catch (Throwable $e) {
+            if (app()->environment('production')) {
+                report($e);
+
+                throw $e;
+            }
         }
 
         $path = database_path('database.sqlite');

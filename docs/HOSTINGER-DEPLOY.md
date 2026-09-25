@@ -1,5 +1,7 @@
 # Hostinger: fix `proc_open` / Composer deploy failure
 
+**Database (MySQL):** [HOSTINGER-DATABASE.md](HOSTINGER-DATABASE.md) — required for guides, pages, settings, and admin.
+
 Hostinger **Git** deploy always runs `composer install` in a **build container** where `proc_open` is often **disabled**. Changing website PHP in hPanel does **not** always change that build PHP.
 
 **Root cause:** Hostinger Git runs **`composer install` whenever `composer.json` is in the repository.** `.hostinger.json` and vendored `vendor/` do **not** disable that step. **`proc_open` is disabled** on the build PHP, so Composer always fails.

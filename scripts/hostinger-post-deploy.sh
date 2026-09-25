@@ -35,6 +35,12 @@ fi
 
 if [[ ! -f .env ]]; then
     echo "Missing .env — copy .env.hostinger.example to .env first." >&2
+    echo "MySQL setup: docs/HOSTINGER-DATABASE.md" >&2
+    exit 1
+fi
+
+if ! grep -qE '^DB_CONNECTION=mysql' .env; then
+    echo "Production needs DB_CONNECTION=mysql in .env (docs/HOSTINGER-DATABASE.md)." >&2
     exit 1
 fi
 

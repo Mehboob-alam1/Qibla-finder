@@ -113,8 +113,13 @@ Every later push to `main` auto-deploys. Git deploy only updates code (`composer
 
 ### 2. Database and `.env`
 
-- Create a **MySQL** database and user
-- Copy `.env.hostinger.example` to `.env` on the server (File Manager) and fill `APP_URL`, `APP_KEY` (or generate it in the next step), and the MySQL details
+**The whole CMS (guides, pages, settings, FAQs, inbox) uses MySQL on the server.**
+
+Step-by-step: **[docs/HOSTINGER-DATABASE.md](docs/HOSTINGER-DATABASE.md)**
+
+- Create a **MySQL** database and user in hPanel
+- Copy `.env.hostinger.example` to `.env` on the server and fill `DB_*` and `APP_URL`
+- SSH: `bash scripts/hostinger-setup.sh` (creates tables + first-time seed)
 
 ### 3. Finish Laravel on the server
 

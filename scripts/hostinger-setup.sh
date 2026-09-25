@@ -29,6 +29,19 @@ PHP_BIN="${PHP_BIN:-$(pick_php)}"
 
 if [[ ! -f .env ]]; then
     echo "Missing .env — copy .env.hostinger.example to .env and fill in Hostinger MySQL + APP_URL."
+    echo "See docs/HOSTINGER-DATABASE.md"
+    exit 1
+fi
+
+if grep -qE '^DB_(DATABASE|USERNAME|PASSWORD)=your_' .env 2>/dev/null \
+    || grep -qE '^DB_(DATABASE|USERNAME|PASSWORD)=$' .env 2>/dev/null; then
+    echo "Edit .env: replace placeholder DB_DATABASE, DB_USERNAME, DB_PASSWORD (hPanel → MySQL Databases)." >&2
+    echo "Guide: docs/HOSTINGER-DATABASE.md" >&2
+    exit 1
+fi
+
+if ! grep -qE '^DB_CONNECTION=mysql' .env; then
+    echo "Set DB_CONNECTION=mysql in .env — see docs/HOSTINGER-DATABASE.md" >&2
     exit 1
 fi
 
@@ -54,6 +67,13 @@ fi
 
 if ! grep -qE '^APP_KEY=base64:' .env; then
     "$PHP_BIN" artisan key:generate --force
+fi
+
+echo "Testing MySQL connection…"
+if ! "$PHP_BIN" artisan migrate:status --no-interaction >/dev/null 2>&1; then
+    echo "Cannot connect to MySQL. Check DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD in .env (hPanel → Databases)." >&2
+    echo "See docs/HOSTINGER-DATABASE.md" >&2
+    exit 1
 fi
 
 "$PHP_BIN" artisan migrate --force
