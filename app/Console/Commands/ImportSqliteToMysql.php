@@ -12,6 +12,7 @@ class ImportSqliteToMysql extends Command
 {
     protected $signature = 'site:import-sqlite
                             {--path= : Path to database.sqlite on the server}
+                            {--fresh : Empty CMS tables in MySQL before import}
                             {--dry-run : Show counts only, do not write to MySQL}';
 
     protected $description = 'Copy CMS data from SQLite (database/database.sqlite) into the current MySQL connection';
@@ -78,6 +79,15 @@ class ImportSqliteToMysql extends Command
             $this->call('migrate', ['--force' => true]);
         }
 
+        if (! $dryRun && $this->option('fresh')) {
+            $this->warn('Clearing CMS tables in MySQL…');
+            Schema::disableForeignKeyConstraints();
+            foreach ($this->tables as $table) {
+                DB::connection()->table($table)->truncate();
+            }
+            Schema::enableForeignKeyConstraints();
+        }
+
         $total = 0;
 
         foreach ($this->tables as $table) {
@@ -111,22 +121,7 @@ class ImportSqliteToMysql extends Command
 
             DB::connection()->transaction(function () use ($table, $rows, &$total) {
                 foreach ($rows as $row) {
-                    $data = (array) $row;
-
-                    if ($table === 'settings') {
-                        DB::connection()->table($table)->updateOrInsert(
-                            ['key' => $data['key']],
-                            $data,
-                        );
-                    } elseif (isset($data['id'])) {
-                        DB::connection()->table($table)->updateOrInsert(
-                            ['id' => $data['id']],
-                            $data,
-                        );
-                    } else {
-                        DB::connection()->table($table)->insert($data);
-                    }
-
+                    $this->upsertRow($table, (array) $row);
                     $total++;
                 }
             });
@@ -140,5 +135,42 @@ class ImportSqliteToMysql extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function upsertRow(string $table, array $data): void
+    {
+        unset($data['id']);
+
+        $connection = DB::connection();
+
+        match ($table) {
+            'settings' => $connection->table('settings')->updateOrInsert(
+                ['key' => $data['key']],
+                $data,
+            ),
+            'users' => $connection->table('users')->updateOrInsert(
+                ['email' => $data['email']],
+                $data,
+            ),
+            'pages' => $connection->table('pages')->updateOrInsert(
+                ['slug' => $data['slug'], 'locale' => $data['locale'] ?? 'en'],
+                $data,
+            ),
+            'posts' => $connection->table('posts')->updateOrInsert(
+                ['slug' => $data['slug'], 'locale' => $data['locale'] ?? 'en'],
+                $data,
+            ),
+            'faqs' => $connection->table('faqs')->updateOrInsert(
+                [
+                    'question' => $data['question'],
+                    'locale' => $data['locale'] ?? 'en',
+                ],
+                $data,
+            ),
+            default => $connection->table($table)->insert($data),
+        };
     }
 }
