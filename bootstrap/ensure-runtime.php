@@ -6,6 +6,14 @@
  */
 $root = dirname(__DIR__);
 
+if (! is_file($root.'/composer.json') && is_file($root.'/composer.json.dist')) {
+    @copy($root.'/composer.json.dist', $root.'/composer.json');
+}
+
+if (! is_file($root.'/composer.lock') && is_file($root.'/composer.lock.dist')) {
+    @copy($root.'/composer.lock.dist', $root.'/composer.lock');
+}
+
 $directories = [
     $root.'/database',
     $root.'/bootstrap/cache',

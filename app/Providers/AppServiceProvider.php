@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Page;
+use App\Support\EnsureComposerManifest;
 use App\Support\EnsureDatabase;
 use App\Support\LocalizedPaths;
 use App\Support\PublicUrl;
@@ -16,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        EnsureComposerManifest::apply();
     }
 
     public function boot(): void
