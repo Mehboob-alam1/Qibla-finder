@@ -2,10 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../models/compass_palette.dart';
 import '../theme/app_theme.dart';
 
 class QiblaCompass extends StatelessWidget {
-  const QiblaCompass({
+  QiblaCompass({
     super.key,
     required this.roseAngle,
     required this.needleAngle,
@@ -14,7 +15,8 @@ class QiblaCompass extends StatelessWidget {
     this.headingLabel,
     this.qiblaLabel,
     this.placeLabel,
-  });
+    CompassPalette? palette,
+  }) : palette = palette ?? CompassPalette.presets[0];
 
   final double roseAngle;
   final double needleAngle;
@@ -23,6 +25,7 @@ class QiblaCompass extends StatelessWidget {
   final String? headingLabel;
   final String? qiblaLabel;
   final String? placeLabel;
+  final CompassPalette palette;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,7 @@ class QiblaCompass extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: (aligned ? AppColors.gold : AppColors.forest).withValues(alpha: 0.28),
+              color: (aligned ? palette.gold : palette.glow).withValues(alpha: 0.28),
               blurRadius: aligned ? 28 : 16,
               spreadRadius: aligned ? 2 : 0,
             ),
@@ -43,18 +46,21 @@ class QiblaCompass extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            CustomPaint(size: Size.infinite, painter: _BezelPainter()),
+            CustomPaint(size: Size.infinite, painter: _BezelPainter(palette: palette)),
             AnimatedRotation(
               turns: roseAngle / 360,
               duration: const Duration(milliseconds: 160),
               curve: Curves.easeOut,
-              child: CustomPaint(size: Size.infinite, painter: _RosePainter()),
+              child: CustomPaint(size: Size.infinite, painter: _RosePainter(palette: palette)),
             ),
             AnimatedRotation(
               turns: needleAngle / 360,
               duration: Duration(milliseconds: locked ? 240 : 160),
               curve: locked ? Curves.easeOutCubic : Curves.easeOut,
-              child: CustomPaint(size: Size.infinite, painter: _NeedlePainter(aligned: aligned)),
+              child: CustomPaint(
+                size: Size.infinite,
+                painter: _NeedlePainter(aligned: aligned, palette: palette),
+              ),
             ),
             Container(
               width: 118,
@@ -62,7 +68,7 @@ class QiblaCompass extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.ink.withValues(alpha: 0.72),
-                border: Border.all(color: AppColors.gold.withValues(alpha: 0.45)),
+                border: Border.all(color: palette.gold.withValues(alpha: 0.45)),
               ),
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -73,7 +79,7 @@ class QiblaCompass extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.goldSoft, fontSize: 11),
+                    style: TextStyle(color: palette.goldSoft, fontSize: 11),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -86,16 +92,16 @@ class QiblaCompass extends StatelessWidget {
                   ),
                   Text(
                     qiblaLabel ?? 'Qibla',
-                    style: const TextStyle(color: AppColors.goldSoft, fontSize: 11),
+                    style: TextStyle(color: palette.goldSoft, fontSize: 11),
                   ),
                 ],
               ),
             ),
-            const Align(
+            Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                padding: EdgeInsets.only(top: 6),
-                child: Icon(Icons.arrow_drop_down, color: AppColors.gold, size: 36),
+                padding: const EdgeInsets.only(top: 6),
+                child: Icon(Icons.arrow_drop_down, color: palette.gold, size: 36),
               ),
             ),
           ],
@@ -106,36 +112,50 @@ class QiblaCompass extends StatelessWidget {
 }
 
 class _BezelPainter extends CustomPainter {
+  _BezelPainter({required this.palette});
+
+  final CompassPalette palette;
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final radius = size.shortestSide / 2;
     final bezel = Paint()
-      ..shader = const SweepGradient(
-        colors: [Color(0xFF8B7018), AppColors.gold, AppColors.goldSoft, AppColors.gold, Color(0xFF8B7018)],
+      ..shader = SweepGradient(
+        colors: [
+          palette.gold.withValues(alpha: 0.55),
+          palette.gold,
+          palette.goldSoft,
+          palette.gold,
+          palette.gold.withValues(alpha: 0.55),
+        ],
       ).createShader(Rect.fromCircle(center: center, radius: radius));
     canvas.drawCircle(center, radius, bezel);
     canvas.drawCircle(
       center,
       radius * 0.92,
       Paint()
-        ..shader = const RadialGradient(
-          colors: [Color(0xFF245C45), Color(0xFF06140F)],
+        ..shader = RadialGradient(
+          colors: [palette.roseInner, palette.roseOuter],
         ).createShader(Rect.fromCircle(center: center, radius: radius * 0.92)),
     );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _BezelPainter oldDelegate) => oldDelegate.palette != palette;
 }
 
 class _RosePainter extends CustomPainter {
+  _RosePainter({required this.palette});
+
+  final CompassPalette palette;
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final radius = size.shortestSide / 2 * 0.86;
     final tick = Paint()
-      ..color = AppColors.goldSoft
+      ..color = palette.goldSoft
       ..strokeWidth = 1.4
       ..strokeCap = StrokeCap.round;
 
@@ -159,7 +179,7 @@ class _RosePainter extends CustomPainter {
       textPainter.text = TextSpan(
         text: label,
         style: TextStyle(
-          color: label == 'N' ? AppColors.gold : AppColors.goldSoft,
+          color: label == 'N' ? palette.gold : palette.goldSoft,
           fontSize: label == 'N' ? 22 : 16,
           fontWeight: FontWeight.w700,
         ),
@@ -174,13 +194,14 @@ class _RosePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _RosePainter oldDelegate) => oldDelegate.palette != palette;
 }
 
 class _NeedlePainter extends CustomPainter {
-  _NeedlePainter({required this.aligned});
+  _NeedlePainter({required this.aligned, required this.palette});
 
   final bool aligned;
+  final CompassPalette palette;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -195,7 +216,7 @@ class _NeedlePainter extends CustomPainter {
 
     canvas.drawPath(
       path,
-      Paint()..color = aligned ? AppColors.goldSoft : AppColors.gold,
+      Paint()..color = aligned ? palette.needleAligned : palette.needle,
     );
 
     final kaaba = TextPainter(
@@ -209,5 +230,6 @@ class _NeedlePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _NeedlePainter oldDelegate) => oldDelegate.aligned != aligned;
+  bool shouldRepaint(covariant _NeedlePainter oldDelegate) =>
+      oldDelegate.aligned != aligned || oldDelegate.palette != palette;
 }

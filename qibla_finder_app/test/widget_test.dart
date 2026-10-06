@@ -5,9 +5,10 @@ import 'package:qibla_finder_app/state/qibla_state.dart';
 
 void main() {
   testWidgets('app shell shows Qibla Finder', (tester) async {
-    final state = QiblaState(SettingsStore());
+    final settings = SettingsStore(onboardingComplete: true);
+    final state = QiblaState(settings);
     await tester.pumpWidget(QiblaFinderApp(state: state));
     await tester.pump();
-    expect(find.text('Qibla'), findsWidgets);
+    expect(find.text('Compass'), findsWidgets);
   });
 }

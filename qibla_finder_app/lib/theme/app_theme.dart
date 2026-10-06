@@ -5,12 +5,38 @@ class AppColors {
   static const ink = Color(0xFF07140F);
   static const forest = Color(0xFF0D3B2E);
   static const moss = Color(0xFF1A6B4A);
-  static const gold = Color(0xFFC9A227);
+  static const gold = Color(0xFFD4A64B);
   static const goldSoft = Color(0xFFE8D48B);
   static const cream = Color(0xFFF4F1EC);
   static const sand = Color(0xFFE8E2D6);
   static const card = Color(0xFFFFFFFF);
   static const night = Color(0xFF08140F);
+
+  // Qibla UI kit (dark screens)
+  static const bg = Color(0xFF0A0E13);
+  static const bg2 = Color(0xFF111820);
+  static const uiCard = Color(0xFF161F29);
+  static const line = Color(0xFF233040);
+  static const teal = Color(0xFF1B8C86);
+  static const text = Color(0xFFEEF2F6);
+  static const sub = Color(0xFF8FA0B2);
+  static const danger = Color(0xFFE2634E);
+  static const navInactive = Color(0xFF5C6B7A);
+}
+
+class AppTextStyles {
+  static const heading = TextStyle(
+    fontWeight: FontWeight.w800,
+    color: AppColors.text,
+    letterSpacing: -0.2,
+  );
+  static const label = TextStyle(
+    fontWeight: FontWeight.w600,
+    color: AppColors.sub,
+    fontSize: 11,
+    letterSpacing: 0.4,
+  );
+  static const body = TextStyle(color: AppColors.text, fontSize: 13.5);
 }
 
 class AppTheme {
@@ -49,18 +75,6 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      navigationBarTheme: NavigationBarThemeData(
-        height: 68,
-        backgroundColor: AppColors.card,
-        elevation: 2,
-        indicatorColor: AppColors.forest.withValues(alpha: 0.12),
-        labelTextStyle: const WidgetStatePropertyAll(
-          TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        ),
-      ),
-      listTileTheme: const ListTileThemeData(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-      ),
     );
   }
 
@@ -68,25 +82,40 @@ class AppTheme {
     final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.gold,
-        brightness: Brightness.dark,
-        surface: AppColors.night,
+      scaffoldBackgroundColor: AppColors.bg,
+      primaryColor: AppColors.gold,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.gold,
+        secondary: AppColors.teal,
+        surface: AppColors.uiCard,
       ),
     );
     return base.copyWith(
-      scaffoldBackgroundColor: AppColors.night,
-      textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme),
+      scaffoldBackgroundColor: AppColors.bg,
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme).apply(
+        bodyColor: AppColors.text,
+        displayColor: AppColors.text,
+      ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.night,
+        backgroundColor: AppColors.bg,
+        foregroundColor: AppColors.text,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.text),
       ),
       cardTheme: CardThemeData(
-        color: const Color(0xFF12241C),
+        color: AppColors.uiCard,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.line),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) => Colors.white),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? AppColors.teal : AppColors.line,
+        ),
       ),
     );
   }

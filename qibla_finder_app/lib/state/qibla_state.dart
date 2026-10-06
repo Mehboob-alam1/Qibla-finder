@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:vibration/vibration.dart';
 
+import '../models/compass_palette.dart';
 import '../models/place.dart';
 import '../models/prayer_day.dart';
 import '../models/qibla_snapshot.dart';
@@ -155,6 +156,12 @@ class QiblaState extends ChangeNotifier {
       method: settings.method,
       asr: settings.asr,
     );
+    notifyListeners();
+  }
+
+  Future<void> setCompassStyleIndex(int index) async {
+    settings.compassStyleIndex = index.clamp(0, CompassPalette.presets.length - 1);
+    await settings.save();
     notifyListeners();
   }
 

@@ -47,6 +47,8 @@
 	<string>Qibla Finder uses your location to compute the bearing and distance to the Kaaba, and local prayer times.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Qibla Finder uses the compass and motion sensors so the Kaaba marker can point toward Qibla.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Qibla Finder uses the camera for AR Qibla view with a prayer mat overlay.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

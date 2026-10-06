@@ -1,10 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../models/compass_palette.dart';
 import '../state/qibla_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/qibla_compass.dart';
-import '../widgets/qibla_map.dart';
-import 'map_screen.dart';
+import '../widgets/qibla_ui/metric_row.dart';
 
 class CompassScreen extends StatelessWidget {
   const CompassScreen({super.key, required this.state});
@@ -18,238 +20,161 @@ class CompassScreen extends StatelessWidget {
       builder: (context, _) {
         final snapshot = state.snapshot;
         final heading = state.heading;
-        final theme = Theme.of(context);
+        final styleIndex = state.settings.compassStyleIndex.clamp(0, CompassPalette.presets.length - 1);
+        final palette = CompassPalette.presets[styleIndex];
 
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          children: [
-            Row(
-              children: [
-                Icon(Icons.place_outlined, size: 18, color: theme.colorScheme.primary),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    state.place?.label ?? 'No location yet',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ),
-                if (state.aligned)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.gold.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: const Text(
-                      'Facing Qibla',
-                      style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 12),
-                    ),
-                  ),
-              ],
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(0, -0.35),
+              radius: 1.1,
+              colors: [Color(0xFF15202B), Color(0xFF05070A)],
             ),
-            const SizedBox(height: 16),
-            Center(
-              child: SizedBox(
-                width: 280,
-                height: 280,
-                child: QiblaCompass(
-                  roseAngle: state.roseAngle,
-                  needleAngle: state.needleAngle,
-                  aligned: state.aligned,
-                  locked: state.locked,
-                  headingLabel: heading == null ? '—°' : '${heading.round()}°',
-                  qiblaLabel: snapshot == null ? 'Qibla' : '${snapshot.bearing.toStringAsFixed(0)}°',
-                  placeLabel: state.place?.name,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Turn until the gold marker meets the notch',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      state.recalibrate();
-                      showModalBottomSheet<void>(
-                        context: context,
-                        showDragHandle: true,
-                        builder: (context) => const _CalibrateSheet(),
-                      );
-                    },
-                    icon: const Icon(Icons.sync),
-                    label: const Text('Calibrate'),
-                  ),
-                ),
-              ],
-            ),
-            if (state.status != null) ...[
-              const SizedBox(height: 8),
-              Text(state.status!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.gold, fontSize: 13)),
-            ],
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                child: Row(
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compassSize = math.min(constraints.maxWidth - 40, constraints.maxHeight * 0.46).clamp(240.0, 320.0);
+
+                return Column(
                   children: [
-                    _Metric(
-                      label: 'Qibla',
-                      value: snapshot == null ? '—' : '${snapshot.bearing.toStringAsFixed(1)}°',
-                      detail: snapshot?.cardinal ?? '',
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              state.place?.label ?? 'Waiting for location…',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.text),
+                            ),
+                          ),
+                          if (state.aligned)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.gold.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
+                              ),
+                              child: const Text(
+                                'ALIGNED',
+                                style: TextStyle(color: AppColors.gold, fontSize: 10, fontWeight: FontWeight.w800),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                    _Metric(
-                      label: 'Heading',
-                      value: heading == null ? '—' : '${heading.round()}°',
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: compassSize,
+                      height: compassSize,
+                      child: QiblaCompass(
+                        roseAngle: state.roseAngle,
+                        needleAngle: state.needleAngle,
+                        aligned: state.aligned,
+                        locked: state.locked,
+                        headingLabel: heading == null ? '—°' : '${heading.round()}°',
+                        qiblaLabel: snapshot == null ? 'Qibla' : '${snapshot.bearing.toStringAsFixed(0)}°',
+                        placeLabel: state.place?.name,
+                        palette: palette,
+                      ),
                     ),
-                    _Metric(
-                      label: 'Distance',
-                      value: snapshot == null ? '—' : snapshot.distanceKm.toStringAsFixed(0),
-                      detail: 'km',
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: MetricRow(
+                        items: [
+                          MetricItem(
+                            label: 'Heading',
+                            value: heading == null ? '—' : '${heading.round()}°',
+                          ),
+                          MetricItem(
+                            label: 'Qibla',
+                            value: snapshot == null ? '—' : '${snapshot.bearing.toStringAsFixed(1)}°',
+                            highlight: true,
+                          ),
+                          MetricItem(
+                            label: 'Distance',
+                            value: snapshot == null ? '—' : '${snapshot.distanceKm.toStringAsFixed(0)} km',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text('COMPASS STYLE', style: AppTextStyles.label),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 76,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: CompassPalette.presets.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        itemBuilder: (context, i) {
+                          final active = i == styleIndex;
+                          final item = CompassPalette.presets[i];
+                          return GestureDetector(
+                            onTap: () => state.setCompassStyleIndex(i),
+                            child: Column(
+                              children: [
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  width: 52,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: RadialGradient(colors: [item.roseInner, item.roseOuter]),
+                                    border: Border.all(color: active ? AppColors.gold : AppColors.line, width: active ? 2.5 : 1),
+                                    boxShadow: active
+                                        ? [BoxShadow(color: item.gold.withValues(alpha: 0.35), blurRadius: 12)]
+                                        : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      width: 8,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: item.needle,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  item.name,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                                    color: active ? AppColors.gold : AppColors.sub,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TextButton.icon(
+                        onPressed: () => state.recalibrate(),
+                        icon: const Icon(Icons.sync, size: 18, color: AppColors.sub),
+                        label: const Text('Calibrate compass', style: TextStyle(color: AppColors.sub)),
+                      ),
                     ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
-            if (snapshot != null) ...[
-              const SizedBox(height: 12),
-              _MapPreview(
-                latitude: snapshot.latitude,
-                longitude: snapshot.longitude,
-                label: state.place?.label,
-              ),
-            ],
-          ],
+          ),
         );
       },
-    );
-  }
-}
-
-class _Metric extends StatelessWidget {
-  const _Metric({required this.label, required this.value, this.detail});
-
-  final String label;
-  final String value;
-  final String? detail;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(label, style: Theme.of(context).textTheme.labelSmall),
-          const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          if (detail != null && detail!.isNotEmpty)
-            Text(detail!, style: Theme.of(context).textTheme.labelSmall),
-        ],
-      ),
-    );
-  }
-}
-
-class _CalibrateSheet extends StatelessWidget {
-  const _CalibrateSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Calibrate compass', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-            SizedBox(height: 12),
-            ListTile(dense: true, leading: Text('1'), title: Text('Hold the phone flat and level.')),
-            ListTile(dense: true, leading: Text('2'), title: Text('Move it in a figure-8 several times.')),
-            ListTile(dense: true, leading: Text('3'), title: Text('Keep it away from metal and magnets.')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MapPreview extends StatelessWidget {
-  const _MapPreview({
-    required this.latitude,
-    required this.longitude,
-    this.label,
-  });
-
-  final double latitude;
-  final double longitude;
-  final String? label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => MapScreen(
-                latitude: latitude,
-                longitude: longitude,
-                label: label,
-              ),
-            ),
-          );
-        },
-        child: Ink(
-          height: 148,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              children: [
-                AbsorbPointer(
-                  child: QiblaMapView(
-                    latitude: latitude,
-                    longitude: longitude,
-                    interactive: false,
-                  ),
-                ),
-                Positioned(
-                  right: 10,
-                  bottom: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.92),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.open_in_full, size: 14),
-                        SizedBox(width: 6),
-                        Text('Open map', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

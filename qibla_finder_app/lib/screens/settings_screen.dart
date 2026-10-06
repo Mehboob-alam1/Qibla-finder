@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../state/qibla_state.dart';
+import '../theme/app_theme.dart';
+import '../widgets/place_search_field.dart';
+import '../widgets/qibla_ui/settings_widgets.dart';
+import 'help_screen.dart';
+import 'prayer_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, required this.state});
@@ -13,64 +19,129 @@ class SettingsScreen extends StatelessWidget {
       listenable: state,
       builder: (context, _) {
         return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: const EdgeInsets.fromLTRB(18, 24, 18, 20),
           children: [
-            Card(
-              child: Column(
+            const Text(
+              'Qibla Compass',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.text),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Color(0xFF2A2213), Color(0xFF171008)]),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF3A2E15)),
+              ),
+              child: const Row(
                 children: [
-                  SwitchListTile(
-                    title: const Text('Vibration'),
-                    subtitle: const Text('Haptic pulse when you face Qibla'),
-                    value: state.settings.vibration,
-                    onChanged: (value) => state.updateSettings(vibration: value),
-                  ),
-                  const Divider(height: 1),
-                  SwitchListTile(
-                    title: const Text('Sound'),
-                    subtitle: const Text('Click when the compass locks'),
-                    value: state.settings.audio,
-                    onChanged: (value) => state.updateSettings(audio: value),
-                  ),
-                  const Divider(height: 1),
-                  SwitchListTile(
-                    title: const Text('Dark mode'),
-                    value: state.settings.darkMode,
-                    onChanged: (value) => state.updateSettings(darkMode: value),
+                  Icon(Icons.diamond_outlined, color: AppColors.gold, size: 24),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Try Premium',
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.text),
+                        ),
+                        SizedBox(height: 2),
+                        Text('Remove ads, unlock all compass skins', style: AppTextStyles.label),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Display', style: TextStyle(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 8),
-                    SegmentedButton<String>(
-                      showSelectedIcon: false,
-                      segments: const [
-                        ButtonSegment(value: 'compass', label: Text('Compass')),
-                        ButtonSegment(value: 'arrow', label: Text('Arrow')),
-                      ],
-                      selected: {state.settings.displayMode},
-                      onSelectionChanged: (value) => state.updateSettings(displayMode: value.first),
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Location refresh  ·  ${state.settings.updateIntervalSeconds}s'),
-                    Slider(
-                      min: 30,
-                      max: 600,
-                      divisions: 19,
-                      value: state.settings.updateIntervalSeconds.clamp(30, 600).toDouble(),
-                      label: '${state.settings.updateIntervalSeconds}s',
-                      onChanged: (value) => state.updateSettings(updateIntervalSeconds: value.round()),
-                    ),
-                  ],
+            const SizedBox(height: 18),
+            SettingsGroup(
+              rows: [
+                SettingsRowData(
+                  icon: Icons.schedule_outlined,
+                  label: 'Prayer times',
+                  chevron: true,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => PrayerScreen(state: state)),
+                  ),
                 ),
-              ),
+                SettingsRowData(
+                  icon: Icons.location_on_outlined,
+                  label: 'Location marker',
+                  trailingText: state.place?.name ?? 'Not set',
+                  chevron: true,
+                  onTap: () => showPlaceSearchSheet(
+                    context: context,
+                    onSelected: state.setPlace,
+                    onUseLocation: () => state.locate(),
+                  ),
+                ),
+                SettingsRowData(
+                  icon: Icons.language,
+                  label: 'Language',
+                  trailingText: 'English',
+                  chevron: true,
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            SettingsGroup(
+              rows: [
+                SettingsRowData(
+                  icon: Icons.vibration,
+                  label: 'Vibration',
+                  trailingSwitch: state.settings.vibration,
+                  onSwitch: (v) => state.updateSettings(vibration: v),
+                ),
+                SettingsRowData(
+                  icon: Icons.dark_mode_outlined,
+                  label: 'Dark mode',
+                  trailingSwitch: state.settings.darkMode,
+                  onSwitch: (v) => state.updateSettings(darkMode: v),
+                ),
+                SettingsRowData(
+                  icon: Icons.explore_outlined,
+                  label: 'Calibrate my device',
+                  chevron: true,
+                  onTap: () => state.recalibrate(),
+                ),
+                SettingsRowData(
+                  icon: Icons.volume_up_outlined,
+                  label: 'Sound on Qibla lock',
+                  trailingSwitch: state.settings.audio,
+                  onSwitch: (v) => state.updateSettings(audio: v),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            SettingsGroup(
+              rows: [
+                SettingsRowData(
+                  icon: Icons.help_outline,
+                  label: 'Help',
+                  chevron: true,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const HelpScreen()),
+                  ),
+                ),
+                SettingsRowData(
+                  icon: Icons.mail_outline,
+                  label: 'Share app',
+                  onTap: () {
+                    SharePlus.instance.share(
+                      ShareParams(
+                        text: 'Find the Qibla with a live compass. https://qiblafinders.io',
+                        title: 'Qibla Finder',
+                      ),
+                    );
+                  },
+                ),
+                SettingsRowData(
+                  icon: Icons.star_border,
+                  label: 'Rate us',
+                  chevron: true,
+                ),
+              ],
             ),
           ],
         );

@@ -1,0 +1,4 @@
+sdk.dir=/path/to/Android/sdk
+flutter.sdk=/path/to/flutter
+
+# Map uses OpenStreetMap raster tiles (flutter_map) — no API key.

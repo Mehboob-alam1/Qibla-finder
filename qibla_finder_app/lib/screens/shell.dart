@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../state/qibla_state.dart';
-import '../widgets/place_search_field.dart';
+import '../theme/app_theme.dart';
+import 'ar_screen.dart';
 import 'compass_screen.dart';
-import 'help_screen.dart';
-import 'prayer_screen.dart';
+import 'home_map_screen.dart';
+import 'live_screen.dart';
 import 'settings_screen.dart';
 
 class AppShell extends StatefulWidget {
@@ -19,92 +19,100 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _index = 0;
+  final _visitedTabs = <int>{0};
 
-  static const _titles = ['Qibla', 'Prayer', 'Help', 'Settings'];
+  static const _items = [
+    (Icons.map_outlined, Icons.map, 'Map'),
+    (Icons.explore_outlined, Icons.explore, 'Compass'),
+    (Icons.view_in_ar_outlined, Icons.view_in_ar, 'AR'),
+    (Icons.live_tv_outlined, Icons.live_tv, 'Live'),
+    (Icons.settings_outlined, Icons.settings, 'Settings'),
+  ];
 
   @override
   Widget build(BuildContext context) {
     final pages = [
+      HomeMapScreen(state: widget.state),
       CompassScreen(state: widget.state),
-      PrayerScreen(state: widget.state),
-      const HelpScreen(),
+      ArScreen(state: widget.state),
+      const LiveScreen(),
       SettingsScreen(state: widget.state),
     ];
 
-    return ListenableBuilder(
-      listenable: widget.state,
-      builder: (context, _) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(_titles[_index]),
-            actions: [
-              if (_index < 2) ...[
-                IconButton(
-                  tooltip: 'Search city',
-                  onPressed: () => showPlaceSearchSheet(
-                    context: context,
-                    onSelected: widget.state.setPlace,
-                    onUseLocation: () => widget.state.locate(),
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      extendBody: true,
+      body: IndexedStack(
+        index: _index,
+        children: [
+          for (var i = 0; i < pages.length; i++)
+            if (_visitedTabs.contains(i)) pages[i] else const SizedBox.shrink(),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottomInset),
+        child: Material(
+          elevation: 12,
+          shadowColor: Colors.black54,
+          borderRadius: BorderRadius.circular(28),
+          color: const Color(0xFF0D131A),
+          child: Container(
+            height: 64,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: AppColors.line),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(_items.length, (i) {
+                final active = i == _index;
+                final (icon, selectedIcon, label) = _items[i];
+                return Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: () => setState(() {
+                      _visitedTabs.add(i);
+                      _index = i;
+                    }),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 32,
+                          alignment: Alignment.center,
+                          decoration: active
+                              ? BoxDecoration(
+                                  color: AppColors.moss,
+                                  borderRadius: BorderRadius.circular(10),
+                                )
+                              : null,
+                          child: Icon(
+                            active ? selectedIcon : icon,
+                            size: 22,
+                            color: active ? Colors.white : AppColors.navInactive,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: active ? AppColors.text : AppColors.navInactive,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  icon: const Icon(Icons.search),
-                ),
-                IconButton(
-                  tooltip: 'My location',
-                  onPressed: widget.state.locating ? null : () => widget.state.locate(),
-                  icon: widget.state.locating
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.my_location),
-                ),
-              ],
-              if (_index == 0)
-                IconButton(
-                  tooltip: 'Share',
-                  onPressed: () {
-                    SharePlus.instance.share(
-                      ShareParams(
-                        text:
-                            'Find the Qibla with a live compass. https://qiblafinders.io',
-                        title: 'Qibla Finder',
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.ios_share),
-                ),
-            ],
+                );
+              }),
+            ),
           ),
-          body: IndexedStack(index: _index, children: pages),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _index,
-            onDestinationSelected: (index) => setState(() => _index = index),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.explore_outlined),
-                selectedIcon: Icon(Icons.explore),
-                label: 'Qibla',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.schedule_outlined),
-                selectedIcon: Icon(Icons.schedule),
-                label: 'Prayer',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.help_outline),
-                selectedIcon: Icon(Icons.help),
-                label: 'Help',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.settings_outlined),
-                selectedIcon: Icon(Icons.settings),
-                label: 'Settings',
-              ),
-            ],
-          ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
