@@ -66,7 +66,7 @@ class SettingsStore {
       darkMode: prefs.getString(_theme) == 'dark',
       lastPlace: place,
       onboardingComplete: prefs.getBool(_onboarding) ?? false,
-      compassStyleIndex: prefs.getInt(_compassStyle) ?? 0,
+      compassStyleIndex: (prefs.getInt(_compassStyle) ?? 0).clamp(0, 7),
       prayerMatColorArgb: prefs.getInt(_matColor) ?? 0xFF1A6B4A,
       prayerMatIndex: (prefs.getInt(_matIndex) ?? 0).clamp(0, 1),
     );

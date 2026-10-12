@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
@@ -7,6 +6,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:vibration/vibration.dart';
 
+import '../models/compass_instrument.dart';
 import '../models/compass_palette.dart';
 import '../models/place.dart';
 import '../models/prayer_day.dart';
@@ -160,9 +160,17 @@ class QiblaState extends ChangeNotifier {
   }
 
   Future<void> setCompassStyleIndex(int index) async {
-    settings.compassStyleIndex = index.clamp(0, CompassPalette.presets.length - 1);
+    settings.compassStyleIndex = index.clamp(0, CompassInstrument.count - 1);
     await settings.save();
     notifyListeners();
+  }
+
+  /// Dial rotation so N/E/S/W stay aligned with true north (compass tab).
+  double roseAngleForDisplay(double? heading) {
+    if (heading == null) {
+      return 0;
+    }
+    return QiblaMath.normalize(-heading);
   }
 
   Future<void> updateSettings({
