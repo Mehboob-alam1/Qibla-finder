@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Kompas kiblat ini berjalan dalam pelayar. Pada telefon ia memakai magnetometer. Komputer riba biasanya tiada kompas — guna sudut nombor dan peta, atau buka di telefon.',
     'seo_qibla_h2_c' => 'Kiblat dari Malaysia dan seluruh dunia',
     'seo_qibla_p_c' => 'Arah kiblat adalah laluan terpendek ke Kaabah. Ralat yang tinggal hampir selalu dari kompas peranti. Gerakkan telefon berbentuk 8, jauhkan logam, dan pegang rata. Ikut masjid tempatan jika ruang sukar untuk heading tepat.',
+
+    'troubleshooting' => 'Penyelesaian trouble',
+    'trouble_1' => 'Benarkan lokasi apabila pelayar meminta.',
+    'trouble_2' => 'Pada Safari iPhone, dayakan Motion & Orientation Access.',
+    'trouble_3' => 'Pegang telefon rata, jauh dari magnet dan logam.',
+    'trouble_4' => 'Gerakkan telefon berbentuk 8 untuk kalibrasi semula.',
+    'trouble_5' => 'Pada desktop, guna nombor arah dan peta.',
 ];

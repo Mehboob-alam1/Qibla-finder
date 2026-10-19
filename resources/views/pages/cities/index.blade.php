@@ -32,7 +32,6 @@
                         <p class="text-sm text-forest/50 mt-1">{{ $city['country'] }}</p>
                         <div class="mt-3 flex flex-wrap gap-3 text-sm">
                             <a class="text-gold" href="{{ route('cities.qibla', $city['slug']) }}">{{ __('ui.Find Qibla') }}</a>
-                            <a class="text-forest/70" href="{{ route('cities.prayer', $city['slug']) }}">{{ __('ui.Prayer Times') }}</a>
                         </div>
                     </article>
                 @endforeach

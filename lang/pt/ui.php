@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Funciona no browser. No telemóvel usa o magnetómetro. Portáteis quase nunca têm bússola.',
     'seo_qibla_h2_c' => 'Quando a bússola e o mapa discordam',
     'seo_qibla_p_c' => 'O rumo à Kaaba é uma geodésica. O erro restante vem quase sempre da bússola. Mova o telemóvel em 8.',
+
+    'troubleshooting' => 'Resolução de problemas',
+    'trouble_1' => 'Permita a localização quando o navegador pedir.',
+    'trouble_2' => 'No Safari do iPhone, ative Motion & Orientation Access.',
+    'trouble_3' => 'Segure o telefone plano, longe de ímanes e metal.',
+    'trouble_4' => 'Mova o telefone em forma de 8 para recalibrar.',
+    'trouble_5' => 'No computador, use o rumo numérico e o mapa.',
 ];

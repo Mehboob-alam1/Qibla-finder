@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Funciona en el navegador. En el teléfono usa el magnetómetro. Los portátiles casi nunca tienen brújula.',
     'seo_qibla_h2_c' => 'Cuando la brújula y el mapa no coinciden',
     'seo_qibla_p_c' => 'El rumbo a la Kaaba es una geodésica. El error restante suele ser la brújula del dispositivo. Mueve el teléfono en un 8.',
+
+    'troubleshooting' => 'Solución de problemas',
+    'trouble_1' => 'Permite la ubicación cuando el navegador lo pida.',
+    'trouble_2' => 'En Safari de iPhone, activa Motion & Orientation Access.',
+    'trouble_3' => 'Mantén el teléfono plano, lejos de imanes y metal.',
+    'trouble_4' => 'Mueve el teléfono en forma de 8 para recalibrar.',
+    'trouble_5' => 'En el escritorio, usa el rumbo numérico y el mapa.',
 ];

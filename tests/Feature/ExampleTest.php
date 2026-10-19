@@ -15,10 +15,9 @@ class ExampleTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertDontSee('pagead2.googlesyndication.com', false)
-            ->assertDontSee('Banner ad preview')
+            ->assertDontSee('/guides', false)
+            ->assertDontSee('/faq', false)
             ->assertSee('data-update-interval="300"', false)
-            ->assertSee('What devices can use this Qibla Finder?', false)
-            ->assertSee('chrome://flags/#enable-generic-sensor-extra-classes', false)
             ->assertSee('data-share', false)
             ->assertSee('name="msvalidate.01"', false)
             ->assertSee('167843586563944F086753F2A9641BFE', false)
@@ -26,7 +25,7 @@ class ExampleTest extends TestCase
             ->assertSee('data-camera-video', false)
             ->assertSee('data-mode-select', false)
             ->assertSee('value="camera"', false)
-            ->assertSee('Live camera on your phone', false);
+            ->assertSee(__('ui.troubleshooting'), false);
     }
 
     public function test_ad_preview_shows_placeholder_units(): void
@@ -37,12 +36,10 @@ class ExampleTest extends TestCase
             ->assertDontSee('pagead2.googlesyndication.com', false);
     }
 
-    public function test_faq_page_includes_setup_instructions(): void
+    public function test_removed_content_urls_are_gone(): void
     {
-        $this->get('/faq')
-            ->assertOk()
-            ->assertSee('Setup for Chrome', false)
-            ->assertSee('Motion &amp; Orientation Access', false);
+        $this->get('/faq')->assertStatus(410);
+        $this->get('/guides')->assertStatus(410);
     }
 
     public function test_sitemap_and_robots_are_ready_for_search_console(): void
@@ -51,22 +48,25 @@ class ExampleTest extends TestCase
             ->assertOk()
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
             ->assertSee('http://www.sitemaps.org/schemas/sitemap/0.9', false)
-            ->assertSee('/prayer-times', false)
-            ->assertSee('/faq', false)
-            ->assertSee('/guides', false)
-            ->assertSee('/contact', false);
+            ->assertSee('/cities', false)
+            ->assertSee('/contact', false)
+            ->assertDontSee('/faq', false)
+            ->assertDontSee('/guides', false)
+            ->assertDontSee('/prayer-times/', false);
 
         $this->get('/robots.txt')
             ->assertOk()
             ->assertSee('Sitemap:', false)
-            ->assertSee('/sitemap.xml', false);
+            ->assertSee('/sitemap.xml', false)
+            ->assertSee('Disallow: /admin', false)
+            ->assertDontSee('Disallow: /guides', false);
 
         config(['app.url' => 'http://localhost']);
 
         $this->get('https://qiblafinders.io/sitemap.xml')
             ->assertOk()
             ->assertSee('<loc>https://qiblafinders.io</loc>', false)
-            ->assertSee('<loc>https://qiblafinders.io/prayer-times</loc>', false)
+            ->assertDontSee('/prayer-times</loc>', false)
             ->assertDontSee('http://localhost', false);
 
         $this->get('https://qiblafinders.io/robots.txt')

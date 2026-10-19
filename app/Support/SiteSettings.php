@@ -138,8 +138,6 @@ class SiteSettings
             'instagram' => 'Instagram',
             'youtube' => 'YouTube',
             'reddit' => 'Reddit',
-            'pinterest' => 'Pinterest',
-            'quora' => 'Quora',
             'linkedin' => 'LinkedIn',
             'medium' => 'Medium',
             'tiktok' => 'TikTok',
@@ -177,4 +175,13 @@ class SiteSettings
     {
         return filter_var(static::get('social_show_footer', '1'), FILTER_VALIDATE_BOOLEAN);
     }
+
+    /**
+     * Public /guides stays off until enabled in admin settings (dormant blog).
+     */
+    public static function blogPublicEnabled(): bool
+    {
+        return filter_var(static::get('blog_public_enabled', '0'), FILTER_VALIDATE_BOOLEAN);
+    }
 }
+

@@ -36,13 +36,12 @@ class SettingController extends Controller
             'twitter' => ['nullable', 'url', 'max:255'],
             'youtube' => ['nullable', 'url', 'max:255'],
             'reddit' => ['nullable', 'url', 'max:255'],
-            'pinterest' => ['nullable', 'url', 'max:255'],
-            'quora' => ['nullable', 'url', 'max:255'],
             'linkedin' => ['nullable', 'url', 'max:255'],
             'medium' => ['nullable', 'url', 'max:255'],
             'tiktok' => ['nullable', 'url', 'max:255'],
             'social_show_header' => ['sometimes', 'boolean'],
             'social_show_footer' => ['sometimes', 'boolean'],
+            'blog_public_enabled' => ['sometimes', 'boolean'],
             'ga_id' => ['nullable', 'string', 'max:40'],
             'adsense_enabled' => ['sometimes', 'boolean'],
             'adsense_preview' => ['sometimes', 'boolean'],
@@ -80,6 +79,7 @@ class SettingController extends Controller
         $data['qibla_display_mode'] = QiblaDisplay::mode($request->input('qibla_display_mode'));
         $data['social_show_header'] = $request->boolean('social_show_header') ? '1' : '0';
         $data['social_show_footer'] = $request->boolean('social_show_footer') ? '1' : '0';
+        $data['blog_public_enabled'] = $request->boolean('blog_public_enabled') ? '1' : '0';
 
         SiteSettings::put($data);
 

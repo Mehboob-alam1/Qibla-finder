@@ -36,7 +36,7 @@
             <p class="mt-5 text-cream/75 text-lg max-w-xl">{{ __('ui.hero_lead') }}</p>
             <div class="mt-8 flex flex-wrap gap-3">
                 <button class="bg-gold text-ink font-semibold px-6 py-3 rounded-full" type="button" onclick="document.querySelector('[data-qibla-app] [data-locate]')?.click()">{{ __('ui.Find Qibla Direction') }}</button>
-                <a href="{{ $prayerUrl ?? route('prayer-times') }}" class="px-6 py-3 rounded-full border border-gold/40 text-gold">{{ __('ui.Prayer Times') }}</a>
+                <a href="{{ route('cities.index') }}" class="px-6 py-3 rounded-full border border-gold/40 text-gold">{{ __('ui.Cities') }}</a>
             </div>
             <div class="mt-6 flex flex-wrap gap-2">
                 @foreach (\App\Support\Cities::popular() as $city)
@@ -248,78 +248,18 @@
     <div id="qibla-map" class="gold-border"></div>
 </section>
 
-<section class="mx-auto max-w-6xl px-4 mt-20 grid lg:grid-cols-2 gap-12 items-start">
-    <div>
-        <p class="text-kicker">{{ __('ui.How it works') }}</p>
-        <h2 class="font-display text-5xl mt-2 text-forest">{{ __('ui.how_title') }}</h2>
-        <div class="mt-6 space-y-4 text-forest/75 leading-relaxed">
-            <p>{{ __('ui.how_p1') }}</p>
-            <p>{{ __('ui.how_p2') }}</p>
-        </div>
-    </div>
-    <div class="space-y-4">
-        @foreach ([
-            ['01', __('ui.step_1')],
-            ['02', __('ui.step_2')],
-            ['03', __('ui.step_3')],
-        ] as [$n, $text])
-            <div class="stat-card rounded-3xl p-5 flex gap-4">
-                <span class="font-display text-3xl text-step">{{ $n }}</span>
-                <p class="text-forest/80">{{ $text }}</p>
-            </div>
-        @endforeach
-    </div>
-</section>
 
-<section class="mx-auto max-w-6xl px-4 mt-20">
-    <article class="prose-content max-w-3xl">
-        <h2>{{ __('ui.seo_qibla_h2_a') }}</h2>
-        <p>{{ __('ui.seo_qibla_p_a') }}</p>
-        <h2>{{ __('ui.seo_qibla_h2_b') }}</h2>
-        <p>{{ __('ui.seo_qibla_p_b') }}</p>
-        <h2>{{ __('ui.seo_qibla_h2_c') }}</h2>
-        <p>{{ __('ui.seo_qibla_p_c') }}</p>
-    </article>
-</section>
-
-@include('partials.qibla-help')
-
-@include('partials.ad', ['type' => 'banner'])
-
-@if ($faqs->isNotEmpty())
-<section class="mx-auto max-w-6xl px-4 mt-20">
-    <div class="flex items-end justify-between mb-6">
-        <h2 class="font-display text-5xl text-forest">{{ __('ui.FAQ') }}</h2>
-        <a href="{{ route('faq') }}" class="link-gold">{{ __('ui.View all') }}</a>
-    </div>
-    <div class="grid md:grid-cols-2 gap-4">
-        @foreach ($faqs as $faq)
-            <article class="stat-card rounded-3xl p-6">
-                <h3 class="font-semibold text-forest">{{ $faq->question }}</h3>
-                <div class="prose-content mt-2 text-forest/70 line-clamp-5">{!! $faq->answer !!}</div>
-            </article>
-        @endforeach
-    </div>
-</section>
-@endif
-
-@include('partials.ad', ['type' => 'native'])
-
-@if ($posts->isNotEmpty())
-<section class="mx-auto max-w-6xl px-4 mt-20 mb-8">
-    <div class="flex items-end justify-between mb-6">
-        <h2 class="font-display text-5xl text-forest">{{ __('ui.Guides') }}</h2>
-        <a href="{{ route('blog.index') }}" class="link-gold">{{ __('ui.All guides') }}</a>
-    </div>
-    <div class="grid md:grid-cols-3 gap-5">
-        @foreach ($posts as $post)
-            <a href="{{ $post->publicUrl() }}" class="stat-card rounded-3xl p-6 block hover:-translate-y-1 transition">
-                <p class="text-kicker">{{ optional($post->published_at)->translatedFormat('M j, Y') }}</p>
-                <h3 class="font-display text-3xl mt-2 text-forest">{{ $post->title }}</h3>
-                <p class="mt-3 text-forest/70">{{ $post->excerpt }}</p>
-            </a>
-        @endforeach
-    </div>
-</section>
-@endif
+<details class="mx-auto max-w-6xl px-4 mt-16 mb-10 group">
+    <summary class="cursor-pointer list-none font-display text-3xl text-forest flex items-center justify-between gap-4">
+        <span>{{ __('ui.troubleshooting') }}</span>
+        <span class="text-gold text-2xl group-open:rotate-45 transition">+</span>
+    </summary>
+    <ul class="mt-4 space-y-2 text-forest/75 list-disc ps-5 max-w-2xl">
+        <li>{{ __('ui.trouble_1') }}</li>
+        <li>{{ __('ui.trouble_2') }}</li>
+        <li>{{ __('ui.trouble_3') }}</li>
+        <li>{{ __('ui.trouble_4') }}</li>
+        <li>{{ __('ui.trouble_5') }}</li>
+    </ul>
+</details>
 @endsection

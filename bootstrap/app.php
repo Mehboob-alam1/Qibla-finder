@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\CanonicalizeRequest;
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\RedirectsAndGone;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackPageView;
 use App\Http\Middleware\UsePublicAppUrl;
@@ -17,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Gone/redirect rules first (path lowercased in-memory) so /GUIDES → 410 in one hop,
+        // then canonicalize trailing slash / query noise for surviving URLs.
+        $middleware->prepend([
+            RedirectsAndGone::class,
+            CanonicalizeRequest::class,
+        ]);
         $middleware->web(prepend: [
             UsePublicAppUrl::class,
         ], append: [

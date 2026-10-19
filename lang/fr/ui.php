@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Fonctionne dans le navigateur. Sur téléphone, il utilise le magnétomètre. Les ordinateurs n’ont souvent pas de boussole.',
     'seo_qibla_h2_c' => 'Quand la boussole et la carte divergent',
     'seo_qibla_p_c' => 'Le gisement vers la Kaaba est une géodésique. L’erreur restante vient surtout de la boussole. Faites un 8 et éloignez le métal.',
+
+    'troubleshooting' => 'Dépannage',
+    'trouble_1' => 'Autorisez la localisation quand le navigateur le demande.',
+    'trouble_2' => 'Sur Safari iPhone, activez l’accès Mouvement et orientation.',
+    'trouble_3' => 'Tenez le téléphone à plat, loin des aimants et du métal.',
+    'trouble_4' => 'Faites un 8 avec le téléphone pour recalibrer la boussole.',
+    'trouble_5' => 'Sur ordinateur, utilisez le cap numérique et la carte.',
 ];

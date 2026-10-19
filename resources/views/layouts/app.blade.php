@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $currentLocale === 'en' ? ($siteSettings['meta_title'] ?? $siteName) : __('ui.meta_title'))</title>
     <meta name="description" content="@yield('description', $currentLocale === 'en' ? ($siteSettings['meta_description'] ?? $siteTagline) : __('ui.meta_description'))">
+    @hasSection('robots')
+        <meta name="robots" content="@yield('robots')">
+    @endif
     <meta name="theme-color" content="#0d3b2e">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $siteName }}">
@@ -77,10 +80,7 @@
 
             <nav class="hidden lg:flex items-center gap-3 xl:gap-4 text-forest">
                 <a class="nav-link {{ \App\Support\LocalizedPaths::is('home') ? 'is-active' : '' }}" href="{{ $homeUrl ?? route('home') }}">{{ __('ui.Find Qibla') }}</a>
-                <a class="nav-link {{ \App\Support\LocalizedPaths::is('prayer-times') ? 'is-active' : '' }}" href="{{ $prayerUrl ?? route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
                 <a class="nav-link {{ request()->routeIs('cities.*') ? 'is-active' : '' }}" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
-                <a class="nav-link {{ request()->routeIs('blog.*') ? 'is-active' : '' }}" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
-                <a class="nav-link {{ request()->routeIs('faq') ? 'is-active' : '' }}" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
                 @foreach ($headerPages as $page)
                     <a class="nav-link {{ $page->isCurrent() ? 'is-active' : '' }}" href="{{ $page->publicPath() }}">{{ $page->navLabel() }}</a>
                 @endforeach
@@ -124,10 +124,7 @@
         </div>
         <div data-mobile-panel class="hidden lg:hidden border-t border-forest/10 bg-cream px-4 py-4 space-y-2.5 text-sm text-forest">
             <a class="block" href="{{ $homeUrl ?? route('home') }}">{{ __('ui.Find Qibla') }}</a>
-            <a class="block" href="{{ $prayerUrl ?? route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
             <a class="block" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
-            <a class="block" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
-            <a class="block" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
             @foreach ($headerPages as $page)
                 <a class="block" href="{{ $page->publicPath() }}">{{ $page->navLabel() }}</a>
             @endforeach
@@ -171,11 +168,8 @@
                 <p class="text-xs uppercase tracking-widest text-gold mb-3">{{ __('ui.Explore') }}</p>
                 <div class="space-y-2 text-cream/80">
                     <a class="block hover:text-gold" href="{{ $homeUrl ?? route('home') }}">{{ __('ui.Find Qibla') }}</a>
-                    <a class="block hover:text-gold" href="{{ $prayerUrl ?? route('prayer-times') }}">{{ __('ui.Prayer Times') }}</a>
                     <a class="block hover:text-gold" href="{{ route('cities.index') }}">{{ __('ui.Cities') }}</a>
-                    <a class="block hover:text-gold" href="{{ route('blog.index') }}">{{ __('ui.Guides') }}</a>
-                    <a class="block hover:text-gold" href="{{ route('faq') }}">{{ __('ui.FAQ') }}</a>
-                    <a class="block hover:text-gold" href="{{ ($homeUrl ?? url('/')).'#setup' }}">{{ __('ui.help_kicker') }}</a>
+                    <a class="block hover:text-gold" href="{{ route('contact') }}">{{ __('ui.Contact') }}</a>
                 </div>
             </div>
             <div>

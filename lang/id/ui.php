@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Kompas arah kiblat di halaman ini memakai magnetometer HP, bukan panah statis. Tahan ponsel datar, kalibrasi membentuk angka 8, dan jauhi logam. Saat tanda Kakbah bertemu takik emas, Anda menghadap kiblat.',
     'seo_qibla_h2_c' => 'Arah kiblat sholat: geografis, bukan fatwa',
     'seo_qibla_p_c' => 'Arah kiblat sholat dihitung dari jalur terpendek ke Kakbah di Masjidil Haram. Ini bantuan geografis. Jika ragu, ikuti masjid atau ulama setempat. Laptop biasanya tanpa kompas — pakai angka dan peta, atau buka di HP.',
+
+    'troubleshooting' => 'Pemecahan masalah',
+    'trouble_1' => 'Izinkan lokasi saat browser meminta.',
+    'trouble_2' => 'Di Safari iPhone, aktifkan Motion & Orientation Access.',
+    'trouble_3' => 'Pegang ponsel datar, jauh dari magnet dan logam.',
+    'trouble_4' => 'Gerakkan ponsel membentuk angka 8 untuk kalibrasi ulang.',
+    'trouble_5' => 'Di desktop, gunakan angka arah dan peta.',
 ];

@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Läuft im Browser. Am Telefon nutzt es das Magnetometer. Laptops haben oft keinen Kompass.',
     'seo_qibla_h2_c' => 'Wenn Kompass und Karte abweichen',
     'seo_qibla_p_c' => 'Die Peilung zur Kaaba ist eine Geodäte. Restfehler kommt meist vom Gerätekompass. Telefon in einer 8 bewegen.',
+
+    'troubleshooting' => 'Fehlerbehebung',
+    'trouble_1' => 'Standort erlauben, wenn der Browser fragt.',
+    'trouble_2' => 'Auf iPhone Safari Bewegung & Ausrichtung aktivieren.',
+    'trouble_3' => 'Telefon flach halten, fern von Magneten und Metall.',
+    'trouble_4' => 'Telefon in einer Achterfigur bewegen, um den Kompass zu kalibrieren.',
+    'trouble_5' => 'Am Desktop die Gradzahl und die Karte nutzen.',
 ];

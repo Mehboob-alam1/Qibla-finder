@@ -2,6 +2,11 @@
 
 @section('title', __('ui.Contact') . ' — ' . $siteName)
 @section('description', __('ui.contact_meta'))
+@if (session('status'))
+@push('head')
+    <meta name="robots" content="noindex, follow">
+@endpush
+@endif
 
 @section('content')
 <div class="mx-auto max-w-3xl px-4 py-14">

@@ -52,7 +52,12 @@ class AppServiceProvider extends ServiceProvider
                         $columns[] = 'show_in_footer';
                     }
 
-                    $pages = Page::query()->published()->forLocale()->orderBy('sort_order')->get($columns);
+                    $pages = Page::query()
+                        ->published()
+                        ->forLocale()
+                        ->whereIn('slug', Page::indexableSlugs())
+                        ->orderBy('sort_order')
+                        ->get($columns);
                     $headerPages = $pages->where('show_in_header', true)->values();
                     $footerPages = Schema::hasColumn('pages', 'show_in_footer')
                         ? $pages->where('show_in_footer', true)->values()

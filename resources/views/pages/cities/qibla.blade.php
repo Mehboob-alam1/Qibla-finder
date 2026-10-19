@@ -29,7 +29,6 @@
 
     <div class="mt-6 flex flex-wrap gap-3">
         <a class="bg-forest text-cream rounded-full px-5 py-2.5" href="{{ route('home') }}">{{ __('ui.Find Qibla Direction') }}</a>
-        <a class="border border-forest/20 rounded-full px-5 py-2.5" href="{{ route('cities.prayer', $city['slug']) }}">{{ __('ui.city_prayer_cta', ['city' => $city['name']]) }}</a>
         @include('partials.share', [
             'shareUrl' => url()->current(),
             'shareTitle' => __('ui.city_qibla_title', ['city' => $city['name'], 'country' => $city['country']]),
@@ -38,12 +37,21 @@
         ])
     </div>
 
-    <div id="city-map" class="gold-border mt-10 h-[360px] w-full rounded-3xl overflow-hidden" data-city-map data-lat="{{ $city['lat'] }}" data-lng="{{ $city['lng'] }}" data-kaaba-lat="{{ $snapshot['kaaba']['latitude'] }}" data-kaaba-lng="{{ $snapshot['kaaba']['longitude'] }}"></div>
+    @if (! empty($times['times']))
+        <div class="mt-10">
+            <h2 class="font-display text-3xl text-forest">{{ __('ui.Prayer Times') }} — {{ $monthLabel ?? '' }}</h2>
+            <div class="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-3">
+                @foreach (['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as $key)
+                    <article class="stat-card rounded-2xl p-4">
+                        <p class="text-xs uppercase tracking-widest text-label">{{ $labels[$key] ?? $key }}</p>
+                        <p class="font-display text-2xl mt-1">{{ $times['times'][$key] ?? '—' }}</p>
+                    </article>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
-    <div class="mt-10 max-w-3xl space-y-4 text-forest/75 leading-relaxed">
-        <p>{{ __('ui.city_qibla_body', ['city' => $city['name'], 'country' => $city['country'], 'bearing' => number_format($snapshot['qibla_bearing'], 1), 'cardinal' => $snapshot['qibla_cardinal']]) }}</p>
-        <p>{{ __('ui.city_qibla_note') }}</p>
-    </div>
+    <div id="city-map" class="gold-border mt-10 h-[360px] w-full rounded-3xl overflow-hidden" data-city-map data-lat="{{ $city['lat'] }}" data-lng="{{ $city['lng'] }}" data-kaaba-lat="{{ $snapshot['kaaba']['latitude'] }}" data-kaaba-lng="{{ $snapshot['kaaba']['longitude'] }}"></div>
 
     @if ($related->isNotEmpty())
         <h2 class="mt-12 font-display text-3xl text-forest">{{ __('ui.city_more_in', ['country' => $city['country']]) }}</h2>

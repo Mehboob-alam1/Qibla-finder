@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Werkt in de browser. Op de telefoon gebruikt het de magnetometer. Laptops hebben meestal geen kompas.',
     'seo_qibla_h2_c' => 'Als kompas en kaart niet overeenkomen',
     'seo_qibla_p_c' => 'De peiling naar de Kaäba is een geodeet. Resterende fout komt bijna altijd van het apparaatkompas. Beweeg de telefoon in een 8.',
+
+    'troubleshooting' => 'Problemen oplossen',
+    'trouble_1' => 'Sta locatie toe als de browser daarom vraagt.',
+    'trouble_2' => 'Op iPhone Safari: schakel Motion & Orientation Access in.',
+    'trouble_3' => 'Houd de telefoon plat, weg van magneten en metaal.',
+    'trouble_4' => 'Beweeg de telefoon in een 8-vorm om te herijken.',
+    'trouble_5' => 'Op de desktop: gebruik de cijferrichting en de kaart.',
 ];

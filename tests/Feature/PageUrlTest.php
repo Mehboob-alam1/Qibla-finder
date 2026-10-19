@@ -11,22 +11,16 @@ class PageUrlTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_duas_qibla_uses_a_flat_url_like_prayer_times(): void
+    public function test_non_legal_cms_pages_are_gone(): void
     {
         $this->page('duas-qibla', 'flat');
 
-        $this->get('/p/duas-qibla')->assertRedirect('/duas-qibla')->assertStatus(301);
-        $this->get('/duas-qibla')
-            ->assertOk()
-            ->assertSee('Duas', false);
-
-        $this->get('/sitemap.xml')
-            ->assertOk()
-            ->assertSee('/duas-qibla', false)
-            ->assertDontSee('/p/duas-qibla', false);
+        $this->get('/duas-qibla')->assertStatus(410);
+        $this->get('/p/duas-qibla')->assertStatus(410);
+        $this->get('/sitemap.xml')->assertOk()->assertDontSee('/duas-qibla', false);
     }
 
-    public function test_prefixed_pages_stay_under_p(): void
+    public function test_prefixed_legal_pages_stay_under_p(): void
     {
         $this->page('about', 'prefixed', 'About');
 
@@ -34,21 +28,14 @@ class PageUrlTest extends TestCase
         $this->get('/p/about')->assertOk()->assertSee('About', false);
     }
 
-    public function test_new_pages_must_choose_a_url_structure(): void
+    public function test_admin_can_still_create_pages_but_public_only_serves_legal(): void
     {
         $admin = $this->admin();
 
         $this->actingAs($admin)
-            ->get('/admin/pages/create')
-            ->assertOk()
-            ->assertSee('Public URL', false)
-            ->assertSee('value="flat"', false)
-            ->assertSee('value="prefixed"', false);
-
-        $this->actingAs($admin)
             ->post('/admin/pages', [
-                'title' => 'Travel duas',
-                'slug' => 'travel-duas',
+                'title' => 'Travel notes',
+                'slug' => 'travel-notes',
                 'url_style' => 'flat',
                 'locale' => 'en',
                 'content' => '<p>Peace</p>',
@@ -56,88 +43,35 @@ class PageUrlTest extends TestCase
             ])
             ->assertRedirect(route('admin.pages.index'));
 
-        $this->get('/travel-duas')->assertOk();
-        $this->get('/p/travel-duas')->assertRedirect('/travel-duas');
+        $this->get('/travel-notes')->assertStatus(410);
+        $this->get('/p/travel-notes')->assertStatus(410);
     }
 
-    public function test_admin_chooses_whether_a_page_appears_in_header_or_footer(): void
+    public function test_legal_pages_appear_in_footer_when_flagged(): void
     {
-        $admin = $this->admin();
-
-        $this->actingAs($admin)
-            ->get('/admin/pages/create')
-            ->assertOk()
-            ->assertSee('Where this link appears', false)
-            ->assertSee('Show in header', false)
-            ->assertSee('Show in footer', false);
-
-        $this->actingAs($admin)
-            ->post('/admin/pages', [
-                'title' => 'Duas Qibla',
-                'slug' => 'duas-qibla',
-                'url_style' => 'flat',
-                'locale' => 'en',
-                'content' => '<p>Duas</p>',
-                'is_published' => '1',
-                'show_in_header' => '1',
-                'show_in_footer' => '1',
-            ])
-            ->assertRedirect(route('admin.pages.index'));
-
         $this->page('about', 'prefixed', 'About');
         Page::query()->where('slug', 'about')->update([
             'show_in_header' => false,
             'show_in_footer' => true,
         ]);
 
-        Page::query()->create([
-            'title' => 'Duas Qibla AR',
-            'slug' => 'duas-qibla',
-            'url_style' => 'flat',
-            'locale' => 'ar',
-            'content' => '<p>Duas</p>',
-            'is_published' => true,
-            'show_in_header' => true,
-            'show_in_footer' => true,
-        ]);
-
-        Page::query()->create([
-            'title' => 'About AR',
-            'slug' => 'about',
-            'url_style' => 'prefixed',
-            'locale' => 'ar',
-            'content' => '<p>About</p>',
-            'is_published' => true,
-            'show_in_header' => false,
-            'show_in_footer' => true,
-        ]);
-
-        $home = $this->get('/')->assertOk();
-        $home->assertSee('href="/duas-qibla"', false);
-        $home->assertSee('>Dua</a>', false);
-
-        $this->assertSame(3, substr_count($home->getContent(), 'href="/duas-qibla"'));
-        $this->assertSame(1, substr_count($home->getContent(), 'href="/p/about"'));
-        $home->assertDontSee('nav-link" href="/p/about"', false);
-
-        $this->get('/?hl=ar')
+        $this->get('/')
             ->assertOk()
-            ->assertSee('>دعاء</a>', false)
-            ->assertSee('>من نحن</a>', false);
+            ->assertSee('href="/p/about"', false)
+            ->assertDontSee('href="/duas-qibla"', false);
     }
 
     public function test_pages_hidden_from_nav_do_not_appear_in_header_or_footer(): void
     {
-        $this->page('secret-notes', 'flat', 'Secret notes');
-        Page::query()->where('slug', 'secret-notes')->update([
+        $this->page('about', 'prefixed', 'About');
+        Page::query()->where('slug', 'about')->update([
             'show_in_header' => false,
             'show_in_footer' => false,
         ]);
 
         $this->get('/')
             ->assertOk()
-            ->assertDontSee('Secret notes', false)
-            ->assertDontSee('href="/secret-notes"', false);
+            ->assertDontSee('href="/p/about"', false);
     }
 
     public function test_flat_pages_cannot_take_reserved_app_urls(): void
@@ -161,7 +95,7 @@ class PageUrlTest extends TestCase
         return User::factory()->create(['is_admin' => true]);
     }
 
-    protected function page(string $slug, string $style, string $title = 'Duas'): Page
+    protected function page(string $slug, string $style, string $title = 'Page'): Page
     {
         return Page::query()->create([
             'title' => $title,
@@ -170,6 +104,7 @@ class PageUrlTest extends TestCase
             'locale' => 'en',
             'content' => '<p>'.$title.'</p>',
             'is_published' => true,
+            'show_in_footer' => true,
         ]);
     }
 }

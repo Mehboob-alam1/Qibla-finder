@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Tarayıcıda çalışır. Telefonda manyetometre kullanır. Dizüstüde genelde pusula yoktur; açı ve haritayı kullanın.',
     'seo_qibla_h2_c' => 'Pusula ve harita uyuşmazsa',
     'seo_qibla_p_c' => 'Kâbe yönü bir jeodeziktir. Kalan hata çoğunlukla cihaz pusulasındandır. Telefonu 8 çizerek kalibre edin.',
+
+    'troubleshooting' => 'Sorun giderme',
+    'trouble_1' => 'Tarayıcı istediğinde konuma izin verin.',
+    'trouble_2' => 'iPhone Safari’de Hareket ve Yön Erişimini açın.',
+    'trouble_3' => 'Telefonu düz tutun; mıknatıstan ve metalden uzak.',
+    'trouble_4' => 'Pusulayı yeniden kalibre etmek için telefonu 8 şeklinde hareket ettirin.',
+    'trouble_5' => 'Masaüstünde sayısal yönü ve haritayı kullanın.',
 ];

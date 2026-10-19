@@ -15,6 +15,16 @@ class Page extends Model
     use LocalizesContent;
 
     /**
+     * Public indexable CMS pages only (AdSense / legal). Everything else is 410 or admin-only.
+     *
+     * @return list<string>
+     */
+    public static function indexableSlugs(): array
+    {
+        return ['about', 'privacy', 'terms'];
+    }
+
+    /**
      * Paths that already belong to the app and cannot be used as flat CMS URLs.
      *
      * @return list<string>
@@ -27,6 +37,11 @@ class Page extends Model
             'contact',
             'faq',
             'guides',
+            'blog',
+            'rss',
+            'feed',
+            'search',
+            'duas-qibla',
             ...LocalizedPaths::reservedSlugs(),
             'locale',
             'offline',

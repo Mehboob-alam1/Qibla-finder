@@ -7,6 +7,7 @@ use App\Services\QiblaService;
 use App\Support\Cities;
 use DateTimeImmutable;
 use DateTimeZone;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
@@ -20,48 +21,39 @@ class CityController extends Controller
         ]);
     }
 
-    public function qibla(string $slug, QiblaService $qibla): View
+    public function qibla(string $slug, QiblaService $qibla, PrayerTimeService $prayer): View|RedirectResponse
     {
-        $city = Cities::find($slug) ?? abort(404);
+        $city = Cities::find($slug);
+        if ($city === null) {
+            abort(404);
+        }
+
+        if (! $city['is_indexable']) {
+            $nearest = Cities::nearestIndexable($city['lat'], $city['lng']);
+
+            return redirect()->to(
+                $nearest ? route('cities.qibla', $nearest['slug']) : route('home'),
+                301,
+            );
+        }
+
         $snapshot = $qibla->snapshot($city['lat'], $city['lng']);
+        $times = $prayer->times($city['lat'], $city['lng']);
+        $monthDate = new DateTimeImmutable('now', new DateTimeZone($times['timezone']));
 
         return view('pages.cities.qibla', [
             'city' => $city,
             'snapshot' => $snapshot,
+            'times' => $times,
+            'monthLabel' => Carbon::createFromImmutable($monthDate)->translatedFormat('F Y'),
             'related' => Cities::inCountry($city['country'], $city['slug']),
             'popular' => Cities::popular()->where('slug', '!=', $city['slug'])->take(8)->values(),
-        ]);
-    }
-
-    public function prayer(string $slug, PrayerTimeService $prayer, QiblaService $qibla): View
-    {
-        $city = Cities::find($slug) ?? abort(404);
-        $times = $prayer->times($city['lat'], $city['lng']);
-        $monthDate = new DateTimeImmutable('now', new DateTimeZone($times['timezone']));
-        $month = $prayer->month(
-            $city['lat'],
-            $city['lng'],
-            (int) $monthDate->format('Y'),
-            (int) $monthDate->format('n'),
-            $times['timezone'],
-        );
-
-        return view('pages.cities.prayer', [
-            'city' => $city,
-            'times' => $times,
-            'month' => $month,
-            'monthLabel' => Carbon::createFromImmutable($monthDate)->translatedFormat('F Y'),
-            'snapshot' => $qibla->snapshot($city['lat'], $city['lng']),
-            'related' => Cities::inCountry($city['country'], $city['slug']),
             'labels' => [
-                'imsak' => __('ui.Imsak'),
                 'fajr' => __('ui.Fajr'),
-                'sunrise' => __('ui.Sunrise'),
                 'dhuhr' => __('ui.Dhuhr'),
                 'asr' => __('ui.Asr'),
                 'maghrib' => __('ui.Maghrib'),
                 'isha' => __('ui.Isha'),
-                'midnight' => __('ui.Midnight'),
             ],
         ]);
     }

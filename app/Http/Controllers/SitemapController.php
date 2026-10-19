@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
-use App\Models\Post;
 use App\Support\Cities;
 use App\Support\LocalizedPaths;
 use App\Support\PublicUrl;
@@ -13,43 +12,32 @@ use Throwable;
 
 class SitemapController extends Controller
 {
+    /**
+     * Indexable URL budget only: home, cities hub, curated city pages, legal pages.
+     */
     public function xml(): Response
     {
         PublicUrl::apply();
 
         $urls = [];
 
-        foreach (LocalizedPaths::dedicated() as $page => $paths) {
-            $priority = $page === 'home' ? '1.0' : '0.9';
-            $this->addLocalizedEntries(
-                $urls,
-                $paths['en'] ?? '/',
-                'daily',
-                $priority,
-                $page,
-                now(),
-            );
+        $this->addLocalizedEntries($urls, '/', 'daily', '1.0', 'home', now());
+        $this->addLocalizedEntries($urls, '/cities', 'weekly', '0.8', null, now());
+
+        foreach (Cities::indexable() as $city) {
+            $this->addLocalizedEntries($urls, '/qibla/'.$city['slug'], 'weekly', '0.7', null, now());
         }
 
-        foreach ($this->sectionPaths() as $path => $meta) {
-            $this->addLocalizedEntries(
-                $urls,
-                $path,
-                $meta['changefreq'],
-                $meta['priority'],
-                null,
-                now(),
-            );
-        }
-
-        foreach (Cities::all() as $city) {
-            foreach (['/qibla/'.$city['slug'], '/prayer-times/'.$city['slug']] as $path) {
-                $this->addLocalizedEntries($urls, $path, 'weekly', '0.7', null, now());
-            }
-        }
+        $this->addLocalizedEntries($urls, '/contact', 'monthly', '0.5', null, now());
 
         try {
-            $pages = Page::query()->published()->orderBy('updated_at')->get();
+            $legalSlugs = ['about', 'privacy', 'terms'];
+            $pages = Page::query()
+                ->published()
+                ->whereIn('slug', $legalSlugs)
+                ->orderBy('updated_at')
+                ->get();
+
             $pagesBySlug = $pages->groupBy('slug');
 
             foreach ($pages as $page) {
@@ -62,22 +50,8 @@ class SitemapController extends Controller
                     $alternates,
                 );
             }
-
-            $posts = Post::query()->published()->orderByDesc('published_at')->get();
-            $postsBySlug = $posts->groupBy('slug');
-
-            foreach ($posts as $post) {
-                $alternates = $this->localeUrlsForRows($postsBySlug->get($post->slug, collect()));
-                $urls[] = $this->entry(
-                    $post->publicUrl(),
-                    $post->updated_at ?? $post->published_at,
-                    'weekly',
-                    '0.7',
-                    $alternates,
-                );
-            }
         } catch (Throwable) {
-            // CMS tables are optional until migrations have been run.
+            //
         }
 
         $unique = $this->uniqueUrls($urls);
@@ -118,6 +92,13 @@ class SitemapController extends Controller
             'Disallow: /admin/',
             'Disallow: /qibla.json',
             'Disallow: /places/search',
+            'Disallow: /prayer-times/calculate',
+            'Disallow: /prayer-times/timezone',
+            'Disallow: /*?*utm_',
+            'Disallow: /*?page=',
+            'Disallow: /*?q=',
+            'Disallow: /*?lang=',
+            'Disallow: /*?*lang=',
             '',
             'Sitemap: '.url('/sitemap.xml'),
             '',
@@ -173,7 +154,7 @@ class SitemapController extends Controller
     }
 
     /**
-     * @param  iterable<int, Page|Post>  $rows
+     * @param  iterable<int, Page>  $rows
      * @return array<string, string>
      */
     protected function localeUrlsForRows(iterable $rows): array
@@ -185,19 +166,6 @@ class SitemapController extends Controller
         }
 
         return $urls;
-    }
-
-    /**
-     * @return array<string, array{changefreq: string, priority: string}>
-     */
-    protected function sectionPaths(): array
-    {
-        return [
-            '/faq' => ['changefreq' => 'weekly', 'priority' => '0.8'],
-            '/guides' => ['changefreq' => 'weekly', 'priority' => '0.8'],
-            '/contact' => ['changefreq' => 'monthly', 'priority' => '0.5'],
-            '/cities' => ['changefreq' => 'weekly', 'priority' => '0.8'],
-        ];
     }
 
     /**

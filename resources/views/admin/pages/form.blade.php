@@ -9,7 +9,7 @@
     <label class="block text-sm">Title <input name="title" value="{{ old('title', $page->title) }}" required class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     <fieldset class="rounded-2xl border border-forest/15 p-4 space-y-3" data-url-style>
         <legend class="px-1 text-sm font-medium">Public URL</legend>
-        <p class="text-sm text-forest/60">Choose this when you create the page so it matches the rest of the site. Prayer Times uses a flat URL like <code>/prayer-times</code>.</p>
+        <p class="text-sm text-forest/60">Public indexable pages are limited to About, Privacy, and Terms under <code>/p/…</code>. Other published pages stay admin-only (410 on the public site).</p>
         <label class="flex items-start gap-3 text-sm">
             <input type="radio" name="url_style" value="flat" class="mt-1" @checked(old('url_style', $page->url_style ?: 'flat') === 'flat')>
             <span>

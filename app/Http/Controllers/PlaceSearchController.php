@@ -15,7 +15,7 @@ class PlaceSearchController extends Controller
         $query = trim((string) $request->query('q', ''));
 
         if (mb_strlen($query) < 2) {
-            return response()->json([]);
+            return response()->json([])->header('X-Robots-Tag', 'noindex, nofollow');
         }
 
         $needle = mb_strtolower($query);
@@ -48,7 +48,7 @@ class PlaceSearchController extends Controller
             ->take(10)
             ->values();
 
-        return response()->json($places);
+        return response()->json($places)->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     /**

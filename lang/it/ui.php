@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Funziona nel browser. Sul telefono usa il magnetometro. I portatili di solito non hanno bussola.',
     'seo_qibla_h2_c' => 'Quando bussola e mappa non coincidono',
     'seo_qibla_p_c' => 'Il rilevamento verso la Kaaba è un geodetico. L’errore residuo viene quasi sempre dalla bussola. Muovi il telefono a 8.',
+
+    'troubleshooting' => 'Risoluzione problemi',
+    'trouble_1' => 'Consenti la posizione quando il browser la chiede.',
+    'trouble_2' => 'Su Safari iPhone attiva Motion & Orientation Access.',
+    'trouble_3' => 'Tieni il telefono in piano, lontano da magneti e metallo.',
+    'trouble_4' => 'Muovi il telefono a forma di 8 per ricalibrare la bussola.',
+    'trouble_5' => 'Sul desktop usa il numero di direzione e la mappa.',
 ];

@@ -7,6 +7,17 @@
     @csrf
     @method('PUT')
     @include('admin.settings._social')
+    <fieldset class="md:col-span-2 rounded-3xl border border-forest/10 p-5 space-y-3">
+        <legend class="font-display text-2xl text-forest px-2">Guides (dormant)</legend>
+        <p class="text-sm text-forest/60">Public /guides is off. Content stays in Admin → Guides. Enable later when you want the blog indexed again.</p>
+        <label class="admin-check-card flex items-start gap-3 rounded-xl border border-forest/15 bg-cream/80 p-3 cursor-pointer max-w-xl">
+            <input type="checkbox" class="admin-checkbox mt-0.5" name="blog_public_enabled" value="1" @checked(old('blog_public_enabled', $settings['blog_public_enabled'] ?? '0') == '1')>
+            <span>
+                <span class="block text-sm font-semibold text-forest">Enable public guides</span>
+                <span class="block text-xs text-forest/60 mt-0.5">When on, you must also re-add public routes (currently removed for SEO).</span>
+            </span>
+        </label>
+    </fieldset>
     @foreach ([
         'site_name' => 'Site name',
         'tagline' => 'Tagline',

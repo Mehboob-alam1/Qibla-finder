@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Kører i browseren. På telefonen bruger den magnetometeret. Bærbare har typisk intet kompas.',
     'seo_qibla_h2_c' => 'Når kompas og kort ikke stemmer',
     'seo_qibla_p_c' => 'Pejlingen til Kabaen er en geodæt. Resterende fejl kommer næsten altid fra enhedens kompas. Bevæg telefonen i et 8-tal.',
+
+    'troubleshooting' => 'Fejlfinding',
+    'trouble_1' => 'Tillad placering, når browseren spørger.',
+    'trouble_2' => 'På iPhone Safari: slå Motion & Orientation Access til.',
+    'trouble_3' => 'Hold telefonen fladt, væk fra magneter og metal.',
+    'trouble_4' => 'Bevæg telefonen i et 8-tal for at kalibrere kompasset.',
+    'trouble_5' => 'På computer: brug den numeriske retning og kortet.',
 ];

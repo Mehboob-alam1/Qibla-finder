@@ -9,7 +9,6 @@ use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
@@ -24,28 +23,29 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/kiblat-online', [HomeController::class, 'index'])->name('home.id');
 Route::get('/kiblat', [HomeController::class, 'index'])->name('home.ms');
-Route::get('/jadwal-sholat', [PrayerTimesController::class, 'index'])->name('prayer-times.id');
-Route::get('/waktu-solat', [PrayerTimesController::class, 'index'])->name('prayer-times.ms');
 
 foreach (LocalizedPaths::redirects() as $from => $to) {
     Route::redirect($from, $to, 301);
 }
+
 Route::get('/sitemap.xml', [SitemapController::class, 'xml'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('/qibla.json', [HomeController::class, 'qibla'])->name('qibla.json');
 Route::get('/places/search', [PlaceSearchController::class, 'search'])
     ->middleware('throttle:30,1')
     ->name('places.search');
-Route::get('/prayer-times', [PrayerTimesController::class, 'index'])->name('prayer-times');
+
+// Prayer calculation endpoints (AJAX only — public /prayer-times pages are 301/gone via middleware).
 Route::post('/prayer-times/calculate', [PrayerTimesController::class, 'calculate'])->name('prayer-times.calculate');
 Route::post('/prayer-times/timezone', [PrayerTimesController::class, 'timezone'])->name('prayer-times.timezone');
+
 Route::get('/cities', [CityController::class, 'index'])->name('cities.index');
 Route::get('/qibla/{slug}', [CityController::class, 'qibla'])->where('slug', '[A-Za-z0-9\-]+')->name('cities.qibla');
-Route::get('/prayer-times/{slug}', [CityController::class, 'prayer'])->where('slug', '[A-Za-z0-9\-]+')->name('cities.prayer');
-Route::get('/offline', fn () => view('pages.offline'))->name('offline');
-Route::get('/guides', [BlogController::class, 'index'])->name('blog.index');
-Route::get('/guides/{slug}', [BlogController::class, 'show'])->name('blog.show');
-Route::get('/faq', [BlogController::class, 'faq'])->name('faq');
+
+Route::get('/offline', fn () => response()
+    ->view('pages.offline')
+    ->header('X-Robots-Tag', 'noindex, follow'))->name('offline');
+
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/locale/{locale}', [LocaleController::class, 'update'])->name('locale');
@@ -62,6 +62,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('media', [AdminMediaController::class, 'store'])->name('media.store');
         Route::resource('pages', AdminPageController::class)->except('show');
+        // Blog posts kept in admin (dormant public feature — enable later via blog_public_enabled).
         Route::resource('posts', AdminPostController::class)->except('show');
         Route::resource('faqs', AdminFaqController::class)->except('show');
         Route::get('messages', [ContactMessageController::class, 'index'])->name('messages.index');

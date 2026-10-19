@@ -59,7 +59,7 @@ class SiteSeeder extends Seeder
         }
 
         $this->pages();
-        $this->posts();
+        // Public blog is dormant — do not seed guides. Admin can add posts later.
         $this->faqs();
     }
 
@@ -122,6 +122,7 @@ HTML,
                 ['slug' => $page['slug'], 'locale' => 'en'],
                 $page + [
                     'locale' => 'en',
+                    'url_style' => 'prefixed',
                     'is_published' => true,
                     'show_in_header' => false,
                     'show_in_footer' => true,

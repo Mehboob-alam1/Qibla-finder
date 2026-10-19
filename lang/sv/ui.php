@@ -242,4 +242,11 @@ return [
     'seo_qibla_p_b' => 'Körs i webbläsaren. På telefonen används magnetometern. Bärbara har oftast ingen kompass.',
     'seo_qibla_h2_c' => 'När kompass och karta inte stämmer',
     'seo_qibla_p_c' => 'Bäringen till Kaba är en geodet. Resterande fel kommer nästan alltid från enhetens kompass. Rör telefonen i en åtta.',
+
+    'troubleshooting' => 'Felsökning',
+    'trouble_1' => 'Tillåt plats när webbläsaren frågar.',
+    'trouble_2' => 'På iPhone Safari: aktivera Motion & Orientation Access.',
+    'trouble_3' => 'Håll telefonen plan, bort från magneter och metall.',
+    'trouble_4' => 'Rör telefonen i en åtta för att kalibrera om kompassen.',
+    'trouble_5' => 'På dator: använd den numeriska riktningen och kartan.',
 ];
