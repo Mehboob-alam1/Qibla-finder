@@ -42,11 +42,39 @@ class PageUrlTest extends TestCase
                 'show_in_footer' => '1',
                 'show_page_title' => '1',
             ])
-            ->assertRedirect(route('admin.pages.index'));
+            ->assertRedirect('/p/help-center');
 
         $this->get('/p/help-center')
             ->assertOk()
             ->assertSee('How to use the compass.', false);
+    }
+
+    public function test_admin_import_publishes_page_and_redirects_live(): void
+    {
+        $file = UploadedFile::fake()->createWithContent(
+            'index.html',
+            '<!DOCTYPE html><html><head><title>Live Import</title><style>.hero{color:red}</style></head><body class="home"><h1>Live Import</h1><p>Published body</p></body></html>',
+        );
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.pages.import.store'), [
+                'file' => $file,
+                'locale' => 'en',
+                'url_style' => 'prefixed',
+                'show_in_footer' => '1',
+            ])
+            ->assertRedirect('/p/live-import');
+
+        $this->assertDatabaseHas('pages', [
+            'slug' => 'live-import',
+            'is_published' => 1,
+            'title' => 'Live Import',
+        ]);
+
+        $this->get('/p/live-import')
+            ->assertOk()
+            ->assertSee('Published body', false)
+            ->assertSee('cms-imported-css', false);
     }
 
     public function test_admin_can_import_html_into_page_fields(): void

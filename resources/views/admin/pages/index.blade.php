@@ -3,14 +3,15 @@
 @section('heading', 'CMS pages')
 
 @section('content')
-<div class="flex justify-end mb-4">
+<div class="flex flex-wrap justify-end gap-3 mb-4">
+    <a href="{{ route('admin.pages.import') }}" class="bg-gold text-ink rounded-full px-5 py-2.5 font-semibold">Import HTML file</a>
     <a href="{{ route('admin.pages.create') }}" class="bg-forest text-cream rounded-full px-5 py-2.5">New page</a>
 </div>
 <div class="stat-card rounded-3xl overflow-hidden">
     <table class="w-full text-sm">
         <thead class="bg-sand text-start"><tr><th class="p-3 text-start">Title</th><th class="p-3">URL</th><th class="p-3">Shown in</th><th class="p-3">Locale</th><th class="p-3">Status</th><th></th></tr></thead>
         <tbody>
-            @foreach ($pages as $page)
+            @forelse ($pages as $page)
                 <tr class="border-t border-forest/10">
                     <td class="p-3">{{ $page->title }}</td>
                     <td class="p-3"><a class="text-gold font-mono" href="{{ $page->publicPath() }}" target="_blank" rel="noopener">{{ $page->publicPath() }}</a></td>
@@ -28,6 +29,7 @@
                     <td class="p-3">{{ $page->locale }}</td>
                     <td class="p-3">{{ $page->is_published ? 'Live' : 'Draft' }}</td>
                     <td class="p-3 text-end space-x-2">
+                        <a class="text-gold" href="{{ $page->publicPath() }}" target="_blank" rel="noopener">View</a>
                         <a class="text-gold" href="{{ route('admin.pages.edit', $page) }}">Edit</a>
                         <form class="inline" method="POST" action="{{ route('admin.pages.destroy', $page) }}" data-confirm="Delete this page?">
                             @csrf @method('DELETE')
@@ -35,7 +37,9 @@
                         </form>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr><td colspan="6" class="p-6 text-forest/60">No pages yet. Import an HTML file to publish one.</td></tr>
+            @endforelse
         </tbody>
     </table>
 </div>

@@ -20,6 +20,11 @@
 @endpush
 
 @section('content')
+@if (session('status'))
+    <div class="mx-auto max-w-5xl px-4 pt-4">
+        <div class="rounded-2xl bg-moss/15 text-forest px-4 py-3 text-sm">{{ session('status') }}</div>
+    </div>
+@endif
 @if ($styled)
     <div
         class="cms-imported {{ $page->body_class }}"

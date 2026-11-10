@@ -7,20 +7,13 @@
     @csrf
     @if ($page->exists) @method('PUT') @endif
 
-    <fieldset class="rounded-2xl border border-forest/15 p-4 space-y-3 bg-sand/40" data-html-import>
-        <legend class="px-1 text-sm font-medium">Import HTML</legend>
-        <p class="text-sm text-forest/60">Upload a full <code>.html</code> / <code>index.html</code> page or paste markup. This fills <strong>title</strong>, <strong>slug</strong>, <strong>SEO</strong>, <strong>content</strong>, and <strong>CSS</strong> from <code>&lt;style&gt;</code> tags so the page keeps the original look. Then review the URL/slug and click <strong>Save page</strong>.</p>
-        <label class="block text-sm">HTML file
-            <input type="file" accept=".html,.htm,text/html" data-import-file class="mt-1 block w-full text-sm">
-        </label>
-        <label class="block text-sm">Or paste HTML
-            <textarea data-import-html rows="6" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-3 font-mono text-xs" placeholder="<!DOCTYPE html>…"></textarea>
-        </label>
-        <div class="flex flex-wrap items-center gap-3">
-            <button type="button" data-import-run class="bg-forest text-cream rounded-full px-5 py-2.5 text-sm">Import into form</button>
-            <span data-import-status class="text-sm text-forest/60"></span>
+    @unless ($page->exists)
+        <div class="rounded-2xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm">
+            Prefer uploading a full HTML file?
+            <a href="{{ route('admin.pages.import') }}" class="font-semibold text-forest underline">Import HTML file</a>
+            — it publishes immediately and opens the live page.
         </div>
-    </fieldset>
+    @endunless
 
     <label class="block text-sm">Title <input name="title" data-field="title" value="{{ old('title', $page->title) }}" required class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     <fieldset class="rounded-2xl border border-forest/15 p-4 space-y-3" data-url-style>
@@ -74,91 +67,17 @@
 <script>
     (() => {
         const root = document.querySelector('[data-url-style]');
-        if (root) {
-            const slug = root.closest('form').querySelector('[data-url-slug]');
-            const preview = root.querySelector('[data-url-preview]');
-            const paint = () => {
-                const value = (slug?.value || 'your-page').replace(/^\/+|\/+$/g, '') || 'your-page';
-                const style = root.querySelector('input[name="url_style"]:checked')?.value || 'prefixed';
-                preview.textContent = style === 'flat' ? '/' + value : '/p/' + value;
-            };
-            root.addEventListener('change', paint);
-            slug?.addEventListener('input', paint);
-            paint();
-        }
-
-        const form = document.querySelector('[data-page-form]');
-        const box = document.querySelector('[data-html-import]');
-        if (! form || ! box) return;
-
-        const status = box.querySelector('[data-import-status]');
-        const run = box.querySelector('[data-import-run]');
-        const fileInput = box.querySelector('[data-import-file]');
-        const htmlInput = box.querySelector('[data-import-html]');
-        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const endpoint = @json(route('admin.pages.import-html'));
-
-        const setField = (name, value) => {
-            const el = form.querySelector(`[data-field="${name}"]`);
-            if (el) el.value = value ?? '';
+        if (! root) return;
+        const slug = root.closest('form').querySelector('[data-url-slug]');
+        const preview = root.querySelector('[data-url-preview]');
+        const paint = () => {
+            const value = (slug?.value || 'your-page').replace(/^\/+|\/+$/g, '') || 'your-page';
+            const style = root.querySelector('input[name="url_style"]:checked')?.value || 'prefixed';
+            if (preview) preview.textContent = style === 'flat' ? '/' + value : '/p/' + value;
         };
-
-        const setCheckbox = (name, on) => {
-            const el = form.querySelector(`[data-field="${name}"]`);
-            if (el) el.checked = !! on;
-        };
-
-        const setEditor = (html) => {
-            const textarea = form.querySelector('textarea[name="content"]');
-            if (textarea) textarea.value = html;
-            if (window.tinymce) {
-                const editor = window.tinymce.get(textarea?.id || 'content');
-                if (editor) editor.setContent(html || '');
-            }
-        };
-
-        run?.addEventListener('click', async () => {
-            status.textContent = 'Importing…';
-            const body = new FormData();
-            const file = fileInput?.files?.[0];
-            if (file) {
-                body.append('file', file);
-            } else {
-                body.append('html', htmlInput?.value || '');
-            }
-
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        Accept: 'application/json',
-                    },
-                    body,
-                });
-                const data = await response.json();
-                if (! response.ok) {
-                    const message = data?.message || data?.errors?.html?.[0] || data?.errors?.file?.[0] || 'Import failed.';
-                    throw new Error(message);
-                }
-                setField('title', data.title);
-                setField('slug', data.slug);
-                setField('meta_title', data.meta_title);
-                setField('meta_description', data.meta_description);
-                setField('custom_css', data.custom_css || '');
-                setField('body_class', data.body_class || '');
-                setField('body_style', data.body_style || '');
-                setCheckbox('show_page_title', data.show_page_title);
-                setEditor(data.content);
-                root?.dispatchEvent(new Event('change'));
-                const warnings = Array.isArray(data.warnings) && data.warnings.length
-                    ? ' Note: ' + data.warnings.join(' ')
-                    : '';
-                status.textContent = (data.custom_css ? 'Imported with original CSS. Review and save.' : 'Imported. Review and save.') + warnings;
-            } catch (error) {
-                status.textContent = error?.message || 'Import failed.';
-            }
-        });
+        root.addEventListener('change', paint);
+        slug?.addEventListener('input', paint);
+        paint();
     })();
 </script>
 @endsection
