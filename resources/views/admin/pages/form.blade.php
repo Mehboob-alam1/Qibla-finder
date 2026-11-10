@@ -9,7 +9,7 @@
 
     <fieldset class="rounded-2xl border border-forest/15 p-4 space-y-3 bg-sand/40" data-html-import>
         <legend class="px-1 text-sm font-medium">Import HTML</legend>
-        <p class="text-sm text-forest/60">Upload a full <code>.html</code> page or paste markup. Title, SEO fields, and body are extracted; scripts and unsafe tags are stripped while layout markup is kept.</p>
+        <p class="text-sm text-forest/60">Upload a full <code>.html</code> / <code>index.html</code> page or paste markup. This fills <strong>title</strong>, <strong>slug</strong>, <strong>SEO</strong>, and <strong>content</strong> automatically. Then review the URL/slug, locale, and nav checkboxes, and click <strong>Save page</strong> — import alone does not publish.</p>
         <label class="block text-sm">HTML file
             <input type="file" accept=".html,.htm,text/html" data-import-file class="mt-1 block w-full text-sm">
         </label>

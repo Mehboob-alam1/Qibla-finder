@@ -71,6 +71,7 @@ class PageController extends Controller
         ]);
 
         $html = (string) ($data['html'] ?? '');
+        $filename = null;
 
         if ($request->hasFile('file')) {
             $uploaded = $request->file('file');
@@ -80,6 +81,7 @@ class PageController extends Controller
                     'file' => 'Please upload an .html or .htm file.',
                 ]);
             }
+            $filename = $uploaded->getClientOriginalName();
             $html = (string) file_get_contents($uploaded->getRealPath());
         }
 
@@ -92,7 +94,7 @@ class PageController extends Controller
         // Strip a UTF-8 BOM if present.
         $html = preg_replace('/^\xEF\xBB\xBF/', '', $html) ?? $html;
 
-        $imported = HtmlContent::importDocument($html);
+        $imported = HtmlContent::importDocument($html, $filename);
 
         if ($imported['content'] === '') {
             throw ValidationException::withMessages([

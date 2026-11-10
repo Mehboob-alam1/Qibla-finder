@@ -61,7 +61,7 @@ class HtmlContent
      *
      * @return array{title: string, meta_title: string, meta_description: string, slug: string, content: string}
      */
-    public static function importDocument(string $html): array
+    public static function importDocument(string $html, ?string $filename = null): array
     {
         $html = trim($html);
         if ($html === '') {
@@ -90,16 +90,46 @@ class HtmlContent
         $content = self::clean($fragment);
 
         if ($title === '') {
-            $title = self::firstHeading($content) ?: 'Imported page';
+            $title = self::firstHeading($content) ?: self::titleFromFilename($filename) ?: 'Imported page';
+        }
+
+        $slug = Str::slug($title);
+        // Never publish as /index or /home just because the file was named index.html.
+        if ($slug === '' || in_array($slug, ['index', 'home', 'default', 'untitled'], true)) {
+            $fromFile = self::slugFromFilename($filename);
+            $slug = $fromFile !== '' && ! in_array($fromFile, ['index', 'home', 'default'], true)
+                ? $fromFile
+                : Str::slug($title.'-page');
         }
 
         return [
             'title' => Str::limit($title, 180, ''),
             'meta_title' => Str::limit($metaTitle !== '' ? $metaTitle : $title, 180, ''),
             'meta_description' => Str::limit($metaDescription !== '' ? $metaDescription : Str::limit(strip_tags($content), 300, ''), 300, ''),
-            'slug' => Str::slug($title),
+            'slug' => $slug,
             'content' => $content,
         ];
+    }
+
+    protected static function titleFromFilename(?string $filename): string
+    {
+        $slug = self::slugFromFilename($filename);
+        if ($slug === '' || in_array($slug, ['index', 'home', 'default'], true)) {
+            return '';
+        }
+
+        return Str::title(str_replace('-', ' ', $slug));
+    }
+
+    protected static function slugFromFilename(?string $filename): string
+    {
+        if ($filename === null || $filename === '') {
+            return '';
+        }
+
+        $base = pathinfo($filename, PATHINFO_FILENAME);
+
+        return Str::slug((string) $base);
     }
 
     public static function clean(string $html): string
