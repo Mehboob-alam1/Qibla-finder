@@ -61,6 +61,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('media', [AdminMediaController::class, 'store'])->name('media.store');
+        Route::post('pages/import-html', [AdminPageController::class, 'importHtml'])->name('pages.import-html');
         Route::resource('pages', AdminPageController::class)->except('show');
         // Blog posts kept in admin (dormant public feature — enable later via blog_public_enabled).
         Route::resource('posts', AdminPostController::class)->except('show');

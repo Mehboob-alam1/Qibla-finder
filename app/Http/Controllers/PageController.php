@@ -7,16 +7,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\Response;
 
 class PageController extends Controller
 {
-    public function show(Request $request, string $slug): View|RedirectResponse|Response
+    public function show(Request $request, string $slug): View|RedirectResponse
     {
-        if (! in_array($slug, Page::indexableSlugs(), true)) {
-            return response(view('errors.gone'), 410);
-        }
-
         try {
             $page = Page::query()
                 ->published()

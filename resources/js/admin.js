@@ -37,12 +37,22 @@ if (window.tinymce && document.querySelector('[data-editor]')) {
         selector: 'textarea[data-editor]',
         base_url: 'https://cdn.jsdelivr.net/npm/tinymce@7.6.1',
         suffix: '.min',
-        height: 520,
-        menubar: 'edit view insert format table',
+        height: 560,
+        menubar: 'edit view insert format table tools',
         plugins: 'lists link image table media autoresize code',
         toolbar:
-            'undo redo | blocks | h1 h2 h3 h4 | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | blockquote hr | removeformat',
+            'undo redo | blocks | h1 h2 h3 h4 | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image media | blockquote hr | code | removeformat',
         block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Heading 5=h5; Heading 6=h6',
+        // Keep imported markup intact in the editor; server-side HtmlContent::clean is the safety net.
+        valid_elements: '*[*]',
+        extended_valid_elements: '*[*]',
+        verify_html: false,
+        cleanup: false,
+        convert_urls: false,
+        relative_urls: false,
+        remove_script_host: false,
+        entity_encoding: 'raw',
+        paste_data_images: true,
         image_caption: true,
         image_advtab: true,
         image_title: true,
@@ -83,7 +93,7 @@ if (window.tinymce && document.querySelector('[data-editor]')) {
             input.click();
         },
         setup: (editor) => {
-            editor.on('change input undo redo', () => editor.save());
+            editor.on('change input undo redo SetContent', () => editor.save());
         },
     });
 }

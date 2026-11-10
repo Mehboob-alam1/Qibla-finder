@@ -9,19 +9,24 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-#[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'show_in_header', 'show_in_footer', 'sort_order'])]
+#[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'show_in_header', 'show_in_footer', 'show_page_title', 'sort_order'])]
 class Page extends Model
 {
     use LocalizesContent;
 
     /**
-     * Public indexable CMS pages only (AdSense / legal). Everything else is 410 or admin-only.
+     * CMS slugs that belong in the sitemap by default (AdSense / legal).
      *
      * @return list<string>
      */
     public static function indexableSlugs(): array
     {
         return ['about', 'privacy', 'terms'];
+    }
+
+    public function isSitemapEligible(): bool
+    {
+        return in_array($this->slug, static::indexableSlugs(), true);
     }
 
     /**
@@ -93,6 +98,7 @@ class Page extends Model
             'is_published' => 'boolean',
             'show_in_header' => 'boolean',
             'show_in_footer' => 'boolean',
+            'show_page_title' => 'boolean',
         ];
     }
 

@@ -55,7 +55,6 @@ class AppServiceProvider extends ServiceProvider
                     $pages = Page::query()
                         ->published()
                         ->forLocale()
-                        ->whereIn('slug', Page::indexableSlugs())
                         ->orderBy('sort_order')
                         ->get($columns);
                     $headerPages = $pages->where('show_in_header', true)->values();
