@@ -108,7 +108,11 @@ class PageController extends Controller
             'meta_title' => $imported['meta_title'],
             'meta_description' => $imported['meta_description'],
             'content' => $imported['content'],
-            'show_page_title' => ! preg_match('/<h1\b/i', $imported['content']),
+            'custom_css' => $imported['custom_css'],
+            'body_class' => $imported['body_class'],
+            'body_style' => $imported['body_style'],
+            'show_page_title' => $imported['custom_css'] === '' && ! preg_match('/<h1\b/i', $imported['content']),
+            'warnings' => $imported['warnings'],
         ]);
     }
 
@@ -128,6 +132,9 @@ class PageController extends Controller
             'url_style' => ['required', Rule::in(['flat', 'prefixed'])],
             'locale' => ['required', 'string', 'max:8'],
             'content' => ['required', 'string', 'max:5000000'],
+            'custom_css' => ['nullable', 'string', 'max:5000000'],
+            'body_class' => ['nullable', 'string', 'max:255'],
+            'body_style' => ['nullable', 'string', 'max:5000'],
             'meta_title' => ['nullable', 'string', 'max:180'],
             'meta_description' => ['nullable', 'string', 'max:300'],
             'is_published' => ['sometimes', 'boolean'],
@@ -143,6 +150,19 @@ class PageController extends Controller
         $data['show_in_footer'] = $request->boolean('show_in_footer');
         $data['show_page_title'] = $request->boolean('show_page_title', true);
         $data['content'] = HtmlContent::clean($data['content']);
+        $rawCss = trim((string) ($data['custom_css'] ?? ''));
+        if ($rawCss !== '') {
+            // Avoid double-scoping if the CSS was already scoped on import.
+            $sanitized = HtmlContent::sanitizeCss($rawCss);
+            $data['custom_css'] = str_contains($sanitized, '.cms-imported')
+                ? $sanitized
+                : HtmlContent::scopeCss($sanitized);
+        } else {
+            $data['custom_css'] = null;
+        }
+        $data['body_class'] = trim((string) ($data['body_class'] ?? '')) ?: null;
+        $bodyStyle = HtmlContent::sanitizeInlineStyle((string) ($data['body_style'] ?? ''));
+        $data['body_style'] = $bodyStyle !== '' ? $bodyStyle : null;
 
         if ($data['content'] === '') {
             throw ValidationException::withMessages([

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-#[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'meta_title', 'meta_description', 'is_published', 'show_in_header', 'show_in_footer', 'show_page_title', 'sort_order'])]
+#[Fillable(['title', 'slug', 'url_style', 'locale', 'content', 'custom_css', 'body_class', 'body_style', 'meta_title', 'meta_description', 'is_published', 'show_in_header', 'show_in_footer', 'show_page_title', 'sort_order'])]
 class Page extends Model
 {
     use LocalizesContent;
@@ -27,6 +27,11 @@ class Page extends Model
     public function isSitemapEligible(): bool
     {
         return in_array($this->slug, static::indexableSlugs(), true);
+    }
+
+    public function hasImportedStyles(): bool
+    {
+        return filled($this->custom_css) || filled($this->body_class) || filled($this->body_style);
     }
 
     /**

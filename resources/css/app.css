@@ -844,6 +844,31 @@ body.ar-live .camera-view video {
     background: color-mix(in srgb, #c9a227 12%, #fffcf7);
 }
 
+/* Imported HTML pages: let their own CSS drive the look (scoped under .cms-imported). */
+.cms-imported {
+    width: 100%;
+    min-height: 40vh;
+    box-sizing: border-box;
+}
+
+.cms-imported *,
+.cms-imported *::before,
+.cms-imported *::after {
+    box-sizing: border-box;
+}
+
+.cms-imported img,
+.cms-imported video,
+.cms-imported iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+.cms-imported-title {
+    margin: 0;
+    padding: 1.5rem 1rem 0;
+}
+
 .prose-content h1,
 .prose-content h2,
 .prose-content h3,

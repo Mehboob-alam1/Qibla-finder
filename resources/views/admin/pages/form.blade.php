@@ -9,7 +9,7 @@
 
     <fieldset class="rounded-2xl border border-forest/15 p-4 space-y-3 bg-sand/40" data-html-import>
         <legend class="px-1 text-sm font-medium">Import HTML</legend>
-        <p class="text-sm text-forest/60">Upload a full <code>.html</code> / <code>index.html</code> page or paste markup. This fills <strong>title</strong>, <strong>slug</strong>, <strong>SEO</strong>, and <strong>content</strong> automatically. Then review the URL/slug, locale, and nav checkboxes, and click <strong>Save page</strong> — import alone does not publish.</p>
+        <p class="text-sm text-forest/60">Upload a full <code>.html</code> / <code>index.html</code> page or paste markup. This fills <strong>title</strong>, <strong>slug</strong>, <strong>SEO</strong>, <strong>content</strong>, and <strong>CSS</strong> from <code>&lt;style&gt;</code> tags so the page keeps the original look. Then review the URL/slug and click <strong>Save page</strong>.</p>
         <label class="block text-sm">HTML file
             <input type="file" accept=".html,.htm,text/html" data-import-file class="mt-1 block w-full text-sm">
         </label>
@@ -52,6 +52,14 @@
         <label class="text-sm">Sort <input type="number" name="sort_order" value="{{ old('sort_order', $page->sort_order ?? 0) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     </div>
     @include('admin.partials.editor', ['name' => 'content', 'label' => 'Page content', 'value' => $page->content, 'required' => true])
+    <label class="block text-sm">Imported CSS
+        <span class="block mt-1 text-forest/50 font-normal">Pulled from the HTML file’s <code>&lt;style&gt;</code> tags (and https stylesheets). Scoped so it does not restyle the site header/footer.</span>
+        <textarea name="custom_css" data-field="custom_css" rows="8" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-3 font-mono text-xs">{{ old('custom_css', $page->custom_css) }}</textarea>
+    </label>
+    <div class="grid md:grid-cols-2 gap-4">
+        <label class="text-sm">Body class <input name="body_class" data-field="body_class" value="{{ old('body_class', $page->body_class) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5" placeholder="from &lt;body class&gt;"></label>
+        <label class="text-sm">Body style <input name="body_style" data-field="body_style" value="{{ old('body_style', $page->body_style) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5" placeholder="from &lt;body style&gt;"></label>
+    </div>
     <label class="block text-sm">SEO title <input name="meta_title" data-field="meta_title" value="{{ old('meta_title', $page->meta_title) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     <label class="block text-sm">SEO description <input name="meta_description" data-field="meta_description" value="{{ old('meta_description', $page->meta_description) }}" class="mt-1 w-full rounded-2xl border border-forest/15 px-4 py-2.5"></label>
     <fieldset class="rounded-2xl border border-forest/15 p-4 space-y-3">
@@ -137,10 +145,16 @@
                 setField('slug', data.slug);
                 setField('meta_title', data.meta_title);
                 setField('meta_description', data.meta_description);
+                setField('custom_css', data.custom_css || '');
+                setField('body_class', data.body_class || '');
+                setField('body_style', data.body_style || '');
                 setCheckbox('show_page_title', data.show_page_title);
                 setEditor(data.content);
                 root?.dispatchEvent(new Event('change'));
-                status.textContent = 'Imported. Review and save.';
+                const warnings = Array.isArray(data.warnings) && data.warnings.length
+                    ? ' Note: ' + data.warnings.join(' ')
+                    : '';
+                status.textContent = (data.custom_css ? 'Imported with original CSS. Review and save.' : 'Imported. Review and save.') + warnings;
             } catch (error) {
                 status.textContent = error?.message || 'Import failed.';
             }
